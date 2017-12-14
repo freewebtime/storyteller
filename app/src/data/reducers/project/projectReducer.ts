@@ -8,3 +8,4 @@ const initialProject: IProject = {
 export const projectReducer = (state: IProject = initialProject, action: IAction) => {
   return state;
 }
+

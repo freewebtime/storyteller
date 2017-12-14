@@ -5,13 +5,12 @@ import { render } from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
 import './view/stylesheets/main.css';
 import { AppView } from './view/AppView';
-import { StateManager } from './data/helpers/StateManager';
-import { IState } from './data/api/IState';
 import { Store } from 'redux';
 import { configureStore } from './data/helpers/configureStore';
+import { IAppState } from './data/api/IAppState';
 
 const reactContainer = document.getElementById('reactContainer')
-const store: Store<IState> = configureStore();
+const store: Store<IAppState> = configureStore();
 
 const renderApp = () => {
 

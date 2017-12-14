@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { IState } from '../data/api/IState';
 import { ICallback } from '../data/api/callback';
+import { IAppState } from '../data/api/IAppState';
 
 export interface IAppViewProps {
-  state: IState;
+  state: IAppState;
   callback: ICallback;
 }
 
