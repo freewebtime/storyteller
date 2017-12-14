@@ -25,10 +25,11 @@
       false
     ],
     "semicolon": [true, "never"],
-    "quotemark": [true, "single"]
+    "quotemark": [true, "single"],
+    "member-access": false,
   },
   "jsRules": {
     "object-literal-shorthand": true,
     "trailing-comma": [false]
-  }
+  },
 }

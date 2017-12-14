@@ -2,42 +2,42 @@ import 'react-hot-loader/patch'
 
 import * as React from 'react'
 import { render } from 'react-dom'
-
-// AppContainer is a necessary wrapper component for HMR
 import { AppContainer } from 'react-hot-loader'
-
-/*
-  Main App CSS
-    - Used for introduce CSS in webpack workflow
-    - In webpack Dev it will be injected as /**
-    - In webpack prod it will be extracted as a separate bundled file
- */
-import './../stylesheets/main.css'
-
-/*
-  Main App Container
- */
-import App from './containers/App/App'
+import './view/stylesheets/main.css';
+import { AppView } from './view/AppView';
+import { StateManager } from './data/helpers/StateManager';
+import { IState } from './data/api/IState';
+import { Store } from 'redux';
+import { configureStore } from './data/helpers/configureStore';
 
 const reactContainer = document.getElementById('reactContainer')
+const store: Store<IState> = configureStore();
 
-render(
-  <AppContainer>
-    <App />
-  </AppContainer>,
-  reactContainer
-)
+const renderApp = () => {
+
+  render(
+    <AppContainer>
+      <AppView state={store.getState()} callback={store.dispatch} />
+    </AppContainer>
+    ,
+    reactContainer
+  )
+}
+
+const renderAppHot = () => {
+  const NextApp: typeof AppView = require<{ default: typeof AppView }>('./view/AppView').default
+  render(
+    <AppContainer>
+      <NextApp state={store.getState()} callback={store.dispatch} />
+    </AppContainer>
+    ,
+    reactContainer
+  )
+}
 
 // Hot Module Replacement API
 if (module.hot) {
-  module.hot.accept(() => {
-    const NextApp = require<{default: typeof App}>('./containers/App/App').default
-    render(
-      <AppContainer>
-        <NextApp />
-      </AppContainer>
-      ,
-      reactContainer
-    )
-  })
+  module.hot.accept(renderAppHot);
 }
+
+store.subscribe(renderApp);
