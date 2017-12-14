@@ -1,0 +1,103 @@
+{
+  "name": "storyteller",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": {
+    "name": "Jack Sydorenko",
+    "email": "freewebtime@gmail.com",
+    "url": "http://freewebtime.blogspot.com/"
+  },
+  "description": "",
+  "keywords": [
+    "storyteller",
+    "editor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:freewebtime/storyteller.git"
+  },
+  "scripts": {
+    "start": "node --harmony ./scripts/start.js",
+    "poststart": "npm run dev",
+    "dev": "webpack-dev-server --open --config ./webpack/webpack.config.js --env.env=dev",
+    "build:prod:bundleVisualizer": "npm run build -- --progress --profile --env.addons=bundleVisualizer",
+    "build:prod:bundleAnalyzer": "npm run build -- --env.addons=bundleAnalizer",
+    "stats": "npm run build:prod:bundleAnalyzer",
+    "build:prod:stats": "npm run build -- --progress --profile --json > ./dist/stats/stats.json",
+    "build": "webpack --config ./webpack/webpack.config.js --env.env=prod",
+    "test": "jest --env=jsdom",
+    "debug:prod": "npm run debug -- --env.env=prod",
+    "debug": "node --inspect-brk ./node_modules/webpack/bin/webpack.js --config ./webpack/webpack.config.js"
+  },
+  "dependencies": {
+    "@types/react": "16.0.28",
+    "@types/react-dom": "16.0.3",
+    "moment": "2.19.3",
+    "react": "16.2.0",
+    "react-dom": "16.2.0"
+  },
+  "devDependencies": {
+    "@types/enzyme": "3.1.5",
+    "@types/jest": "21.1.8",
+    "@types/node": "8.0.57",
+    "@types/react-hot-loader": "3.0.5",
+    "@types/webpack-env": "1.13.3",
+    "autoprefixer": "7.2.2",
+    "cache-loader": "1.2.0",
+    "compression-webpack-plugin": "1.0.1",
+    "copy-webpack-plugin": "4.2.3",
+    "css-loader": "0.28.7",
+    "enzyme": "3.2.0",
+    "enzyme-adapter-react-16": "1.1.0",
+    "enzyme-to-json": "3.2.2",
+    "extract-text-webpack-plugin": "3.0.2",
+    "fork-ts-checker-webpack-plugin": "0.2.9",
+    "html-webpack-plugin": "2.30.1",
+    "identity-obj-proxy": "3.0.0",
+    "jest": "21.2.1",
+    "postcss-custom-properties": "6.2.0",
+    "postcss-import": "11.0.0",
+    "postcss-loader": "2.0.9",
+    "postcss-nesting": "4.2.1",
+    "react-hot-loader": "3.1.3",
+    "react-test-renderer": "16.2.0",
+    "source-map-loader": "0.2.3",
+    "style-loader": "0.19.0",
+    "stylelint": "8.3.1",
+    "thread-loader": "1.1.2",
+    "ts-jest": "21.2.4",
+    "ts-loader": "3.2.0",
+    "tslint": "5.8.0",
+    "tslint-react": "3.2.0",
+    "typescript": "2.6.2",
+    "typings-for-css-modules-loader": "1.7.0",
+    "webpack": "3.10.0",
+    "webpack-bundle-analyzer": "2.9.1",
+    "webpack-dev-server": "2.9.7",
+    "webpack-merge": "4.1.1",
+    "webpack-visualizer-plugin": "0.1.11"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/test/unit/__mocks__/fileMock.js",
+      "\\.(css)$": "identity-obj-proxy"
+    },
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "setupFiles": [
+      "<rootDir>/test/setup/setupTests.ts"
+    ]
+  }
+}
