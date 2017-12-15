@@ -1,9 +1,10 @@
 import { IHash } from "../IHash";
-import { IObject } from "./IObject";
+import { IItem } from "./IItem";
 
 export interface IProject {
   name: string;
-  objects: IHash<IObject>;
+  items: IHash<IItem>;
+  rootItems: IHash<string>;
 }
 
 
