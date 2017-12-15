@@ -7,5 +7,7 @@ export interface ICardSocket {
   id: string;
   cardId: string;
   socketType: SocketType;
-  isConnected: boolean;
+  isConnected?: boolean;
+  isVisible: boolean;
+  isTargetVisible?: boolean;
 }

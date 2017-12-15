@@ -5,12 +5,10 @@ export enum CardType {
 
 export interface ICard {
   id: string;
-  objectId: string;
+  itemId: string;
   cardType: CardType;
-  inputSocketId: string;
-  outputSocketId: string;
   viewConfig: {
-    isShowValue: boolean;
+    isCollapsed: boolean;
     isShowName: boolean;
     isShowInputSocket: boolean;
     isShowOutputSocket: boolean;
