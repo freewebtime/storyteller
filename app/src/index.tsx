@@ -40,3 +40,5 @@ if (module.hot) {
 }
 
 store.subscribe(renderApp);
+
+renderApp();

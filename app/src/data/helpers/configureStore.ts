@@ -13,6 +13,7 @@ export const configureStore = <TState>(): Store<TState> => {
       window[('devToolsExtension')] ? window[('devToolsExtension')]() : f => f
     )
   );
+  // store.dispatch({type: 'No operation'});
 
   return store;
 }

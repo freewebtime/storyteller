@@ -25,6 +25,6 @@ export const appReducer = (state: IAppState = initialState, action: IAction) => 
     }
   }
 
-
+  return state;
 }
 
