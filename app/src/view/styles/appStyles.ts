@@ -88,28 +88,54 @@ const sidebar = {
   },
 }
 
-let styles = {
+const editorsArea = {
+  container: <CSSProperties> {
+    ...containerVer,
+    flexGrow: 1,
+  },
+  tabsArea: <CSSProperties> {
+    ...containerHor,
+  },
+  editorArea: <CSSProperties> {
+    flexGrow: 1,
+  }
+}
+
+const ideArea = {
+  container: <CSSProperties> {
+    ...fullsize,
+    ...containerVer,
+    color: fontColor(3),
+    backgroundColor: bgColor(0),
+  },
+  topLine: <CSSProperties> {
+    display: 'none',
+  },
+  midLine: <CSSProperties> {
+    ...containerHor,
+    flexGrow: 1,
+  },
+  botLine: <CSSProperties> {
+    ...containerHor,
+    background: '#465977',
+    padding: '3px',
+  },
+}
+
+const styles = {
   baseBgColor,
   baseFontColor,
+  containerHor,
+  containerVer,
   sidebar,
+  editorsArea,
+  ideArea,
 
   appView: <CSSProperties>{
     fontFamily: 'Consolas',
     fontSize: '10pt',
     ...fullsize,
     backgroundColor: bgColor(0),
-  },
-
-  ideView: <CSSProperties>{
-    ...fullsize,
-    display: 'flex',
-    flexDirection: 'row',
-    color: fontColor(3),
-    backgroundColor: bgColor(0),
-  },
-
-  editorsView: <CSSProperties>{
-    flexGrow: 1,
   },
 }
 

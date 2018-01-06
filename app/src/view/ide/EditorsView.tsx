@@ -16,8 +16,13 @@ export class EditorsView extends React.Component<IEditorsViewProps> {
     const sidebarItems = {}
 
     return (
-      <div style={appStyles.editorsView}>
-        Editors View
+      <div style={appStyles.editorsArea.container}>
+        <div style={appStyles.editorsArea.tabsArea}>
+          Tabs
+        </div>
+        <div style={appStyles.editorsArea.editorArea}>
+          Editor area
+        </div>
       </div>
     );
   }
