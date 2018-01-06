@@ -3,7 +3,6 @@ import 'react-hot-loader/patch'
 import * as React from 'react'
 import { render } from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
-import './view/stylesheets/main.css';
 import { AppView } from './view/AppView';
 import { Store } from 'redux';
 import { configureStore } from './data/helpers/configureStore';

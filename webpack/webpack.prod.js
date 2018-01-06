@@ -9,6 +9,7 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionWebpackPlugin = require("compression-webpack-plugin");
+const cssFunctions = require('./css-functions').Functions;
 
 module.exports = {
     // Don't attempt to continue if there are any errors.
@@ -143,22 +144,26 @@ module.exports = {
                                 minimize: true
                             }
                         },
-                        {
-                            loader: 'postcss-loader',
-                            options: {
-                                sourceMap: true,
-                                plugins: () => [
-                                    require("postcss-import")(),
-                                    // Following CSS Nesting Module Level 3: http://tabatkins.github.io/specs/css-nesting/
-                                    require("postcss-nesting")(),
-                                    require("postcss-custom-properties")(),
-                                    //https://github.com/ai/browserslist
-                                    require("autoprefixer")({
-                                        browsers: ['last 2 versions', 'ie >= 9']
-                                    })
-                                ]
-                            }
-                        }
+                        // {
+                        //     loader: 'postcss-loader',
+                        //     options: {
+                        //         sourceMap: true,
+                        //         plugins: () => [
+                        //             require("postcss-import")(),
+                        //             // Following CSS Nesting Module Level 3: http://tabatkins.github.io/specs/css-nesting/
+                        //             require("postcss-nesting")(),
+                        //             require("postcss-custom-properties")(),
+                        //             require('postcss-simple-vars')(),
+                        //             require('postcss-functions')({
+                        //               functions: cssFunctions,
+                        //             }),
+                        //             //https://github.com/ai/browserslist
+                        //             require("autoprefixer")({
+                        //                 browsers: ['last 2 versions', 'ie >= 9']
+                        //             })
+                        //         ]
+                        //     }
+                        // }
                     ]
                 })
             },
@@ -180,21 +185,22 @@ module.exports = {
                                 namedExport: true
                             },
                         },
-                        {
-                            loader: 'postcss-loader',
-                            options: {
-                                plugins: () => ([
-                                    require("postcss-import")(),
-                                    // Following CSS Nesting Module Level 3: http://tabatkins.github.io/specs/css-nesting/
-                                    require("postcss-nesting")(),
-                                    require("postcss-custom-properties")(),
-                                    //https://github.com/ai/browserslist
-                                    require("autoprefixer")({
-                                        browsers: ['last 2 versions', 'ie >= 9']
-                                    })
-                                ])
-                            }
-                        }
+                        // {
+                        //     loader: 'postcss-loader',
+                        //     options: {
+                        //         plugins: () => ([
+                        //             require("postcss-import")(),
+                        //             // Following CSS Nesting Module Level 3: http://tabatkins.github.io/specs/css-nesting/
+                        //             require("postcss-nesting")(),
+                        //             require("postcss-custom-properties")(),
+                        //             require('postcss-simple-vars')(),
+                        //             //https://github.com/ai/browserslist
+                        //             require("autoprefixer")({
+                        //                 browsers: ['last 2 versions', 'ie >= 9']
+                        //             })
+                        //         ])
+                        //     }
+                        // }
                     ]
                 })
             }

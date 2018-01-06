@@ -11,6 +11,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
 const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 const host = process.env.HOST || 'localhost';
+const cssFunctions = require('./css-functions').Functions;
 
 module.exports = {
     // To enhance the debugging process. More info: https://webpack.js.org/configuration/devtool/
@@ -114,22 +115,26 @@ module.exports = {
                             minimize: true
                         },
                     },
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            plugins: () => ([
-                                require("postcss-import")({
-                                    //If you are using postcss-import v8.2.0 & postcss-loader v1.0.0 or later, this is unnecessary.
-                                    //addDependencyTo: webpack // Must be first item in list
-                                }),
-                                require("postcss-nesting")(),  // Following CSS Nesting Module Level 3: http://tabatkins.github.io/specs/css-nesting/
-                                require("postcss-custom-properties")(),
-                                require("autoprefixer")({
-                                    browsers: ['last 2 versions', 'ie >= 9'] //https://github.com/ai/browserslist
-                                })
-                            ])
-                        }
-                    }
+                    // {
+                    //     loader: 'postcss-loader',
+                    //     options: {
+                    //         plugins: () => ([
+                    //             require('postcss-functions')({
+                    //               functions: cssFunctions,
+                    //             }),
+                    //             require("postcss-import")({
+                    //                 //If you are using postcss-import v8.2.0 & postcss-loader v1.0.0 or later, this is unnecessary.
+                    //                 //addDependencyTo: webpack // Must be first item in list
+                    //             }),
+                    //             require("postcss-nesting")(),  // Following CSS Nesting Module Level 3: http://tabatkins.github.io/specs/css-nesting/
+                    //             require("postcss-custom-properties")(),
+                    //             require('postcss-simple-vars')(),
+                    //             require("autoprefixer")({
+                    //                 browsers: ['last 2 versions', 'ie >= 9'] //https://github.com/ai/browserslist
+                    //             })
+                    //         ])
+                    //     }
+                    // }
                 ]
             },
             {
@@ -152,21 +157,34 @@ module.exports = {
                             namedExport: true
                         },
                     },
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            plugins: () => ([
-                                require("postcss-import")(),
-                                // Following CSS Nesting Module Level 3: http://tabatkins.github.io/specs/css-nesting/
-                                require("postcss-nesting")(),
-                                require("postcss-custom-properties")(),
-                                //https://github.com/ai/browserslist
-                                require("autoprefixer")({
-                                    browsers: ['last 2 versions', 'ie >= 9']
-                                })
-                            ])
-                        }
-                    }
+                    // {
+                    //     loader: 'postcss-loader',
+                    //     options: {
+                    //         plugins: () => ([
+                    //             require("postcss-import")(),
+                    //             // Following CSS Nesting Module Level 3: http://tabatkins.github.io/specs/css-nesting/
+                    //             require("postcss-nesting")(),
+                    //             require("postcss-custom-properties")(),
+                    //             require('postcss-simple-vars')(),
+                    //             require('postcss-functions')({
+                    //               functions: {
+                    //                 darken: function (value, frac) {
+                    //                   var darken = 1 - parseFloat(frac);
+                    //                   var rgba = convertColor(value).toRgbaArray();
+                    //                   var r = rgba[0] * darken;
+                    //                   var g = rgba[1] * darken;
+                    //                   var b = rgba[2] * darken;
+                    //                   return convertColor([r, g, b]).toHexString();
+                    //                 }
+                    //               }
+                    //             }),
+                    //             //https://github.com/ai/browserslist
+                    //             require("autoprefixer")({
+                    //                 browsers: ['last 2 versions', 'ie >= 9']
+                    //             })
+                    //         ])
+                    //     }
+                    // }
                 ]
             }
         ]
