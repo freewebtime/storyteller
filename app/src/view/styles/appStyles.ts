@@ -80,6 +80,7 @@ const sidebar = {
     padding: '2px',
   },
   contentArea: <CSSProperties> {
+    ...containerVer,
     flexGrow: 1,
     backgroundColor: bgColor(3),
   },
@@ -96,6 +97,14 @@ const sidebar = {
       background: bgColor(-1),
     }
   },
+  sidebarItems: {
+    explorer: {
+      container: <CSSProperties> {
+        backgroundColor: bgColor(4),
+        flexGrow: 1,
+      },
+    }
+  }
 }
 
 const editorTab = <CSSProperties> {

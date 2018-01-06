@@ -1,27 +1,21 @@
 import { combineReducers } from 'redux';
-import { projectReducer } from './project/projectReducer';
-import { ideReducer } from './ide/ideReducer';
 import { IAppState } from '../api/IAppState';
 import { IAction } from '../api/IAction';
+import { assemblyReducer, initialAssembly } from './ide/assemblyReducer';
 
-const initialState: IAppState = {
-  ide: {
-    cardboards: {},
-  },
+const initialAppState: IAppState = {
+  assembly: initialAssembly,
 }
 
-export const appReducer = (state: IAppState = initialState, action: IAction) => {
+export const appReducer = (state: IAppState = initialAppState, action: IAction) => {
 
-  const newProject = projectReducer(state.project, action);
-  if (newProject !== state.project) {
-    const newValues: any = {
-      project: newProject,
-      ide: ideReducer(state.ide, newProject, action),
-    }
-
-    state = {
-      ...state,
-      ...newValues,
+  if (state.assembly) {
+    const newAssembly = assemblyReducer(state.assembly, action);
+    if (state.assembly !== newAssembly) {
+      state = {
+        ...state,
+        assembly: newAssembly,
+      }
     }
   }
 

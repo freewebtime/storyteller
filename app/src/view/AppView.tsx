@@ -14,7 +14,7 @@ export class AppView extends React.Component<IAppViewProps> {
   render() {
     return (
       <div style={appStyles.appView}>
-        <IdeView state={this.props.state} callback={this.props.callback}/>
+        <IdeView appState={this.props.state} callback={this.props.callback}/>
       </div>
     );
   }

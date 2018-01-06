@@ -1,7 +1,5 @@
-import { IProject } from "./project/IProject";
-import { IIde } from "./ide/IIde";
+import { IAssembly } from "./ide/IAssembly";
 
 export interface IAppState {
-  project?: IProject;
-  ide: IIde;
+  assembly?: IAssembly;
 }

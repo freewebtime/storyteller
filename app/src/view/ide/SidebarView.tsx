@@ -94,11 +94,11 @@ export class SidebarView extends React.Component<ISidebarViewProps, ISidebarView
 
     const contentView = selectedItem && !isCollapsed
       ? (
-        <div style={appStyles.sidebar.contentArea}>
-          <div style={appStyles.sidebar.header} onClick={this.toggleIsCollapsed} >
+        <div className='contentArea' style={appStyles.sidebar.contentArea}>
+          <div className='header' style={appStyles.sidebar.header} onClick={this.toggleIsCollapsed} >
             <FontAwesome name={selectedItem.icon} /> {selectedItem.name}
           </div>
-          <div>
+          <div className='explorerContainer' style={appStyles.sidebar.sidebarItems.explorer.container}>
             {selectedItem.view}
           </div>
         </div>)
@@ -106,7 +106,7 @@ export class SidebarView extends React.Component<ISidebarViewProps, ISidebarView
     ;
 
     const iconsView = (
-      <div style={appStyles.sidebar.iconsArea} >
+      <div className='iconsArea' style={appStyles.sidebar.iconsArea} >
         {Object.keys(items).map((itemId: string) => {
           const item = items[itemId];
           const isSelected = item.id === selectedItemId;
