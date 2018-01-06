@@ -74,9 +74,9 @@ const sidebar = {
     backgroundColor: bgColor(3),
   },
   header: <CSSProperties> {
-    backgroundColor: bgColor(2),
+    backgroundColor: bgColor(1),
     textAlign: 'center',
-    padding: '5px',
+    padding: '7px',
   },
   icons: {
     default: sidebarIcon,
@@ -86,6 +86,15 @@ const sidebar = {
       background: bgColor(0),
     }
   },
+}
+
+const editorTab = <CSSProperties> {
+  ...containerHor,
+  padding: '5px',
+  cursor: 'default',
+  marginLeft: '1px',
+  color: fontColor(6),
+  backgroundColor: bgColor(-1),
 }
 
 const editorsArea = {
@@ -98,6 +107,15 @@ const editorsArea = {
   },
   editorArea: <CSSProperties> {
     flexGrow: 1,
+    backgroundColor: bgColor(2),
+  },
+  tabs: {
+    default: editorTab,
+    selected: {
+      ...editorTab,
+      color: fontColor(4),
+      backgroundColor: bgColor(2),
+    }
   }
 }
 
