@@ -2,19 +2,9 @@ import { IAssembly } from "../../api/ide/IAssembly";
 import { IAction } from "../../api/IAction";
 import { initialProject } from "./project";
 import { assemblyItemsReducer } from "./assemblyItems";
+import { emptyAssembly } from "../../config/initialState";
 
-export const initialAssembly: IAssembly = {
-  id: 'NewAssembly',
-  name: 'New Assembly',
-  items: {
-    [initialProject.id]: initialProject,
-  },
-  rootItems: [
-    initialProject.id,
-  ],
-}
-
-export const assemblyReducer = (state: IAssembly = initialAssembly, action: IAction) => {
+export const assemblyReducer = (state: IAssembly = emptyAssembly, action: IAction) => {
 
   const newItems = assemblyItemsReducer(state.items, action);
   if (newItems !== state.items) {

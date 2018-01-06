@@ -35,3 +35,7 @@ export const areObjectsEqual = (x, y) => {
     }
     return true;
 }
+
+export const isNullOrEmpty = (value: string|undefined|null) => {
+  return !value || value.trim() === '';
+}

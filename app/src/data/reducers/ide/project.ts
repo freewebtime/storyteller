@@ -1,12 +1,24 @@
-import { IProject, AssemlbyItemType } from "../../api/ide/IAssemblyItem";
+import { IProject, AssemlbyItemType, IFolder } from "../../api/ide/IAssemblyItem";
 import { IAction } from "../../api/IAction";
 
+const newProjectId = 'NewProject';
+
+export const srcFolder: IFolder = {
+  id: `${newProjectId}.src`,
+  shortId: 'src',
+  name: 'src',
+  assemlbyItemType: AssemlbyItemType.Folder,
+  subitems: {}
+}
+
 export const initialProject: IProject = {
-  id: 'NewProject',
-  name: 'New project',
-  shortId: 'NewProject',
+  id: newProjectId,
+  name: newProjectId,
+  shortId: newProjectId,
   assemlbyItemType: AssemlbyItemType.Project,
-  subitems: {},
+  subitems: {
+    [srcFolder.id]: srcFolder.id,
+  },
 }
 
 export const projectReducer = (state: IProject = initialProject, action: IAction) => {

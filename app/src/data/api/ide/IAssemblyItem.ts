@@ -23,5 +23,5 @@ export interface IProject extends IFolder {
 }
 
 export interface IFile extends IAssemblyItem {
-
+  fileType: string;
 }
