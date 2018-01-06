@@ -1,9 +1,10 @@
 import { IHash } from "../IHash";
-import { IProject } from "./IProject";
+import { IAssemblyItem } from "./IAssemblyItem";
 
 export interface IAssembly {
   id: string;
   name: string;
 
-  projects: IHash<IProject>;
+  items: IHash<IAssemblyItem>;
+  rootItems: string[];
 }

@@ -1,6 +1,6 @@
 import { applyMiddleware, compose, createStore, Store } from 'redux';
-import { appReducer } from '../reducers/appReducer';
 import { loadState } from './LocalStorageHelper';
+import { appReducer } from '../reducers/app';
 
 const initialState = loadState();
 

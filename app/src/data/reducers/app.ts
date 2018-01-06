@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import { IAppState } from '../api/IAppState';
 import { IAction } from '../api/IAction';
-import { assemblyReducer, initialAssembly } from './ide/assemblyReducer';
+import { initialAssembly, assemblyReducer } from './ide/assembly';
 
 const initialAppState: IAppState = {
   assembly: initialAssembly,
