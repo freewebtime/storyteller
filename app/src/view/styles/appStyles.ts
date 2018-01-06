@@ -103,6 +103,11 @@ const sidebar = {
         backgroundColor: bgColor(4),
         flexGrow: 1,
       },
+      treeView: {
+        container: <CSSProperties> {
+          backgroundColor: bgColor(2),
+        },
+      }
     }
   }
 }

@@ -17,9 +17,7 @@ export const newProject: IProject = {
   shortId: newProjectId,
   name: newProjectName,
   assemlbyItemType: AssemlbyItemType.Project,
-  subitems: {
-    [srcFolderId]: srcFolderId,
-  },
+  subitems: {},
 }
 
 export const srcFolder: IFolder = {
@@ -28,9 +26,11 @@ export const srcFolder: IFolder = {
   name: srcFolderName,
   parentId: newProject.id,
   assemlbyItemType: AssemlbyItemType.Folder,
-  subitems: {
-    [srcFileId]: srcFileId,
-  },
+  subitems: {},
+}
+newProject.subitems = {
+  ...newProject.subitems,
+  [srcFolder.id]: srcFolder.id,
 }
 
 export const srcFile: IFile = {
@@ -40,6 +40,10 @@ export const srcFile: IFile = {
   parentId: srcFolder.id,
   assemlbyItemType: AssemlbyItemType.File,
   fileType: 'sts',
+}
+srcFolder.subitems = {
+  ...srcFolder.subitems,
+  [srcFile.id]: srcFile.id,
 }
 
 const assemlbyItems = {
