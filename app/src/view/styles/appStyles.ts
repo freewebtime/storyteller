@@ -21,6 +21,9 @@ const lightenColor = (value: string, frac: number) => {
   return convertColor([r, g, b]).toHexString();
 }
 
+const baseBgColor = '#383838';
+const baseFontColor = '#e8e774';
+
 const palette = {
   yellow: '#e8e774',
   blue: '#569cd6',
@@ -28,14 +31,14 @@ const palette = {
   lightOrange: '#fdc689',
   whiteSmoke: '#c8d3d5',
   darkSmoke: '#898f90',
+  baseBgColor: baseBgColor,
+  baseFontColor: baseFontColor,
 }
 
-const baseBgColor = '#383838';
 const bgColor = (level: number) => {
   return darkenColor(baseBgColor, 0.1*level);
 }
 
-const baseFontColor = '#e8e774';
 const fontColor = (level: number) => {
   return darkenColor(palette.whiteSmoke, 0.05*level);
 }
@@ -64,6 +67,7 @@ const sidebarIcon = <CSSProperties>{
   padding: '4px',
   color: fontColor(10),
   background: bgColor(3),
+  border: 'none',
 }
 
 const sidebar = {
@@ -105,7 +109,6 @@ const sidebar = {
       },
       treeView: {
         container: <CSSProperties> {
-          backgroundColor: bgColor(2),
         },
       }
     }
@@ -173,6 +176,9 @@ const styles = {
   editorsArea,
   ideArea,
   palette,
+
+  bgColor,
+  fontColor,
 
   appView: <CSSProperties>{
     fontFamily: 'Consolas, "Courier New", monospace',

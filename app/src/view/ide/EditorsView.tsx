@@ -132,7 +132,10 @@ export class EditorsView extends React.Component<IEditorsViewProps, IEditorsView
 
           const closeButtonStyle = {
             ...headerItemStyle,
+            background: 'none',
+            border: 'none',
             cursor: 'pointer',
+            color: appStyles.fontColor(6),
           }
 
           return (
@@ -141,7 +144,7 @@ export class EditorsView extends React.Component<IEditorsViewProps, IEditorsView
               <div style={headerItemStyle} onClick={(e) => { this.handleSelectEditor(e, editorId)}} >
                 {editor.name}
               </div>
-              <FontAwesome name='close' tag='div' style={closeButtonStyle} onClick={(e)=>{this.handleCloseEditor(e, editorId)}} />
+              <FontAwesome name='close' tag='button' style={closeButtonStyle} onClick={(e)=>{this.handleCloseEditor(e, editorId)}} />
             </div>
           )
         })

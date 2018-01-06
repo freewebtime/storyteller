@@ -105,6 +105,8 @@ export class SidebarView extends React.Component<ISidebarViewProps, ISidebarView
       : false
     ;
 
+
+
     const iconsView = (
       <div className='iconsArea' style={appStyles.sidebar.iconsArea} >
         {Object.keys(items).map((itemId: string) => {
@@ -115,7 +117,7 @@ export class SidebarView extends React.Component<ISidebarViewProps, ISidebarView
             : appStyles.sidebar.icons.default
             ;
           return (
-            <FontAwesome key={itemId} name={item.icon} size='2x' style={style} onClick={(e) => { this.handleIconClick(e, itemId)}} />
+            <FontAwesome key={itemId} name={item.icon} size='2x' tag='button' style={style} onClick={(e) => { this.handleIconClick(e, itemId)}} />
           )
         })}
       </div>
