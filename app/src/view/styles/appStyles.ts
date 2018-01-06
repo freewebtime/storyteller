@@ -21,13 +21,23 @@ const lightenColor = (value: string, frac: number) => {
   return convertColor([r, g, b]).toHexString();
 }
 
-const baseBgColor = '#444';
+const palette = {
+  yellow: '#e8e774',
+  blue: '#569cd6',
+  orange: '#bd5b26',
+  lightOrange: '#fdc689',
+  whiteSmoke: '#c8d3d5',
+  darkSmoke: '#898f90',
+}
+
+const baseBgColor = '#383838';
 const bgColor = (level: number) => {
   return darkenColor(baseBgColor, 0.1*level);
 }
-const baseFontColor = '#fff';
+
+const baseFontColor = '#e8e774';
 const fontColor = (level: number) => {
-  return darkenColor(baseFontColor, 0.05*level);
+  return darkenColor(palette.whiteSmoke, 0.05*level);
 }
 
 const containerHor = <CSSProperties>{
@@ -83,7 +93,7 @@ const sidebar = {
     selected: {
       ...sidebarIcon,
       color: fontColor(3),
-      background: bgColor(0),
+      background: bgColor(-1),
     }
   },
 }
@@ -93,7 +103,7 @@ const editorTab = <CSSProperties> {
   padding: '5px',
   cursor: 'default',
   marginLeft: '1px',
-  color: fontColor(6),
+  color: palette.darkSmoke,
   backgroundColor: bgColor(-1),
 }
 
@@ -113,7 +123,7 @@ const editorsArea = {
     default: editorTab,
     selected: {
       ...editorTab,
-      color: fontColor(4),
+      color: palette.whiteSmoke,
       backgroundColor: bgColor(2),
     }
   }
@@ -148,12 +158,14 @@ const styles = {
   sidebar,
   editorsArea,
   ideArea,
+  palette,
 
   appView: <CSSProperties>{
-    fontFamily: 'Consolas',
-    fontSize: '10pt',
+    fontFamily: 'Consolas, "Courier New", monospace',
+    fontSize: '14px',
     ...fullsize,
     backgroundColor: bgColor(0),
+    color: '#9cd0c6',
   },
 }
 

@@ -45,9 +45,9 @@ export class IdeView extends React.Component<IIdeViewProps> {
           Topline
         </div>
         <div style={appStyles.ideArea.midLine} >
-          <SidebarView selectedItemId={'explorer'} items={sidebarItems} sidebarType={SidebarType.Left} />
+          <SidebarView selectedItemId='explorer' items={sidebarItems} sidebarType={SidebarType.Left} />
           <EditorsView state={this.props.state} callback={this.props.callback} />
-          <SidebarView selectedItemId={'properties'} items={sidebarItems} sidebarType={SidebarType.Right} />
+          <SidebarView selectedItemId='properties' items={sidebarItems} sidebarType={SidebarType.Right} />
         </div>
         <div style={appStyles.ideArea.botLine}>
           Footer Content

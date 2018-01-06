@@ -15,6 +15,7 @@ export interface ISidebarItemViewProps {
 
 interface ISidebarViewState {
   isCollapsed: boolean;
+  selectedItemId?: string;
 }
 
 export enum SidebarType {
@@ -23,15 +24,27 @@ export enum SidebarType {
 }
 
 export interface ISidebarViewProps {
+  selectedItemId?: string;
   items: IHash<ISidebarItemViewProps>;
   sidebarType: SidebarType;
-  selectedItemId: string;
 }
 
 export class SidebarView extends React.Component<ISidebarViewProps, ISidebarViewState> {
   componentWillMount() {
+
+    let selectedItemId = this.props.selectedItemId;
+    if (!selectedItemId) {
+      for (const key in this.props.items) {
+        if (this.props.items.hasOwnProperty(key)) {
+          selectedItemId = key;
+          break;
+        }
+      }
+    }
+
     this.setState({
       isCollapsed: false,
+      selectedItemId: selectedItemId,
     })
   }
 
@@ -45,11 +58,38 @@ export class SidebarView extends React.Component<ISidebarViewProps, ISidebarView
     })
   }
 
+  setSidebarIsCollapsed = (isCollapsed: boolean) => {
+    if (this.state.isCollapsed === isCollapsed) {
+      return;
+    }
+
+    this.setState({
+      ...this.state,
+      isCollapsed: isCollapsed,
+    })
+  }
+
+  handleIconClick = (e, itemId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (this.state.selectedItemId === itemId && !this.state.isCollapsed) {
+      this.setSidebarIsCollapsed(true);
+      return;
+    }
+
+    this.setState({
+      ...this.state,
+      isCollapsed: false,
+      selectedItemId: itemId,
+    })
+  }
+
   render() {
 
-    const selectedItemId = this.props.selectedItemId;
+    const selectedItemId = this.state.selectedItemId;
     const items = this.props.items;
-    const selectedItem = items[selectedItemId];
+    const selectedItem = selectedItemId ? items[selectedItemId] : undefined;
     const isCollapsed = this.state.isCollapsed;
 
     const contentView = selectedItem && !isCollapsed
@@ -75,7 +115,7 @@ export class SidebarView extends React.Component<ISidebarViewProps, ISidebarView
             : appStyles.sidebar.icons.default
             ;
           return (
-            <FontAwesome key={itemId} name={item.icon} size='2x' style={style} onClick={this.toggleIsCollapsed} />
+            <FontAwesome key={itemId} name={item.icon} size='2x' style={style} onClick={(e) => { this.handleIconClick(e, itemId)}} />
           )
         })}
       </div>
