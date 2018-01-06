@@ -5,7 +5,6 @@ import { IAppState } from '../data/api/IAppState';
 import { IdeView } from './ide/IdeView';
 import { appStyles } from './styles/appStyles';
 
-
 export interface IAppViewProps {
   state: IAppState;
   callback: ICallback;
