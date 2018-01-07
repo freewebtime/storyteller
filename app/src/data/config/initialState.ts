@@ -9,7 +9,7 @@ const projectRootId = projectId;
 const projectRootName = projectName;
 const srcFolderId = 'src';
 const srcFolderName = 'src';
-const srcFileId = 'Source';
+const srcFileId = 'Source.sts';
 const srcFileName = 'Source.sts';
 
 export const projectRoot: IFolder = {
