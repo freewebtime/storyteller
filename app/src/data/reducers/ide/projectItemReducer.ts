@@ -1,14 +1,14 @@
-import { IAssemblyItem } from "../../api/ide/IAssemblyItem";
 import { IAction } from "../../api/IAction";
 import { IHash } from "../../api/IHash";
+import { IProjectItem } from "../../api/ide/IProjectItem";
 
-export const assemblyItemsReducer = (state: IHash<IAssemblyItem> = {}, action: IAction) => {
+export const projectItemsReducer = (state: IHash<IProjectItem> = {}, action: IAction) => {
   let isChanged = false;
   const newValues = {};
 
   Object.keys(state).map((itemId: string) => {
     const item = state[itemId];
-    const newItem = assemblyItemReducer(item, action);
+    const newItem = projectItemReducer(item, action);
     if (item !== newItem) {
       isChanged = true;
       newValues[itemId] = newItem;
@@ -25,6 +25,6 @@ export const assemblyItemsReducer = (state: IHash<IAssemblyItem> = {}, action: I
   return state;
 }
 
-export const assemblyItemReducer = (state: IAssemblyItem, action: IAction) => {
+export const projectItemReducer = (state: IProjectItem, action: IAction) => {
   return state;
 }

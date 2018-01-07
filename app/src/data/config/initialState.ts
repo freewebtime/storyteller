@@ -1,35 +1,35 @@
 import { IAppState } from "../api/IAppState";
-import { IAssembly } from "../api/ide/IAssembly";
-import { IProject, AssemlbyItemType, IFolder, IFile } from "../api/ide/IAssemblyItem";
 import { calcRootAssemblyItems } from "../helpers/assemblyHeler";
+import { IFolder, ProjectItemType, IFile } from "../api/ide/IProjectItem";
+import { IProject } from "../api/ide/IProject";
 
-const assemblyId = 'NewAssembly';
-const assemblyName = 'New Assembly';
-const newProjectId = 'NewProject';
-const newProjectName = 'New Project';
+const projectId = 'NewProject';
+const projectName = 'New Project';
+const projectRootId = projectId;
+const projectRootName = projectName;
 const srcFolderId = 'src';
 const srcFolderName = 'src';
 const srcFileId = 'Source';
 const srcFileName = 'Source.sts';
 
-export const newProject: IProject = {
-  id: newProjectId,
-  shortId: newProjectId,
-  name: newProjectName,
-  assemlbyItemType: AssemlbyItemType.Project,
+export const projectRoot: IFolder = {
+  id: projectRootId,
+  shortId: projectRootId,
+  name: projectRootName,
+  projectItemType: ProjectItemType.Folder,
   subitems: {},
 }
 
 export const srcFolder: IFolder = {
-  id: `${newProject.id}.${srcFolderId}`,
+  id: `${projectRoot.id}.${srcFolderId}`,
   shortId: srcFolderId,
   name: srcFolderName,
-  parentId: newProject.id,
-  assemlbyItemType: AssemlbyItemType.Folder,
+  parentId: projectRoot.id,
+  projectItemType: ProjectItemType.Folder,
   subitems: {},
 }
-newProject.subitems = {
-  ...newProject.subitems,
+projectRoot.subitems = {
+  ...projectRoot.subitems,
   [srcFolder.id]: srcFolder.id,
 }
 
@@ -38,7 +38,7 @@ export const srcFile: IFile = {
   shortId: srcFileId,
   name: srcFileName,
   parentId: srcFolder.id,
-  assemlbyItemType: AssemlbyItemType.File,
+  projectItemType: ProjectItemType.File,
   fileType: 'sts',
 }
 srcFolder.subitems = {
@@ -46,19 +46,19 @@ srcFolder.subitems = {
   [srcFile.id]: srcFile.id,
 }
 
-const assemlbyItems = {
-  [newProject.id]: newProject,
+const projectItems = {
+  [projectRoot.id]: projectRoot,
   [srcFolder.id]: srcFolder,
   [srcFile.id]: srcFile,
 }
 
-export const emptyAssembly: IAssembly = {
-  id: assemblyId,
-  name: assemblyName,
-  items: assemlbyItems,
-  rootItems: calcRootAssemblyItems(assemlbyItems),
+export const emptyProject: IProject = {
+  id: projectId,
+  name: projectName,
+  items: projectItems,
+  rootItems: calcRootAssemblyItems(projectItems),
 }
 
 export const initialAppState: IAppState = {
-  assembly: emptyAssembly,
+  project: emptyProject,
 }

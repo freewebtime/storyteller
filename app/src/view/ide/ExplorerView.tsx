@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ICallback } from '../../data/api/callback';
 import { IAppState } from '../../data/api/IAppState';
 import { appStyles } from '../styles/appStyles';
-import { AssemblyTreeView } from './AssemblyTreeView';
+import { ProjectTreeView } from './ProjectTreeView';
 
 export interface IExplorerViewProps {
   appState: IAppState;
@@ -17,7 +17,7 @@ export class ExplorerView extends React.Component<IExplorerViewProps, IExplorerV
   render() {
     return (
       <div className='explorer-view'>
-        <AssemblyTreeView appState={this.props.appState} />
+        <ProjectTreeView appState={this.props.appState} />
       </div>
     )
   }

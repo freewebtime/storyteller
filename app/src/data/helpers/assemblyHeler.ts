@@ -1,9 +1,9 @@
 import { IHash } from "../api/IHash";
-import { IAssemblyItem } from "../api/ide/IAssemblyItem";
 import { isNullOrEmpty } from "./index";
-import { IAssembly } from "../api/ide/IAssembly";
+import { IProjectItem } from "../api/ide/IProjectItem";
+import { IProject } from "../api/ide/IProject";
 
-export const calcRootAssemblyItems = (items: IHash<IAssemblyItem>): string[] => {
+export const calcRootAssemblyItems = (items: IHash<IProjectItem>): string[] => {
   return Object.keys(items).reduce((pv: string[], itemId: string) => {
     const item = items[itemId];
     if (isNullOrEmpty(item.parentId)) {
@@ -14,7 +14,7 @@ export const calcRootAssemblyItems = (items: IHash<IAssemblyItem>): string[] => 
   }, [])
 }
 
-export const findAssemblyItem = (itemId: string, assembly?: IAssembly): IAssemblyItem|undefined => {
+export const findAssemblyItem = (itemId: string, assembly?: IProject): IProjectItem|undefined => {
 
   if (!assembly) {
     return undefined;
