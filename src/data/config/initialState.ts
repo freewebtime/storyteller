@@ -1,7 +1,7 @@
 import { IAppState } from "../api/IAppState";
-import { IFolder, ProjectItemType, IFile } from "../api/ide/IProjectItem";
-import { IProject } from "../api/ide/IProject";
 import { createPath } from "../helpers/fileSystemHelper";
+import { IProject } from "../api/project/IProject";
+import { IFile, IFolder, ProjectItemType } from "../api/project/IProjectItem";
 
 const projectId = 'NewProject';
 const projectName = 'New Project';
@@ -59,5 +59,6 @@ export const emptyProject: IProject = {
 };
 
 export const initialAppState: IAppState = {
-  project: emptyProject,
+	project: emptyProject,
+	ide: {},
 };

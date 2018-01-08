@@ -14,6 +14,10 @@ export interface IIdeViewProps {
 
 export class IdeView extends React.Component<IIdeViewProps> {
 
+	openProjectItemInEditor = (itemId: string) => {
+		
+	}
+
   getSidebarItems = (sidebarType: SidebarType): IHash<ISidebarItemViewProps> => {
     const sidebarItems: IHash<ISidebarItemViewProps> = {
       explorer: {
@@ -42,16 +46,23 @@ export class IdeView extends React.Component<IIdeViewProps> {
     const leftSidebarItems = this.getSidebarItems(SidebarType.Left);
     const rightSidebarItems = this.getSidebarItems(SidebarType.Right);
 
+		const leftSidebarView = (
+			<SidebarView selectedItemId='explorer' items={leftSidebarItems} sidebarType={SidebarType.Left} />
+		);
+		const rightSidebarView = (
+			<SidebarView selectedItemId='properties' items={rightSidebarItems} sidebarType={SidebarType.Right} />
+		);
+
     return (
       <div style={appStyles.ideArea.container}>
         <div style={appStyles.ideArea.topLine}>
           Topline
         </div>
         <div style={appStyles.ideArea.midLine} >
-          <SidebarView selectedItemId='explorer' items={leftSidebarItems} sidebarType={SidebarType.Left} />
-          <EditorsView state={this.props.appState} callback={this.props.callback} />
-          <SidebarView selectedItemId='properties' items={rightSidebarItems} sidebarType={SidebarType.Right} />
-        </div>
+					{leftSidebarView}
+          <EditorsView callback={this.props.callback} />
+					{rightSidebarView}
+				</div>
         <div style={appStyles.ideArea.botLine}>
           Footer Content
         </div>

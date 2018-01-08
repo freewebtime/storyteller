@@ -6,11 +6,11 @@ import { IHash } from '../../data/api/IHash';
 import { FontAwesomeIcon } from '../shared/FontAwesomeIcon';
 
 export interface IEditorsViewProps {
-  state: IAppState;
-  callback: ICallback;
+	// editors: IHash<IEditorViewData>;
+	callback: ICallback;
 }
 
-export interface IEditorViewState {
+export interface IEditorViewData {
   id: string;
   name: string;
   icon: string;
@@ -18,73 +18,32 @@ export interface IEditorViewState {
 }
 
 export interface IEditorsViewState {
-  editors: IHash<IEditorViewState>;
   selectedEditorId?: string;
 }
 
 export class EditorsView extends React.Component<IEditorsViewProps, IEditorsViewState> {
 
-  componentWillMount() {
-    const editors = {
-      newStory: {
-        id: 'newStory',
-        name: 'New Story',
-        icon: 'file',
-        content: (
-          <div>
-            New Story Content!!!
-          </div>
-        )
-      },
-      character: {
-        id: 'character',
-        name: 'Character',
-        icon: 'file',
-        content: (
-          <div>
-            Character Content!!!
-          </div>
-        )
-      },
-      storyPoint: {
-        id: 'storyPoint',
-        name: 'StoryPoint',
-        icon: 'file',
-        content: (
-          <div>
-            Story Point Content!!!
-          </div>
-        )
-      },
-    };
-
-    this.setState({
-      editors: editors,
-      selectedEditorId: editors.newStory.id,
-    });
-  }
-
   closeEditor = (editorId: string) => {
-    const editors = {
-      ...this.state.editors
-    };
-    delete editors[editorId];
+    // const editors = {
+    //   ...this.props.editors
+    // };
+    // delete editors[editorId];
 
-    let selectedEditorId = this.state.selectedEditorId;
-    if (selectedEditorId === editorId) {
-      for (const key in editors) {
-        if (editors.hasOwnProperty(key)) {
-          selectedEditorId = key;
-          break;
-        }
-      }
-    }
+    // let selectedEditorId = this.state.selectedEditorId;
+    // if (selectedEditorId === editorId) {
+    //   for (const key in editors) {
+    //     if (editors.hasOwnProperty(key)) {
+    //       selectedEditorId = key;
+    //       break;
+    //     }
+    //   }
+    // }
 
-    this.setState({
-      ...this.state,
-      editors,
-      selectedEditorId,
-    });
+    // this.setState({
+    //   ...this.state,
+    //   editors,
+    //   selectedEditorId,
+    // });
   }
 
   selectEditor = (editorId: string) => {
@@ -109,68 +68,74 @@ export class EditorsView extends React.Component<IEditorsViewProps, IEditorsView
 
   render() {
 
-    const selectedEditorId = this.state.selectedEditorId;
-    const editors = this.state.editors;
-    const selectedEditor = selectedEditorId ? this.state.editors[selectedEditorId] : undefined;
+  //   const selectedEditorId = this.state.selectedEditorId;
+  //   const editors = this.state.editors;
+  //   const selectedEditor = selectedEditorId ? this.state.editors[selectedEditorId] : undefined;
 
-    const tabsAreaView = (
-      <div style={appStyles.editorsArea.tabsArea}>
-      {
-        Object.keys(editors).map((editorId: string) => {
-          const editor = editors[editorId];
-          const isSelected = editorId === selectedEditorId;
-          const style = isSelected
-            ? appStyles.editorsArea.tabs.selected
-            : appStyles.editorsArea.tabs.default
-          ;
+  //   const tabsAreaView = (
+  //     <div style={appStyles.editorsArea.tabsArea}>
+  //     {
+  //       Object.keys(editors).map((editorId: string) => {
+  //         const editor = editors[editorId];
+  //         const isSelected = editorId === selectedEditorId;
+  //         const style = isSelected
+  //           ? appStyles.editorsArea.tabs.selected
+  //           : appStyles.editorsArea.tabs.default
+  //         ;
 
-          const headerItemStyle = {
-            padding: '2px',
-          };
+  //         const headerItemStyle = {
+  //           padding: '2px',
+  //         };
 
-          const closeButtonStyle = {
-            ...headerItemStyle,
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: appStyles.fontColor(6),
-          };
+  //         const closeButtonStyle = {
+  //           ...headerItemStyle,
+  //           background: 'none',
+  //           border: 'none',
+  //           cursor: 'pointer',
+  //           color: appStyles.fontColor(6),
+  //         };
 
-          return (
-            <div style={style} key={editorId} >
-							<FontAwesomeIcon icon={editor.icon} tag='div' style={headerItemStyle} />
-              <div style={headerItemStyle} onClick={(e) => { this.handleSelectEditor(e, editorId);}} >
-                {editor.name}
-              </div>
-							<FontAwesomeIcon icon='times-circle' tag='button' style={closeButtonStyle} onClick={(e)=> {this.handleCloseEditor(e, editorId);}} />
-            </div>
-          );
-        })
-      }
-      </div>
-    );
+  //         return (
+  //           <div style={style} key={editorId} >
+	// 						<FontAwesomeIcon icon={editor.icon} tag='div' style={headerItemStyle} />
+  //             <div style={headerItemStyle} onClick={(e) => { this.handleSelectEditor(e, editorId);}} >
+  //               {editor.name}
+  //             </div>
+	// 						<FontAwesomeIcon icon='times-circle' tag='button' style={closeButtonStyle} onClick={(e)=> {this.handleCloseEditor(e, editorId);}} />
+  //           </div>
+  //         );
+  //       })
+  //     }
+  //     </div>
+  //   );
 
-    const editorContentView = () => {
-      if (selectedEditor) {
-        return (
-          <div style={appStyles.editorsArea.editorArea}>
-            {selectedEditor.content}
-          </div>
-        );
-      }
+  //   const editorContentView = () => {
+  //     if (selectedEditor) {
+  //       return (
+  //         <div style={appStyles.editorsArea.editorArea}>
+  //           {selectedEditor.content}
+  //         </div>
+  //       );
+  //     }
 
-      return (
-        <div style={appStyles.editorsArea.editorArea}>
-          No openned editor
-        </div>
-      );
-    };
+  //     return (
+  //       <div style={appStyles.editorsArea.editorArea}>
+  //         No openned editor
+  //       </div>
+  //     );
+  //   };
 
-    return (
+  //   return (
+  //     <div style={appStyles.editorsArea.container}>
+  //       {tabsAreaView}
+  //       {editorContentView()}
+  //     </div>
+	//   );
+	
+		return (
       <div style={appStyles.editorsArea.container}>
-        {tabsAreaView}
-        {editorContentView()}
+				No openned editors
       </div>
-    );
+	  );
   }
 }

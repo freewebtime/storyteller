@@ -14,9 +14,20 @@ export interface IExplorerViewState {
 export class ExplorerView extends React.Component<IExplorerViewProps, IExplorerViewState> {
 
   render() {
+
+		const appState = this.props.appState;
+		const callback = this.props.callback;
+		const ide = appState.ide;
+		
+		if (!ide) {
+			return false;
+		}
+
+		const projectTree = ide.projectTree;
+
     return (
       <div className='explorer-view'>
-        <ProjectTreeView appState={this.props.appState} />
+        <ProjectTreeView projectTree={projectTree} callback={callback} />
       </div>
     );
   }

@@ -4,23 +4,15 @@ import { CSSProperties } from 'react';
 import { IHash } from '../../data/api/IHash';
 import { IAppState } from '../../data/api/IAppState';
 import { appStyles } from '../styles/appStyles';
-import { ProjectItemType, IProjectItem } from '../../data/api/ide/IProjectItem';
-
-export interface IPtiViewData {
-  id: string;
-  projectItem: IProjectItem;
-  isCollapsed: boolean;
-  onClick?: (itemId: string) => void;
-  onDoubleClick?: (itemId: string) => void;
-  onSetIsCollapsed?: (itemId: string, isCollapsed: boolean) => void;
-}
+import { projectTreeItemActions } from '../../data/reducers/ide/projectTreeItemReducer';
+import { ICallback } from '../../data/api/callback';
+import { IProjectTreeItem, ProjectTreeItemType } from '../../data/api/ide/IProjectTree';
 
 export interface IProjectTreeItemViewProps {
-  data: IPtiViewData;
-  indent: number;
-  selectedItemId?: string;
-  allItems: IHash<IPtiViewData>;
-  appState: IAppState;
+	indent: number;
+	item: IProjectTreeItem;
+	allItems: IHash<IProjectTreeItem>;
+	callback: ICallback;
 }
 
 export interface IProjectTreeItemViewState {
@@ -68,29 +60,41 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
     }
   }
 
+	updateTreeItemData = (newValues: {}) => {
+		const itemData = this.props.item.data;
+		const itemId = itemData.id;
+		const callback = this.props.callback;
+		projectTreeItemActions.Commands.UpdateTreeItem(itemId, newValues, callback);
+	}
+
   setIsCollapsed = (isCollapsed: boolean) => {
-    if (this.props.data.onSetIsCollapsed) {
-      this.props.data.onSetIsCollapsed(this.props.data.id, isCollapsed);
-    }
-  }
+		this.updateTreeItemData({isCollapsed});
+	}
 
   handleToggleIsCollapsed = (e) => {
     e.preventDefault();
-    e.stopPropagation();
-
-    this.setIsCollapsed(!this.props.data.isCollapsed);
+		e.stopPropagation();
+		
+		const isCollapsed = this.props.item.data.isCollapsed === true;
+    this.setIsCollapsed(!isCollapsed);
   }
 
   onClick = () => {
-    if (this.props.data.onClick) {
-      this.props.data.onClick(this.props.data.projectItem.id);
-    }
+		const itemData = this.props.item.data;
+		const itemId = itemData.id;
+		const callback = this.props.callback;
+		projectTreeItemActions.Commands.SelectTreeItem(itemId, callback);
   }
 
+	onRenameClick = () => {
+		const itemData = this.props.item.data;
+		const itemId = itemData.id;
+		const callback = this.props.callback;
+		projectTreeItemActions.Commands.EditTreeItem(itemId, callback);
+	}
+
   onDoubleClick = () => {
-    if (this.props.data.onDoubleClick) {
-      this.props.data.onDoubleClick(this.props.data.projectItem.id);
-    }
+		// TODO: open editor with clicked item
   }
 
   handleClick = (e) => {
@@ -102,12 +106,22 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
     const delta = now - lastTimeClick;
 
     if (delta > 500) {
-      this.setState({
-        ...this.state,
-        lastTimeClick: now,
-      });
-      this.onClick();
-    } else {
+			
+			if (delta < 1500) {
+				this.setState({
+					...this.state,
+					lastTimeClick: 0,
+				});
+				this.onRenameClick();
+			} else {
+				this.setState({
+					...this.state,
+					lastTimeClick: now,
+				});
+				this.onClick();
+			}
+
+		} else {
       this.setState({
         ...this.state,
         lastTimeClick: 0,
@@ -116,32 +130,22 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
     }
   }
 
-  componentWillMount() {
-    this.setState({
-      isMouseOver: false,
-      lastTimeClick: 0,
-    });
-  }
-
-  getSubitems = () => {
-    if (this.props.data.isCollapsed) {
-      return undefined;
-    }
-
-    const projectItem = this.props.data.projectItem;
-    return projectItem.subitems;
-  }
-
   subitemsView = () => {
-    const subitems = this.getSubitems();
+		const treeItem = this.props.item;
+		const isCollapsed = treeItem.data.isCollapsed === true;
+
+		if (isCollapsed) {
+			return false;
+		}
+
+		const subitems = treeItem.data.subitems;
     if (!subitems) {
       return false;
     }
 
     const indent = this.props.indent + 1;
-    const selectedItemId = this.props.selectedItemId;
-    const appState = this.props.appState;
-    const allItems = this.props.allItems;
+		const allItems = this.props.allItems;
+		const callback = this.props.callback;
 
     return (
       <div className='subitems'>
@@ -150,7 +154,7 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
             const subitem = allItems[subitemId];
             if (subitem) {
               return (
-                <ProjectTreeItemView key={subitemId} indent={indent} data={subitem} allItems={allItems} selectedItemId={selectedItemId} appState={appState} />
+                <ProjectTreeItemView key={subitemId} indent={indent} allItems={allItems} item={subitem} callback={callback} />
               );
 						}
 						
@@ -162,7 +166,7 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
   }
 
   dashboardView = () => {
-    const isSelected = this.props.selectedItemId === this.props.data.projectItem.id;
+    const isSelected = this.props.item.data.isSelected === true;
     if (!isSelected) {
       return false;
     }
@@ -186,8 +190,12 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
 
   render() {
 
-    const caption = this.props.data.projectItem.name;
-    const isSelected = this.props.selectedItemId === this.props.data.projectItem.id;
+		const treeItem = this.props.item;
+		const itemData = treeItem.data;
+		const isSelected = itemData.isSelected === true;
+		const isCollapsed = itemData.isCollapsed === true;
+		const isEditing = itemData.isEditing === true;
+    const caption = itemData.name;
 
     const headerItemStyle = {
       padding: '2px',
@@ -204,15 +212,14 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
       flexGrow: 1,
     };
 
-    const collapseBtnIcon = this.props.data.isCollapsed ? 'angle-right' : 'angle-down';
-    const item = this.props.data.projectItem;
-    const isFolder = item.projectItemType === ProjectItemType.Folder;
+    const collapseBtnIcon = isCollapsed ? 'angle-right' : 'angle-down';
+    const isFolder = itemData.projectTreeItemType !== ProjectTreeItemType.File;
     const collapseBtnView = isFolder
 			? (<FontAwesomeIcon icon={collapseBtnIcon} style={collapseBtnStyle} onClick={this.handleToggleIsCollapsed} />)
       : false
     ;
 
-    const icon = item.projectItemType === ProjectItemType.Folder
+    const icon = isFolder
 			? 'folder'
       : 'file'
     ;
@@ -227,21 +234,25 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
           : 'none'
         )
       ,
-      alignItems: 'baseline',
+      alignItems: 'center',
     };
 
     const dashboardView = this.dashboardView();
 
+		const headerView = (
+			<div className='header' style={headerStyle} onMouseEnter={this.onMouseEnter} onMouseOut={this.onMouseOut} onClick={this.handleClick} onMouseOver={this.onMouseOver}>
+				{collapseBtnView}
+				<FontAwesomeIcon icon={icon} style={headerItemStyle} />
+				<div style={headerTextStyle}>
+					{caption}
+				</div>
+				{dashboardView}
+			</div>
+		);
+
     return (
       <div className='atviView' >
-        <div className='header' style={headerStyle} onMouseEnter={this.onMouseEnter} onMouseOut={this.onMouseOut} onClick={this.handleClick} onMouseOver={this.onMouseOver}>
-          {collapseBtnView}
-					<FontAwesomeIcon icon={icon} style={headerItemStyle} />
-          <div style={headerTextStyle}>
-            {caption}
-          </div>
-          {dashboardView}
-        </div>
+				{headerView}
         {this.subitemsView()}
       </div>
     );

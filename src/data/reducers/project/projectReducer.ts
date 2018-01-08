@@ -1,7 +1,7 @@
 import { IAction } from "../../api/IAction";
 import { emptyProject } from "../../config/initialState";
-import { IProject } from "../../api/ide/IProject";
 import { projectItemsReducer } from "./projectItemReducer";
+import { IProject } from "../../api/project/IProject";
 
 export const projectReducer = (state: IProject = emptyProject, action: IAction) => {
 

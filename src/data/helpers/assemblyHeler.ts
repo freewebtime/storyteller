@@ -1,7 +1,7 @@
 import { IHash } from "../api/IHash";
 import { isNullOrEmpty } from "./index";
-import { IProjectItem } from "../api/ide/IProjectItem";
-import { IProject } from "../api/ide/IProject";
+import { IProjectItem } from "../api/project/IProjectItem";
+import { IProject } from "../api/project/IProject";
 
 export const calcRootAssemblyItems = (items: IHash<IProjectItem>): string[] => {
   return Object.keys(items).reduce((pv: string[], itemId: string) => {

@@ -1,6 +1,6 @@
 import { IAction } from "../../api/IAction";
 import { IHash } from "../../api/IHash";
-import { IProjectItem } from "../../api/ide/IProjectItem";
+import { IProjectItem } from "../../api/project/IProjectItem";
 
 export const projectItemsReducer = (state: IHash<IProjectItem> = {}, action: IAction) => {
   let isChanged = false;
