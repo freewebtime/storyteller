@@ -23,7 +23,7 @@ module.exports = {
     devServer: {
         // All options here: https://webpack.js.org/configuration/dev-server/
 
-        hot: true, // enable HMR on the server
+        hot: false, // enable HMR on the server
         contentBase: commonPaths.contentBasePath, // match the output path
         publicPath: '/', // match the output `publicPath`
         host: host,
@@ -51,7 +51,7 @@ module.exports = {
         ]),
 
         // enable HMR globally
-        new webpack.HotModuleReplacementPlugin(),
+        // new webpack.HotModuleReplacementPlugin(),
 
         // prints more readable module names in the browser console on HMR updates
         new webpack.NamedModulesPlugin(),
@@ -81,7 +81,7 @@ module.exports = {
             {
                 test: /\.ts(x?)$/,
                 use: [
-                    { loader: 'react-hot-loader/webpack' },
+                    // { loader: 'react-hot-loader/webpack' },
                     { loader: 'cache-loader' },
                     {
                         loader: 'thread-loader',

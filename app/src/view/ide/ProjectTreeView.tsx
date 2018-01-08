@@ -22,15 +22,18 @@ export interface IProjectTreeViewProps {
 }
 
 export class ProjectTreeView extends React.Component<IProjectTreeViewProps, IProjectTreeViewState> {
+  constructor(props: IProjectTreeViewProps) {
+    super(props);
+    this.state = this.calcState(props);
+  }
 
-  updateState = () => {
-
+  calcState = (props: IProjectTreeViewProps) => {
     const oldState = this.state;
-    const appState = this.props.appState;
+    const appState = props.appState;
     const project = appState.project;
+
     if (!project) {
-      this.setState({});
-      return;
+      return {};
     }
 
     if (!oldState || oldState.projectItems !== project.items) {
@@ -51,7 +54,7 @@ export class ProjectTreeView extends React.Component<IProjectTreeViewProps, IPro
               projectItem: projectItem,
               isCollapsed: false,
             }
-          ;
+            ;
 
           treeItems[projectItemId] = {
             ...treeItemData,
@@ -64,13 +67,29 @@ export class ProjectTreeView extends React.Component<IProjectTreeViewProps, IPro
         }
       })
 
-      this.setState({
+      return {
         project: project,
         projectItems: project.items,
         treeItems: treeItems,
-      })
+      }
+    }
+
+    return {}
+  }
+
+  updateState = (props: IProjectTreeViewProps) => {
+    const oldState = this.state;
+    const newState = this.calcState(props);
+
+    if (oldState !== newState) {
+      this.setState(newState);
     }
   }
+
+  componentWillReceiveProps(nextProps: IProjectTreeViewProps) {
+    this.updateState(nextProps);
+  }
+
 
   onItemClick = (itemId: string) => {
     if (this.state.selectedItemId !== itemId) {
@@ -85,7 +104,6 @@ export class ProjectTreeView extends React.Component<IProjectTreeViewProps, IPro
   }
 
   onSetIsCollapsed = (itemId: string, isCollapsed: boolean) => {
-
     if (!this.state || !this.state.treeItems) {
       return;
     }
@@ -109,15 +127,11 @@ export class ProjectTreeView extends React.Component<IProjectTreeViewProps, IPro
     })
   }
 
-  componentWillMount() {
-    this.updateState();
-  }
-
-  componentWillUpdate() {
-    this.updateState();
-  }
-
   render() {
+
+    if (!this.state) {
+      return false;
+    }
 
     const treeItems = this.state.treeItems;
     const project = this.state.project;

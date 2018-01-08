@@ -2,6 +2,7 @@ import { IAppState } from "../api/IAppState";
 import { calcRootAssemblyItems } from "../helpers/assemblyHeler";
 import { IFolder, ProjectItemType, IFile } from "../api/ide/IProjectItem";
 import { IProject } from "../api/ide/IProject";
+import { createPath } from "../helpers/fileSystemHelper";
 
 const projectId = 'NewProject';
 const projectName = 'New Project';
@@ -21,7 +22,7 @@ export const projectRoot: IFolder = {
 }
 
 export const srcFolder: IFolder = {
-  id: `${projectRoot.id}.${srcFolderId}`,
+  id: createPath(projectRoot.id, srcFolderId),
   shortId: srcFolderId,
   name: srcFolderName,
   parentId: projectRoot.id,
@@ -34,7 +35,7 @@ projectRoot.subitems = {
 }
 
 export const srcFile: IFile = {
-  id: `${srcFolder.id}.${srcFileId}`,
+  id: createPath(srcFolder.id, srcFileId),
   shortId: srcFileId,
   name: srcFileName,
   parentId: srcFolder.id,
@@ -56,7 +57,6 @@ export const emptyProject: IProject = {
   id: projectId,
   name: projectName,
   items: projectItems,
-  rootItems: calcRootAssemblyItems(projectItems),
 }
 
 export const initialAppState: IAppState = {

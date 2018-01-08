@@ -7,11 +7,11 @@ import { projectReducer } from './ide/projectReducer';
 export const appReducer = (state: IAppState = initialAppState, action: IAction) => {
 
   if (state.project) {
-    const newAssembly = projectReducer(state.project, action);
-    if (state.project !== newAssembly) {
+    const newProject = projectReducer(state.project, action);
+    if (state.project !== newProject) {
       state = {
         ...state,
-        project: newAssembly,
+        project: newProject,
       }
     }
   }

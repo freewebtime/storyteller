@@ -32,10 +32,27 @@ export interface IProjectTreeItemViewState {
 }
 
 export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewProps, IProjectTreeItemViewState> {
+  state = {
+    isMouseOver: false,
+    lastTimeClick: 0,
+  }
+
+  // constructor(nextProps) {
+  //   super(nextProps);
+
+  //   console.log('constructor for ', nextProps);
+
+  //   this.state = {
+  //     isMouseOver: false,
+  //     lastTimeClick: 0,
+  //   }
+  // }
 
   onMouseEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    console.log('on mouse enter', this.props.data.id, this.state);
 
     if (!this.state.isMouseOver) {
       this.setState({
@@ -65,6 +82,10 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
         isMouseOver: false,
       })
     }
+  }
+
+  componentDidMount() {
+    console.log('component did mount', this.props.data.id, this.state);
   }
 
   setIsCollapsed = (isCollapsed: boolean) => {

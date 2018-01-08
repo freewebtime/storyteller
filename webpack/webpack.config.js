@@ -19,7 +19,7 @@ const addons = (/* string | string[] */ addonsArg) => {
 };
 
 module.exports = (env) => {
-    console.log(env);
+    // console.log(env);
     if (!env) {
         throw new Error(errorConstants.ERR_NO_ENV_FLAG);
     }
