@@ -3,8 +3,12 @@ import { IIde } from "../../api/ide/IIde";
 import { IAppState } from "../../api/IAppState";
 import { projectTreeReducer } from "./projectTreeReducer";
 import { IProject } from "../../api/project/IProject";
+import { editorsPanelReducer } from "./editorsPanelReducer";
 
 const emptyIde: IIde = {
+	editorsPanel: {
+		editors: {},
+	},
 };
 
 const ideActions = {
@@ -16,11 +20,13 @@ const ideActions = {
 export const ideReducer = (state: IIde = emptyIde, action: IAction, project: IProject) => {
 
 	const projectTree = projectTreeReducer(state.projectTree, action, project);
-	if (project !== state.project || state.projectTree !== projectTree) {
+	const editorsPanel = editorsPanelReducer(state.editorsPanel, action, project);
+	if (project !== state.project || state.projectTree !== projectTree || editorsPanel !== state.editorsPanel) {
 		state = {
 			...state,
 			project,
 			projectTree,
+			editorsPanel,
 		};
 	}
 

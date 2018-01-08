@@ -7,6 +7,7 @@ import { appStyles } from '../styles/appStyles';
 import { projectTreeItemActions } from '../../data/reducers/ide/projectTreeItemReducer';
 import { ICallback } from '../../data/api/callback';
 import { IProjectTreeItem, ProjectTreeItemType } from '../../data/api/ide/IProjectTree';
+import { editorsPanelActions } from '../../data/reducers/ide/editorsPanelReducer';
 
 export interface IProjectTreeItemViewProps {
 	indent: number;
@@ -94,7 +95,10 @@ export class ProjectTreeItemView extends React.Component<IProjectTreeItemViewPro
 	}
 
   onDoubleClick = () => {
-		// TODO: open editor with clicked item
+		const itemData = this.props.item.data;
+		const itemId = itemData.id;
+		const callback = this.props.callback;
+		editorsPanelActions.Commands.OpenEditor(itemId, callback);
   }
 
   handleClick = (e) => {

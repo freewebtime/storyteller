@@ -2,6 +2,8 @@ import { IAppState } from "../api/IAppState";
 import { createPath } from "../helpers/fileSystemHelper";
 import { IProject } from "../api/project/IProject";
 import { IFile, IFolder, ProjectItemType } from "../api/project/IProjectItem";
+import { IIde } from "../api/ide/IIde";
+import { IEditorsPanel } from "../api/ide/IEditorsPanel";
 
 const projectId = 'NewProject';
 const projectName = 'New Project';
@@ -58,7 +60,15 @@ export const emptyProject: IProject = {
   items: projectItems,
 };
 
+const emptyEditorsPanel: IEditorsPanel = {
+	editors: {},
+};
+
+const emptyIde: IIde = {
+	editorsPanel: emptyEditorsPanel,
+};
+
 export const initialAppState: IAppState = {
 	project: emptyProject,
-	ide: {},
+	ide: emptyIde,
 };
