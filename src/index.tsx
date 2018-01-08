@@ -3,9 +3,24 @@ import * as ReactDOM from 'react-dom';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import './index.css';
+import { AppView } from './view/AppView';
+import { Store } from 'redux';
+import { IAppState } from './data/api/IAppState';
+import { configureStore } from './data/helpers/configureStore';
 
-ReactDOM.render(
-  <App />,
-  document.getElementById('root') as HTMLElement
-);
-registerServiceWorker();
+const reactContainer = document.getElementById('root');
+const store: Store<IAppState> = configureStore();
+
+const renderApp = () => {
+
+	ReactDOM.render(
+		<AppView state={store.getState()} callback={store.dispatch} />,
+		reactContainer
+	);
+};
+
+store.subscribe(renderApp);
+
+renderApp();
+
+//registerServiceWorker();
