@@ -3,12 +3,13 @@ import { IAppState } from '../../data/api/IAppState';
 import { ICallback } from '../../data/api/callback';
 import { appStyles } from '../styles/appStyles';
 import { SidebarView, ISidebarItemViewProps, SidebarType } from './SidebarView';
-import { EditorsView } from './EditorsView';
 import { IHash } from '../../data/api/IHash';
 import { ExplorerView } from './ExplorerView';
+import { EditorsPanel } from './EditorsPanelView';
+import { IIde } from '../../data/api/ide/IIde';
 
 export interface IIdeViewProps {
-  appState: IAppState;
+  ide: IIde;
   callback: ICallback;
 }
 
@@ -24,7 +25,7 @@ export class IdeView extends React.Component<IIdeViewProps> {
         icon: 'file-code',
         id: 'explorer',
         name: 'Explorer',
-        view: (<ExplorerView appState={this.props.appState} callback={this.props.callback} />)
+        view: (<ExplorerView ide={this.props.ide} callback={this.props.callback} />)
       },
       properties: {
         icon: 'wrench',
@@ -53,6 +54,9 @@ export class IdeView extends React.Component<IIdeViewProps> {
 			<SidebarView selectedItemId='properties' items={rightSidebarItems} sidebarType={SidebarType.Right} />
 		);
 
+		const ide = this.props.ide;
+		const editorsPanel = ide.editorsPanel; 
+
     return (
       <div style={appStyles.ideArea.container}>
         <div style={appStyles.ideArea.topLine}>
@@ -60,7 +64,7 @@ export class IdeView extends React.Component<IIdeViewProps> {
         </div>
         <div style={appStyles.ideArea.midLine} >
 					{leftSidebarView}
-          <EditorsView callback={this.props.callback} />
+          <EditorsPanel editorsPanel={editorsPanel} callback={this.props.callback} />
 					{rightSidebarView}
 				</div>
         <div style={appStyles.ideArea.botLine}>

@@ -11,15 +11,19 @@ import fontawesome from '@fortawesome/fontawesome';
 fontawesome.library.add(brands, solid, regular);
 
 export interface IAppViewProps {
-  state: IAppState;
+  appState: IAppState;
   callback: ICallback;
 }
 
 export class AppView extends React.Component<IAppViewProps> {
   render() {
+
+		const appState = this.props.appState;
+		const ide = appState.ide;
+
     return (
       <div style={appStyles.appView}>
-        <IdeView appState={this.props.state} callback={this.props.callback}/>
+        <IdeView ide={ide} callback={this.props.callback}/>
       </div>
     );
   }

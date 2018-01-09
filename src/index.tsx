@@ -14,7 +14,7 @@ const store: Store<IAppState> = configureStore();
 const renderApp = () => {
 
 	ReactDOM.render(
-		<AppView state={store.getState()} callback={store.dispatch} />,
+		<AppView appState={store.getState()} callback={store.dispatch} />,
 		reactContainer
 	);
 };

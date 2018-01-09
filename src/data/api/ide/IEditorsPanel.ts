@@ -3,6 +3,7 @@ import { IHash } from "../IHash";
 export interface IEditorWindow {
 	id: string;
 	name: string;
+	icon: string;
 	isSelected?: boolean;
 }
 

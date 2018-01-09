@@ -13,6 +13,7 @@ export const editorsPanelActions = {
 		EDITOR_OPEN: 'EDITOR_OPEN',
 		EDITOR_UPDATE: 'EDITOR_UPDATE',
 		EDITOR_CLOSE: 'EDITOR_CLOSE',
+		EDITOR_SELECT: 'EDITOR_SELECT',
 	},
 
 	Commands: {
@@ -25,7 +26,7 @@ export const editorsPanelActions = {
 
 			callback(action);
 
-			editorWindowActions.Commands.SelectEditorWindow(projectItemId, callback);
+			editorsPanelActions.Commands.SelectEditor(projectItemId, callback);
 		},
 
 		UpdateEditor: (editorId: string, newValues: {}, callback: ICallback) => {
@@ -40,6 +41,15 @@ export const editorsPanelActions = {
 		CloseEditor: (editorId: string, callback: ICallback) => {
 			const action: IAction = {
 				type: editorsPanelActions.Types.EDITOR_CLOSE,
+				payload: editorId,
+			};
+
+			callback(action);
+		},
+
+		SelectEditor: (editorId: string, callback: ICallback) => {
+			const action: IAction = {
+				type: editorsPanelActions.Types.EDITOR_SELECT,
 				payload: editorId,
 			};
 
@@ -90,12 +100,27 @@ export const editorsPanelReducer = (state: IEditorsPanel = emptyEditorsPanel, ac
 			const existedEditor = state.editors[editorId];
 			if (existedEditor) {
 
+				const editorIndex = Object.keys(state.editors).indexOf(editorId);
+				
 				let editors = { ...state.editors };
 				delete editors[editorId];
+
+				let selectedEditorId = state.selectedEditorId === editorId ? undefined : state.selectedEditorId;
+				if (!selectedEditorId) {
+					const keys = Object.keys(editors);
+					if (keys.length > editorIndex) {
+						selectedEditorId = keys[editorIndex];
+					} else if (keys.length > 0) {
+						selectedEditorId = keys[keys.length-1];
+					} else {
+						selectedEditorId = undefined;
+					}
+				}
 
 				state = {
 					...state,
 					editors,
+					selectedEditorId,
 				};
 
 			}
@@ -104,7 +129,7 @@ export const editorsPanelReducer = (state: IEditorsPanel = emptyEditorsPanel, ac
 
 		case editorsPanelActions.Types.EDITOR_OPEN: {
 
-			const editorId = action.payload;
+			const editorId = action.payload as string;
 			const existedEditor = state.editors[editorId];
 			
 			if (existedEditor) {
@@ -126,7 +151,8 @@ export const editorsPanelReducer = (state: IEditorsPanel = emptyEditorsPanel, ac
 				if (projectItem) {
 					const newEditor: IEditorWindow = {
 						id: editorId,
-						name: projectItem.name, 
+						name: projectItem.name,
+						icon: 'file',
 					};
 
 					state = {
@@ -142,10 +168,46 @@ export const editorsPanelReducer = (state: IEditorsPanel = emptyEditorsPanel, ac
 
 		} break;
 
+		case editorsPanelActions.Types.EDITOR_SELECT: {
+
+			if (action.payload) {
+				const selectedEditorId = action.payload;
+				const editor = state.editors[selectedEditorId];
+
+				if (editor) {
+					const newValues = {};
+
+					Object.keys(state.editors).map((editorId: string) => {
+						const oldEditor = state.editors[editorId];
+						const isSelected = oldEditor.id === selectedEditorId;
+
+						if (isSelected !== oldEditor.isSelected) {
+							newValues[editorId] = {
+								...oldEditor,
+								isSelected,
+							};
+						}
+
+					});
+
+					state = {
+						...state,
+						selectedEditorId,
+						editors: {
+							...state.editors,
+							...newValues,
+						}
+					}; 
+				}
+
+			}
+
+		} break;
+
 		default: {
 
-			const newValues = {};
 			let isChanged = false;
+			const newValues = {};
 
 			Object.keys(state.editors).map((editorId: string) => {
 				const oldEditor = state.editors[editorId];

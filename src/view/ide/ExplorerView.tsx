@@ -2,9 +2,10 @@ import * as React from 'react';
 import { ICallback } from '../../data/api/callback';
 import { IAppState } from '../../data/api/IAppState';
 import { ProjectTreeView } from './ProjectTreeView';
+import { IIde } from '../../data/api/ide/IIde';
 
 export interface IExplorerViewProps {
-  appState: IAppState;
+  ide: IIde;
   callback: ICallback;
 }
 
@@ -15,9 +16,8 @@ export class ExplorerView extends React.Component<IExplorerViewProps, IExplorerV
 
   render() {
 
-		const appState = this.props.appState;
 		const callback = this.props.callback;
-		const ide = appState.ide;
+		const ide = this.props.ide;
 		
 		if (!ide) {
 			return false;
