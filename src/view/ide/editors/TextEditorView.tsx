@@ -4,7 +4,7 @@ import { ICallback } from '../../../data/api/callback';
 import { IProjectItem, IFile } from '../../../data/api/project/IProjectItem';
 import { IFileEditorViewProps } from './EditorView';
 import { appStyles } from '../../styles/appStyles';
-import { Editor, EditorState, ContentState } from 'draft-js';
+import { Editor, EditorState, ContentState, DraftBlockType } from 'draft-js';
 import { IEditorData } from '../../../data/api/ide/IEditorsPanel';
 
 interface ITextEditorViewState {
@@ -40,6 +40,8 @@ export class TextEditorView extends React.Component<IFileEditorViewProps, ITextE
 		} else {
 			contentState = ContentState.createFromText(newFileContent.toString());
 		}
+
+		const blockType = DraftBlockType.;
 
 		const editorState: EditorState = EditorState.createWithContent(contentState);
 
