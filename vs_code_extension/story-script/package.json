@@ -1,0 +1,26 @@
+{
+    "name": "story-script",
+    "displayName": "story-script",
+    "description": "language for making stories",
+    "version": "0.0.1",
+    "publisher": "freewebtime",
+    "engines": {
+        "vscode": "^1.19.0"
+    },
+    "categories": [
+        "Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "storyscript",
+            "aliases": ["StoryScript", "storyscript"],
+            "extensions": [".sts",".d.sts"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "storyscript",
+            "scopeName": "source.storyscript",
+            "path": "./syntaxes/storyscript.tmLanguage.json"
+        }]
+    }
+}
