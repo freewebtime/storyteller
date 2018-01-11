@@ -51,7 +51,7 @@ export const srcFile: IFile = {
 		'    Вася Пупкин',
 		'  Возраст: номер',
 		'    25',
-		'  Возраст: биография',
+		'  Биография: текст',
 		'    Родился 25 лет назад, ',
 		'    до сих пор жив',
 	],
@@ -68,7 +68,10 @@ export const txtFile: IFile = {
 	parentId: srcFolder.id,
 	projectItemType: ProjectItemType.File,
 	fileType: appConfig.Files.KnownFileTypes.TEXT_FILE,
-	fileContent: ['this is test content', 'of a test file.'],
+	fileContent: [
+		'this is test content', 
+		'of a test file.'
+	],
 };
 srcFolder.subitems = {
 	...srcFolder.subitems,

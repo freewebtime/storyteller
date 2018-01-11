@@ -28,6 +28,13 @@
   dependencies:
     humps "^2.0.1"
 
+"@types/draft-js@^0.10.19":
+  version "0.10.19"
+  resolved "https://registry.yarnpkg.com/@types/draft-js/-/draft-js-0.10.19.tgz#a1a59571c2a9c43505b944b7d4340855d0e1f800"
+  dependencies:
+    "@types/react" "*"
+    immutable "^3.8.1"
+
 "@types/jest@^22.0.1":
   version "22.0.1"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-22.0.1.tgz#6370a6d60cce3845e4cd5d00bf65f654264685bc"
@@ -2403,6 +2410,10 @@ icss-utils@^2.1.0:
 ieee754@^1.1.4:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.8.tgz#be33d40ac10ef1926701f6f08a2d86fbfd1ad3e4"
+
+immutable@^3.8.1:
+  version "3.8.2"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
 
 immutable@~3.7.4:
   version "3.7.6"
