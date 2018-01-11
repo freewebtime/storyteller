@@ -4,14 +4,10 @@ import { ICallback } from '../../../data/api/callback';
 import { IProjectItem } from '../../../data/api/project/IProjectItem';
 import { IEditorViewProps } from './EditorView';
 import { appStyles } from '../../styles/appStyles';
+import { TextEditorView } from './TextEditorView';
 
-export class StsEditorView extends React.Component<IEditorViewProps> {
-
-	render() {
-		return (
-			<div style={appStyles.editorsArea.editorArea}>
-				Sts editor view content
-			</div>
-		);
+export class StsEditorView extends TextEditorView {
+	editorView = (fileContent: any) => {
+		return this.viewWrapper(fileContent);
 	}
 }

@@ -45,6 +45,16 @@ export const srcFile: IFile = {
 	parentId: srcFolder.id,
 	projectItemType: ProjectItemType.File,
 	fileType: appConfig.Files.KnownFileTypes.STS_FILE,
+	fileContent: [
+		'Персонаж: структура',
+		'  Имя: строка',
+		'    Вася Пупкин',
+		'  Возраст: номер',
+		'    25',
+		'  Возраст: биография',
+		'    Родился 25 лет назад, ',
+		'    до сих пор жив',
+	],
 };
 srcFolder.subitems = {
 	...srcFolder.subitems,

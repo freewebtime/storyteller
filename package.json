@@ -10,6 +10,7 @@
     "@fortawesome/fontawesome-free-webfonts": "^1.0.1",
     "@fortawesome/react-fontawesome": "^0.0.17",
     "css-color-converter": "^1.1.0",
+    "draft-js": "^0.10.4",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-fontawesome": "^1.6.1",
