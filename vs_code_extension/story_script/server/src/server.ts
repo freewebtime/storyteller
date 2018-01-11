@@ -7,7 +7,8 @@
 import {
 	IPCMessageReader, IPCMessageWriter, createConnection, IConnection, TextDocuments, TextDocument, 
 	Diagnostic, DiagnosticSeverity, InitializeResult, TextDocumentPositionParams, CompletionItem, 
-	CompletionItemKind
+	CompletionItemKind,
+	TextDocumentChangeEvent
 } from 'vscode-languageserver';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
@@ -39,7 +40,7 @@ connection.onInitialize((params): InitializeResult => {
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent((change) => {
+documents.onDidChangeContent((change: TextDocumentChangeEvent) => {
 	validateTextDocument(change.document);
 });
 
@@ -82,7 +83,7 @@ function validateTextDocument(textDocument: TextDocument): void {
 				},
 				message: `${line.substr(index, 10)} should be spelled TypeScript`,
 				source: 'ex'
-			});
+			}); 
 		}
 	}
 	// Send the computed diagnostics to VSCode.
@@ -130,8 +131,8 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 		item.detail = 'JavaScript details',
 		item.documentation = 'JavaScript documentation'
 	} else if (item.data === 3) {
-		item.detail = 'TypeScript details',
-		item.documentation = 'TypeScript documentation'
+		item.detail = 'StoryScript details',
+		item.documentation = 'StoryScript documentation'
 	}
 	return item;
 });
