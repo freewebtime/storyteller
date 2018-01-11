@@ -7,9 +7,11 @@ import { IHash } from '../../data/api/IHash';
 import { ExplorerView } from './ExplorerView';
 import { EditorsPanel } from './EditorsPanelView';
 import { IIde } from '../../data/api/ide/IIde';
+import { IProject } from '../../data/api/project/IProject';
 
 export interface IIdeViewProps {
-  ide: IIde;
+	ide: IIde;
+	project: IProject;
   callback: ICallback;
 }
 
@@ -56,6 +58,7 @@ export class IdeView extends React.Component<IIdeViewProps> {
 
 		const ide = this.props.ide;
 		const editorsPanel = ide.editorsPanel; 
+		const project = this.props.project;
 
     return (
       <div style={appStyles.ideArea.container}>
@@ -64,7 +67,7 @@ export class IdeView extends React.Component<IIdeViewProps> {
         </div>
         <div style={appStyles.ideArea.midLine} >
 					{leftSidebarView}
-          <EditorsPanel editorsPanel={editorsPanel} callback={this.props.callback} />
+          <EditorsPanel editorsPanel={editorsPanel} callback={this.props.callback} project={project} />
 					{rightSidebarView}
 				</div>
         <div style={appStyles.ideArea.botLine}>

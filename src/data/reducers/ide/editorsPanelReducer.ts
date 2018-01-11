@@ -1,8 +1,10 @@
-import { IEditorsPanel, IEditorWindow } from "../../api/ide/IEditorsPanel";
+import { IEditorsPanel, IEditorData } from "../../api/ide/IEditorsPanel";
 import { IAction } from "../../api/IAction";
 import { IProject } from "../../api/project/IProject";
 import { ICallback } from "../../api/callback";
 import { editorWindowReducer, editorWindowActions } from "./editorWindowReducer";
+import { appConfig } from "../../config/appConfig";
+import { getEditorIdForProjectItem } from "../../helpers/projectHelper";
 
 const emptyEditorsPanel: IEditorsPanel = {
 	editors: {},
@@ -129,8 +131,8 @@ export const editorsPanelReducer = (state: IEditorsPanel = emptyEditorsPanel, ac
 
 		case editorsPanelActions.Types.EDITOR_OPEN: {
 
-			const editorId = action.payload as string;
-			const existedEditor = state.editors[editorId];
+			const projectItemId = action.payload as string;
+			const existedEditor = state.editors[projectItemId];
 			
 			if (existedEditor) {
 				const newEditor = editorWindowReducer(existedEditor, action, project);
@@ -139,27 +141,29 @@ export const editorsPanelReducer = (state: IEditorsPanel = emptyEditorsPanel, ac
 						...state,
 						editors: {
 							...state.editors,
-							[editorId]: newEditor,
+							[projectItemId]: newEditor,
 						},
 					};
 				}
 
 			} else {
-				const projectItemId = editorId;
 				const projectItem = project.items[projectItemId];
-				
+				const editorViewId = getEditorIdForProjectItem(projectItem);
+
 				if (projectItem) {
-					const newEditor: IEditorWindow = {
-						id: editorId,
+					const newEditor: IEditorData = {
+						id: projectItemId,
 						name: projectItem.name,
 						icon: 'file',
+						editorViewId,
+						projectItemId,
 					};
 
 					state = {
 						...state,
 						editors: {
 							...state.editors,
-							[editorId]: newEditor,
+							[projectItemId]: newEditor,
 						},
 					};
 				}
@@ -170,10 +174,9 @@ export const editorsPanelReducer = (state: IEditorsPanel = emptyEditorsPanel, ac
 
 		case editorsPanelActions.Types.EDITOR_SELECT: {
 
-			if (action.payload) {
-				const selectedEditorId = action.payload;
+			const selectedEditorId = action.payload as string;
+			if (selectedEditorId) {
 				const editor = state.editors[selectedEditorId];
-
 				if (editor) {
 					const newValues = {};
 
@@ -198,6 +201,7 @@ export const editorsPanelReducer = (state: IEditorsPanel = emptyEditorsPanel, ac
 							...newValues,
 						}
 					}; 
+
 				}
 
 			}

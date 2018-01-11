@@ -4,6 +4,7 @@ import { IProject } from "../api/project/IProject";
 import { IFile, IFolder, ProjectItemType } from "../api/project/IProjectItem";
 import { IIde } from "../api/ide/IIde";
 import { IEditorsPanel } from "../api/ide/IEditorsPanel";
+import { appConfig } from "./appConfig";
 
 const projectId = 'NewProject';
 const projectName = 'New Project';
@@ -13,6 +14,8 @@ const srcFolderId = 'src';
 const srcFolderName = 'src';
 const srcFileId = 'Source.sts';
 const srcFileName = 'Source.sts';
+const txtFileId = 'Test.txt';
+const txtFileName = 'Test.txt';
 
 export const projectRoot: IFolder = {
   id: projectRootId,
@@ -36,22 +39,37 @@ projectRoot.subitems = {
 };
 
 export const srcFile: IFile = {
-  id: createPath(srcFolder.id, srcFileId),
-  shortId: srcFileId,
-  name: srcFileName,
-  parentId: srcFolder.id,
-  projectItemType: ProjectItemType.File,
-  fileType: 'sts',
+	id: createPath(srcFolder.id, srcFileId),
+	shortId: srcFileId,
+	name: srcFileName,
+	parentId: srcFolder.id,
+	projectItemType: ProjectItemType.File,
+	fileType: appConfig.Files.KnownFileTypes.STS_FILE,
 };
 srcFolder.subitems = {
-  ...srcFolder.subitems,
-  [srcFile.id]: srcFile.id,
+	...srcFolder.subitems,
+	[srcFile.id]: srcFile.id,
+};
+
+export const txtFile: IFile = {
+	id: createPath(srcFolder.id, txtFileId),
+	shortId: txtFileId,
+	name: txtFileName,
+	parentId: srcFolder.id,
+	projectItemType: ProjectItemType.File,
+	fileType: appConfig.Files.KnownFileTypes.TEXT_FILE,
+	fileContent: ['this is test content', 'of a test file.'],
+};
+srcFolder.subitems = {
+	...srcFolder.subitems,
+	[txtFile.id]: txtFile.id,
 };
 
 const projectItems = {
   [projectRoot.id]: projectRoot,
   [srcFolder.id]: srcFolder,
-  [srcFile.id]: srcFile,
+	[srcFile.id]: srcFile,
+	[txtFile.id]: txtFile,
 };
 
 export const emptyProject: IProject = {

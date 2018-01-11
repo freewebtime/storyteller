@@ -20,10 +20,11 @@ export class AppView extends React.Component<IAppViewProps> {
 
 		const appState = this.props.appState;
 		const ide = appState.ide;
+		const project = appState.project;
 
     return (
       <div style={appStyles.appView}>
-        <IdeView ide={ide} callback={this.props.callback}/>
+        <IdeView ide={ide} callback={this.props.callback} project={project}/>
       </div>
     );
   }

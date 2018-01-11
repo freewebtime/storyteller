@@ -1,4 +1,4 @@
-import { IEditorWindow } from "../../api/ide/IEditorsPanel";
+import { IEditorData } from "../../api/ide/IEditorsPanel";
 import { IAction } from "../../api/IAction";
 import { IProject } from "../../api/project/IProject";
 import { ICallback } from "../../api/callback";
@@ -22,7 +22,7 @@ export const editorWindowActions = {
 	}
 };
 
-export const editorWindowReducer = (state: IEditorWindow, action: IAction, project: IProject) => {
+export const editorWindowReducer = (state: IEditorData, action: IAction, project: IProject) => {
 
 	switch (action.type) {
 		

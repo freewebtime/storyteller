@@ -18,5 +18,6 @@ export interface IFolder extends IProjectItem {
 }
 
 export interface IFile extends IProjectItem {
-  fileType: string;
+	fileType: string;
+	fileContent?: any;
 }

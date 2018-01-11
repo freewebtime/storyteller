@@ -127,7 +127,7 @@ const editorTab = {
 const editorsArea = {
   container: {
     ...containerVer,
-    flexGrow: 1,
+		flexGrow: 1,
   } as CSSProperties,
   tabsArea: {
     ...containerHor,

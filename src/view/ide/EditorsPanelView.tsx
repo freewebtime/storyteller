@@ -5,10 +5,13 @@ import { appStyles } from '../styles/appStyles';
 import { IHash } from '../../data/api/IHash';
 import { FontAwesomeIcon } from '../shared/FontAwesomeIcon';
 import { editorsPanelActions } from '../../data/reducers/ide/editorsPanelReducer';
-import { IEditorsPanel } from '../../data/api/ide/IEditorsPanel';
+import { IEditorsPanel, IEditorData } from '../../data/api/ide/IEditorsPanel';
+import { EditorView } from './editors/EditorView';
+import { IProject } from '../../data/api/project/IProject';
 
 export interface IEditorsPanelProps {
 	editorsPanel: IEditorsPanel;
+	project: IProject;
 	callback: ICallback;
 }
 
@@ -79,13 +82,11 @@ export class EditorsPanel extends React.Component<IEditorsPanelProps> {
     );
 
     const editorContentView = () => {
-			const selectedEditor = editorsPanel.editors[selectedEditorId];
-      if (selectedEditor) {
-        return (
-          <div style={appStyles.editorsArea.editorArea}>
-            {selectedEditor.name}: {selectedEditor.id}
-          </div>
-        );
+			const editorData = editorsPanel.editors[selectedEditorId];
+      if (editorData) {
+				return (
+					<EditorView editorData={editorData} callback={this.props.callback} project={this.props.project} />
+				);
       }
 
       return (
