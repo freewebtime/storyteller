@@ -17,8 +17,7 @@
 		"Languages"
 	],
 	"activationEvents": [
-		"onLanguage:storyscript",
-		"onLanguage:plaintext"
+		"onLanguage:storyscript"
 	],
 	"main": "./out/src/extension",
 	"contributes": {
@@ -63,7 +62,7 @@
 			{
 				"language": "storyscript",
 				"scopeName": "source.storyscript",
-				"path": "./client/src/syntaxes/storyscript.tmLanguage.json"
+				"path": "./src/syntaxes/storyscript.tmLanguage.json"
 			}
 		]
 	},

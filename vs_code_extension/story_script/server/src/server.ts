@@ -23,9 +23,11 @@ documents.listen(connection);
 
 // After the server has started the client sends an initialize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilities. 
-let workspaceRoot: string;
+// let workspaceRoot: string;
 connection.onInitialize((params): InitializeResult => {
-	workspaceRoot = params.rootPath;
+	const workspaceRoot = params.rootPath;
+	console.log('workspaceRoot', workspaceRoot);
+
 	return {
 		capabilities: {
 			// Tell the client that the server works in FULL text document sync mode
@@ -102,7 +104,7 @@ connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): Com
 	// The pass parameter contains the position of the text document in 
 	// which code complete got requested. For the example we ignore this
 	// info and always provide the same completion items.
-	return [
+	const result = [
 		{
 			label: 'TypeScript',
 			kind: CompletionItemKind.Text,
@@ -118,7 +120,10 @@ connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): Com
 			kind: CompletionItemKind.Text,
 			data: 3
 		},
-	]
+	];
+
+	console.log('hello world');
+	return result;
 });
 
 // This handler resolve additional information for the item selected in
