@@ -1,6 +1,6 @@
 {
-	"name": "story-script",
-	"displayName": "story-script",
+	"name": "story-script-extension",
+	"displayName": "story-script-extension",
 	"description": "language for making stories",
 	"author": "Jack Sea",
 	"license": "MIT",

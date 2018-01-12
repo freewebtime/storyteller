@@ -10,6 +10,7 @@ import {
 	CompletionItemKind,
 	TextDocumentChangeEvent
 } from 'vscode-languageserver';
+import { tokenizeCode } from './story-script/StoryScript';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -69,8 +70,11 @@ connection.onDidChangeConfiguration((change) => {
 });
 
 function validateTextDocument(textDocument: TextDocument): void {
+	const documentText = textDocument.getText();
+	let lines = documentText.split(/\r?\n/g);
+	tokenizeCode(documentText);
+
 	let diagnostics: Diagnostic[] = [];
-	let lines = textDocument.getText().split(/\r?\n/g);
 	let problems = 0;
 	for (var i = 0; i < lines.length && problems < maxNumberOfProblems; i++) {
 		let line = lines[i];

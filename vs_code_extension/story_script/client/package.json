@@ -1,6 +1,6 @@
 {
-	"name": "story-script",
-	"displayName": "story-script",
+	"name": "story-script-language",
+	"displayName": "story-script-language",
 	"description": "language for making stories",
 	"author": "Jack Sea",
 	"license": "MIT",
@@ -17,7 +17,8 @@
 		"Languages"
 	],
 	"activationEvents": [
-		"onLanguage:storyscript"
+		"onLanguage:storyscript",
+		"onCommand:extension.stsCompile"
 	],
 	"main": "./out/src/extension",
 	"contributes": {
@@ -53,7 +54,8 @@
 				],
 				"extensions": [
 					".sts",
-					".d.sts"
+					".d.sts",
+					".стс"
 				],
 				"configuration": "./language-configuration.json"
 			}
@@ -63,6 +65,13 @@
 				"language": "storyscript",
 				"scopeName": "source.storyscript",
 				"path": "./src/syntaxes/storyscript.tmLanguage.json"
+			}
+		],
+		"commands":[
+			{
+				"command": "extension.stsCompile",
+				"title": "Compile Story Script",
+				"category": "Compile"
 			}
 		]
 	},
