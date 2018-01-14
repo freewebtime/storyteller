@@ -67,7 +67,15 @@
 				"path": "./src/syntaxes/storyscript.tmLanguage.json"
 			}
 		],
-		"commands":[
+		"themes": [
+			{
+				"label": "story-script",
+				"id": "story-script-theme",
+				"uiTheme": "vs-dark",
+				"path": "./src/themes/story-script.json"
+			}
+		],
+		"commands": [
 			{
 				"command": "extension.stsCompile",
 				"title": "Compile Story Script",

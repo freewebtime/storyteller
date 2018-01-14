@@ -8,7 +8,8 @@ import {
 	IPCMessageReader, IPCMessageWriter, createConnection, IConnection, TextDocuments, TextDocument, 
 	Diagnostic, DiagnosticSeverity, InitializeResult, TextDocumentPositionParams, CompletionItem, 
 	CompletionItemKind,
-	TextDocumentChangeEvent
+	TextDocumentChangeEvent,
+	ExecuteCommandParams
 } from 'vscode-languageserver';
 import { tokenizeCode } from './story-script/StoryScript';
 
@@ -25,9 +26,9 @@ documents.listen(connection);
 // After the server has started the client sends an initialize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilities. 
 // let workspaceRoot: string;
-connection.onInitialize((params): InitializeResult => {
-	const workspaceRoot = params.rootPath;
-	console.log('workspaceRoot', workspaceRoot);
+connection.onInitialize((/*params*/): InitializeResult => {
+	// const workspaceRoot = params.rootPath;
+	// console.log('workspaceRoot', workspaceRoot);
 
 	return {
 		capabilities: {
@@ -98,10 +99,13 @@ function validateTextDocument(textDocument: TextDocument): void {
 
 connection.onDidChangeWatchedFiles((_change) => {
 	// Monitored files have change in VSCode
-	connection.console.log('We received an file change event');
-	console.log('some test console message. Jack Sea');
+	// connection.console.log('We received an file change event');
+	// console.log('some test console message. Jack Sea');
 });
 
+connection.onExecuteCommand((params: ExecuteCommandParams): any => {
+	connection.window.showInformationMessage('on execute called!!!' + JSON.stringify(params));
+});
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
@@ -126,7 +130,6 @@ connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): Com
 		},
 	];
 
-	console.log('hello world');
 	return result;
 });
 

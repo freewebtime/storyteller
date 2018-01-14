@@ -1,32 +1,166 @@
 {
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "StoryScript",
+	"scopeName": "source.storyscript",
 	"patterns": [
 		{
-			"include": "#keywords"
+			"include": "#comment-line"
 		},
 		{
-			"include": "#strings"
+			"include": "#storyScript"
 		}
 	],
+	
 	"repository": {
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.storyscript",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.storyscript",
-			"begin": "\"",
-			"end": "\"",
+		
+		"storyScript": {
 			"patterns": [
 				{
-					"name": "constant.character.escape.storyscript",
-					"match": "\\\\."
+					"include": "#code-line"
+				}
+			]
+		},
+
+		"comment-line": {
+			"patterns": [
+				{
+					"name": "comment",
+					"match": "\\s*?//.*$"
+				}
+			]
+		},
+		
+		"invalid": {
+			"patterns": [
+				{
+					"name": "invalid.illegal",
+					"match": ".+?(?=//)"
+				}
+			]
+		},
+		
+		"array-brackets": {
+			"patterns": [
+				{
+					"match": "(\\[)(\\d+)*?(\\])",
+					"captures": {
+						"1": {
+							"name": "constant"
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#digit"
+								}
+							]
+						},
+						"3": {
+							"name": "constant"
+						}
+					}
+				}
+			]
+		},
+
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword",
+					"match": "\\b(true|false|функция)\\b"
+				}
+			]
+		},
+
+		"mention": {
+			"patterns": [
+				{
+					"match": "@[^\\s^,]+",
+					"name": "constant.other.symbol"
+				}
+			]
+		},
+
+		"comment-or-invalid": {
+			"patterns": [
+				{
+					"match": "([\\w\\s]+)?(//.*)",
+					"name": "constant",
+					"captures": {
+						"1": {
+							"patterns": [
+								{
+									"include": "#invalid"
+								}
+							]
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#comment-line"
+								}
+							]
+						}
+					}	
+				}
+			]
+		},
+
+		"code-line": {
+			"patterns": [
+				{
+					"include": "#comment-line"
+				},
+				{
+					"include": "#item-line"
+				},
+				{
+					"name": "string",
+					"match": ".*"
+				}
+			]
+		},
+
+		"item-line": {
+			"patterns": [
+				{
+					"match": "^\\s*?(\\*)\\s(\\b\\w+\\b)(:)\\s(\\b\\w+\\b)?(.*)?",
+					"captures": {
+						"1": {
+							"name": "variable"
+						},
+						"2": {
+							"name": "entity.name"
+						},
+						"3": {
+						},
+						"4": {
+							"name": "entity.name.type",
+							"patterns": [{"include": "#keywords"}]
+						},
+						"5": {
+							"patterns": [
+								{
+									"include": "#comment-line"
+								},
+								{
+									"include": "#invalid"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+
+		"digit": {
+			"patterns": [
+				{
+					"name": "constant.numeric",
+					"match": "\\d+"
 				}
 			]
 		}
-	},
-	"scopeName": "source.storyscript"
+
+	}
+
 }
