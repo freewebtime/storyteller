@@ -30,6 +30,20 @@
 			]
 		},
 
+		"code-line": {
+			"patterns": [
+				{
+					"include": "#comment-line"
+				},
+				{
+					"include": "#item-line"
+				},
+				{
+					"include": "#text-line"
+				}
+			]
+		},
+
 		"item-line": {
 			"patterns": [{
 				"match": "^\\s*(\\*)\\s(\\b\\w+\\b):(.*)?",
@@ -50,12 +64,12 @@
 				}
 			}]
 		},
-
+		
 		"text-line": {
 			"patterns": [
 				{
-					"match": ".*",
-					"name": "string"
+					"match": "@[\\w\\.]+\\b",
+					"name": "variable.name"
 				}
 			]
 		},
@@ -101,15 +115,6 @@
 			]
 		},
 
-		"mention": {
-			"patterns": [
-				{
-					"match": "@[^\\s^,]+",
-					"name": "constant.other.symbol"
-				}
-			]
-		},
-
 		"comment-or-invalid": {
 			"patterns": [
 				{
@@ -117,20 +122,6 @@
 				},
 				{
 					"include": "#invalid"
-				}
-			]
-		},
-
-		"code-line": {
-			"patterns": [
-				{
-					"include": "#comment-line"
-				},
-				{
-					"include": "#item-line"
-				},
-				{
-					"include": "#text-line"
 				}
 			]
 		},
