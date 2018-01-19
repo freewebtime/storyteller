@@ -25,7 +25,37 @@
 			"patterns": [
 				{
 					"name": "comment",
-					"match": "\\s*?//.*$"
+					"match": "//.*$"
+				}
+			]
+		},
+
+		"item-line": {
+			"patterns": [{
+				"match": "^\\s*(\\*)\\s(\\b\\w+\\b):(.*)?",
+				"captures": {
+					"1": {
+						"name": "constant"
+					},
+					"2": {
+						"patterns": [{
+							"include": "#item-name"
+						}]
+					},
+					"3": {
+						"patterns": [{
+							"include": "#item-type"
+						}]
+					}
+				}
+			}]
+		},
+
+		"text-line": {
+			"patterns": [
+				{
+					"match": ".*",
+					"name": "string"
 				}
 			]
 		},
@@ -83,24 +113,10 @@
 		"comment-or-invalid": {
 			"patterns": [
 				{
-					"match": "([\\w\\s]+)?(//.*)",
-					"name": "constant",
-					"captures": {
-						"1": {
-							"patterns": [
-								{
-									"include": "#invalid"
-								}
-							]
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#comment-line"
-								}
-							]
-						}
-					}	
+					"include": "#comment-line"
+				},
+				{
+					"include": "#invalid"
 				}
 			]
 		},
@@ -114,36 +130,34 @@
 					"include": "#item-line"
 				},
 				{
-					"name": "string",
-					"match": ".*"
+					"include": "#text-line"
 				}
 			]
 		},
 
-		"item-line": {
+		"function-signature": {
 			"patterns": [
 				{
-					"match": "^\\s*?(\\*)\\s(\\b\\w+\\b)(:)\\s(\\b\\w+\\b)?(.*)?",
+					"match": "(\\()(.+?)(\\))",
 					"captures": {
 						"1": {
-							"name": "variable"
-						},
-						"2": {
-							"name": "entity.name"
+							"name": "support.function"
 						},
 						"3": {
+							"name": "support.function"
 						},
-						"4": {
-							"name": "entity.name.type",
-							"patterns": [{"include": "#keywords"}]
-						},
-						"5": {
+						"2": {
 							"patterns": [
 								{
-									"include": "#comment-line"
-								},
-								{
-									"include": "#invalid"
+									"match": "(\\b\\w+\\b):?(\\b\\w+\\b)?",
+									"captures": {
+										"1": {
+											"name": "constant.name"
+										},
+										"2": {
+											"name": "support.type"
+										}
+									}
 								}
 							]
 						}
@@ -151,6 +165,24 @@
 				}
 			]
 		},
+
+		"item-name": {
+			"patterns": [
+				{
+					"name": "entity.name",
+					"match": ".*"
+				}
+			]
+		},
+		"item-type": {
+			"patterns": [
+				{
+					"match": ".*",
+					"name": "support.type"
+				}
+			]
+		},
+		
 
 		"digit": {
 			"patterns": [
