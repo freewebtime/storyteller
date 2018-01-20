@@ -91,7 +91,7 @@
 					"match": "(@[\\w\\.]+\\b)(.*)",
 					"captures": {
 						"1": {
-							"name": "variable.name"
+							"name": "constant.character.escape"
 						},
 						"2": {
 							"patterns": [
@@ -125,10 +125,10 @@
 		"item-type-function": {
 			"patterns": [
 				{
-					"match": "(\\b\\w+\\b)\\((.*)\\)(.*)",
+					"match": "(\\b[\\w\\.]+\\b)\\((.*?)\\)(.*)",
 					"captures": {
 						"1": {
-							"name": "support.function"
+							"name": "support.type"
 						},
 						"2": {
 							"patterns": [
@@ -147,7 +147,7 @@
 		"item-type-array": {
 			"patterns": [
 				{
-					"match": "(\\b\\w+\\b)\\[(\\d*)\\](.*)",
+					"match": "(\\b[\\w\\.]+\\b)\\[(\\d*)\\](.*)",
 					"captures": {
 						"1": {
 							"name": "support.type"
@@ -156,7 +156,11 @@
 							"name": "constant.numeric"
 						},
 						"3": {
-							"name": "comment.block"
+							"patterns": [
+								{
+									"include": "#item-type"
+								}
+							]
 						}
 					}
 				}
@@ -165,7 +169,7 @@
 		"item-type-simple": {
 			"patterns": [
 				{
-					"match": "(\\b\\w+\\b)([^\\(^\\[]*$)",
+					"match": "(\\b[\\w\\.]+\\b)([^\\(^\\[]*$)",
 					"captures": {
 						"1": {
 							"name": "support.type"
@@ -181,8 +185,54 @@
 		"function-params": {
 			"patterns": [
 				{
-					"match": ".*",
-					"name": "support.variable"
+					"match": "(\\b\\w+\\b)(.*)",
+					"captures": {
+						"1": {
+							"name": "support.variable"
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#function-param-type"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		"function-param-type": {
+			"patterns": [
+				{
+					"match": "(: [\\w\\.\\[\\]]+)(.*)",
+					"captures": {
+						"1": {
+							"patterns": [
+								{
+									"include": "#item-type"
+								}
+							]
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#function-params"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": ", (.*)",
+					"captures": {
+						"1": {
+							"patterns": [
+								{
+									"include": "#function-params"
+								}
+							]
+						}
+					}
 				}
 			]
 		},
