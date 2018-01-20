@@ -45,24 +45,24 @@
 		},
 
 		"item-line": {
-			"patterns": [{
-				"match": "^\\s*(\\*)\\s(\\b\\w+\\b):(.*)?",
-				"captures": {
-					"1": {
-						"name": "constant.character"
-					},
-					"2": {
-						"patterns": [{
-							"include": "#item-name"
-						}]
-					},
-					"3": {
-						"patterns": [{
-							"include": "#item-type"
-						}]
+			"patterns": [
+				{
+					"match": "^\\s*(\\*)\\s(\\b\\w+\\b):(.*)?",
+					"captures": {
+						"1": {
+							"name": "keyword"
+						},
+						"2": {
+							"name": "support.type"
+						},
+						"3": {
+							"patterns": [{
+								"include": "#item-type"
+							}]
+						}
 					}
 				}
-			}]
+			]
 		},
 		
 		"text-line": {
@@ -105,32 +105,86 @@
 			]
 		},
 		
-		"item-name": {
-			"patterns": [{
-				"name": "support.variable",
-				"match": ".*"
-			}]
-		},
-
 		"item-type": {
-			"patterns": [{
-				"match": "(\\b[\\w\\.]+\\b)(\\[\\d+\\])?(\\(.+?\\))?(.*)",
-				"name": "support.type",
-				"captures": {
-					"1": {
-						"name": "support.type"
-					},
-					"2": {
-						"name": "constant.numeric"
-					},
-					"3": {
-						"name": "support.function"
-					},
-					"4": {
-						"name": "comment.block"
+			"patterns": [
+				{
+					"include": "#item-type-simple"
+				},
+				{
+					"include": "#item-type-array"
+				},
+				{
+					"include": "#item-type-function"
+				},
+				{
+					"match": "//.*",
+					"name": "comment.block"
+				}
+			]
+		},
+		"item-type-function": {
+			"patterns": [
+				{
+					"match": "(\\b\\w+\\b)\\((.*)\\)(.*)",
+					"captures": {
+						"1": {
+							"name": "support.function"
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#function-params"
+								}
+							]
+						},
+						"3": {
+							"name": "comment.block"
+						}
 					}
 				}
-			}]
+			]
+		},
+		"item-type-array": {
+			"patterns": [
+				{
+					"match": "(\\b\\w+\\b)\\[(\\d*)\\](.*)",
+					"captures": {
+						"1": {
+							"name": "support.type"
+						},
+						"2": {
+							"name": "constant.numeric"
+						},
+						"3": {
+							"name": "comment.block"
+						}
+					}
+				}
+			]
+		},
+		"item-type-simple": {
+			"patterns": [
+				{
+					"match": "(\\b\\w+\\b)([^\\(^\\[]*$)",
+					"captures": {
+						"1": {
+							"name": "support.type"
+						},
+						"2": {
+							"name": "comment.block"
+						}
+					}
+				}
+			]
+		},
+
+		"function-params": {
+			"patterns": [
+				{
+					"match": ".*",
+					"name": "support.variable"
+				}
+			]
 		},
 
 		"invalid": {
@@ -181,37 +235,6 @@
 				},
 				{
 					"include": "#invalid"
-				}
-			]
-		},
-
-		"function-signature": {
-			"patterns": [
-				{
-					"match": "(\\()(.+?)(\\))",
-					"captures": {
-						"1": {
-							"name": "support.function"
-						},
-						"3": {
-							"name": "support.function"
-						},
-						"2": {
-							"patterns": [
-								{
-									"match": "(\\b\\w+\\b):?(\\b\\w+\\b)?",
-									"captures": {
-										"1": {
-											"name": "constant.name"
-										},
-										"2": {
-											"name": "support.type"
-										}
-									}
-								}
-							]
-						}
-					}
 				}
 			]
 		},
