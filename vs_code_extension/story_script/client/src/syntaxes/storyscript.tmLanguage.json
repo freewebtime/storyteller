@@ -96,6 +96,10 @@
 			"patterns": [
 				{
 					"include": "#mention"
+				},
+				{
+					"match": "\\*[\\w\\.]+\\s",
+					"name": "string"
 				}
 			]
 		},
