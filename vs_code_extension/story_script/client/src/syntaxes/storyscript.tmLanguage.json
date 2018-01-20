@@ -49,7 +49,7 @@
 				"match": "^\\s*(\\*)\\s(\\b\\w+\\b):(.*)?",
 				"captures": {
 					"1": {
-						"name": "constant"
+						"name": "constant.character"
 					},
 					"2": {
 						"patterns": [{
@@ -68,12 +68,71 @@
 		"text-line": {
 			"patterns": [
 				{
-					"match": "@[\\w\\.]+\\b",
-					"name": "variable.name"
+					"match": "([^@]*)(.*)",
+					"captures": {
+						"1": {
+							"name": "string"
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#mention-or-text-line"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+
+		"mention-or-text-line": {
+			"patterns": [
+				{
+					"match": "(@[\\w\\.]+\\b)(.*)",
+					"captures": {
+						"1": {
+							"name": "variable.name"
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#text-line"
+								}
+							]
+						}
+					}
 				}
 			]
 		},
 		
+		"item-name": {
+			"patterns": [{
+				"name": "support.variable",
+				"match": ".*"
+			}]
+		},
+
+		"item-type": {
+			"patterns": [{
+				"match": "(\\b[\\w\\.]+\\b)(\\[\\d+\\])?(\\(.+?\\))?(.*)",
+				"name": "support.type",
+				"captures": {
+					"1": {
+						"name": "support.type"
+					},
+					"2": {
+						"name": "constant.numeric"
+					},
+					"3": {
+						"name": "support.function"
+					},
+					"4": {
+						"name": "comment.block"
+					}
+				}
+			}]
+		},
+
 		"invalid": {
 			"patterns": [
 				{
@@ -157,23 +216,6 @@
 			]
 		},
 
-		"item-name": {
-			"patterns": [
-				{
-					"name": "entity.name",
-					"match": ".*"
-				}
-			]
-		},
-		"item-type": {
-			"patterns": [
-				{
-					"match": ".*",
-					"name": "support.type"
-				}
-			]
-		},
-		
 
 		"digit": {
 			"patterns": [
