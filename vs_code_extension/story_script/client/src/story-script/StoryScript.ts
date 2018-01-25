@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 import { ICodeToken } from './api/ICodeToken';
+import { parseFileContent } from './parser/stsParser';
 
 const extractLineContent = (line: string = '') => {
-	const step1 = line.match(/^(?:((?: {2})+)|(\t)+)?(.*)/);
-	const whitespace = step1[1] || step1[2];
-	const indent = step1[1]
-		? (step1[1].length / 2)
-		: (step1[2] ? step1[2].length : 0)
-	const lineContent = step1[3];
+	const match = line.match(/^(?:((?: {2})+)|(\t)+)?(.*)/);
+	const whitespace = match[1] || match[2];
+	const indent = match[1]
+		? (match[1].length / 2)
+		: (match[2] ? match[2].length : 0)
+	const lineContent = match[3];
 
 	return {indent, lineContent, whitespace};
 }
@@ -58,5 +59,6 @@ export const tokenizeCode = (sourceCode: string) => {
 }
 
 export const compileStoryScript = (sourceCode: string) => {
-	tokenizeCode(sourceCode);
+	parseFileContent(sourceCode);
+	//tokenizeCode(sourceCode);
 }
