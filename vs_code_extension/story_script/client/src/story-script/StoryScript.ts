@@ -1,15 +1,38 @@
 import * as vscode from 'vscode';
 import { ICodeToken } from './api/ICodeToken';
 
-
-const tokenizeLine = (line: string, lineNumber: number): ICodeToken[] => {
-	
+const extractLineContent = (line: string = '') => {
 	const step1 = line.match(/^(?:((?: {2})+)|(\t)+)?(.*)/);
 	const whitespace = step1[1] || step1[2];
-	const indent = step1[1] 
+	const indent = step1[1]
 		? (step1[1].length / 2)
 		: (step1[2] ? step1[2].length : 0)
 	const lineContent = step1[3];
+
+	return {indent, lineContent, whitespace};
+}
+
+const extractEndlineComment = (lineContent: string = '') => {
+	const match1 = lineContent.match(/([^\/{2}]+)?(.*)?/);
+	const codeContent = match1[1];
+	const endlineComment = match1[2];
+
+	return {codeContent, endlineComment};
+}
+
+const checkContentType = (codeContent: string = '') => {
+	const match = codeContent.match(/\s*(\* [\w.]+:)(.*)/);
+	const itemContent = match ? match[1] : undefined;
+	const literalContent = match ? undefined : codeContent;
+
+	return {itemContent, literalContent};
+}
+
+const tokenizeLine = (line: string, lineNumber: number): ICodeToken[] => {
+
+	const { indent, lineContent, whitespace } = extractLineContent(line); 
+	const { endlineComment, codeContent } = extractEndlineComment(lineContent);
+	const { itemContent, literalContent } = checkContentType(codeContent);
 
 	return [];
 }
