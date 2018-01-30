@@ -35,20 +35,37 @@ export const parseFileContent = (sourceCode: string) => {
 
 const parseNext = (state: IParserState): IpsResult => {
 	
+	if (isEndOfLine(state)) {
+		state = jumpToNextLine(state);
+	}
+	
 	if (isEndOfFile(state)) {
 		return { result: false, state };
 	}
 	
-	state = parseCommentBlock(state).state;
-	state = parseNamespace(state).state;
-	state = parseItemLine(state).state;
-	state = parseCommentLine(state).state;
-	state = parseLiteralLine(state).state;
+	const cbResult = parseCommentBlock(state);
+	if (cbResult.result) {
+		return cbResult;
+	}
 
-	if (isEndOfLine(state)) {
-		state = jumpToNextLine(state);
-	} else {
-		state = jumpToNextLine(state);
+	const nsResult = parseNamespace(state);
+	if (nsResult.result) {
+		return nsResult;
+	}
+
+	const ilResult = parseItemLine(state);
+	if (ilResult.result) {
+		return ilResult;
+	}
+	
+	const clResult = parseCommentLine(state);
+	if (clResult.result) {
+		return clResult;
+	}
+
+	const llResult = parseLiteralLine(state);
+	if (llResult.result) {
+		return llResult;
 	}
 
 	return { result: true, state };
@@ -102,19 +119,19 @@ const parseLiteralLine = (state: IParserState): IpsResult => {
 
 	const line = getLineTextFromCursor(state);
 	if (line) {
-		const match = line.match(/^(\s*)(.+?)$/);
+		const match = line.match(/^(.+?)(?:\/\*.*)?(?:\/\/.*)?$/);
 		if (match) {
-			const whitespace = match[1] || '';
+			const literalText = match[1] || '';
+			const whitespace = literalText.match(/^s+/) || '';
 			const indent = Math.floor(whitespace.length / 2);
 
-			const literalText = match[2] || '';
 			const symbolPos = {
 				line: state.cursor.line,
 				symbol: whitespace.length,
 				length: literalText.length,
 			};
 
-			const itemToken: ITokenLiteral = {
+			const literalToken: ITokenLiteral = {
 				codeTokenType: CodeTokenType.Literal,
 				indent,
 				position: symbolPos,
@@ -123,10 +140,10 @@ const parseLiteralLine = (state: IParserState): IpsResult => {
 
 			state = {
 				...state,
-				tokens: [...state.tokens, itemToken],
+				tokens: [...state.tokens, literalToken],
 			}
 
-			state = skipSymbols(state, line.length);
+			state = skipSymbols(state, whitespace.length + literalText.length);
 
 			return { result: true, state };
 		}
@@ -163,7 +180,7 @@ const parseCommentLine = (state: IParserState): IpsResult => {
 				commentToken
 			]
 		}
-		state = jumpToNextLine(state);
+		state = skipSymbols(state, 2 + commentText.length);
 
 		return { result: true, state }
 	}
@@ -177,7 +194,7 @@ const parseCommentBlock = (state: IParserState): IpsResult => {
 		return { result: false, state };
 	}
 
-	const match = str.match(/\/\*(.*)/);
+	const match = str.match(/^\/\*(.*)/);
 	if (match) {
 		state = skipSymbols(state, 2);
 		
@@ -324,7 +341,7 @@ const findNext = (state: IParserState, regex: RegExp): { cursor: ICursorPosition
 			return {
 				cursor: {
 					line: state.cursor.line,
-					symbol: match.index,
+					symbol: match.index + state.cursor.symbol,
 				},
 				result: true,
 			}
