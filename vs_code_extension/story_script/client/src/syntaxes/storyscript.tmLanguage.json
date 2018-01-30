@@ -66,6 +66,26 @@
 				},
 				{
 					"include": "#text-line"
+				},
+				{
+					"include": "#module-declaration"
+				}
+			]
+		},
+
+		"module-declaration": {
+			"patterns": [
+				{
+					"match": "^(- [\\w\\.]+ -\\s+)(\/\/.*)?$",
+					"name": "keyword.other.unit",
+					"captures": {
+						"1": {
+							"name": "keyword.other.unit"
+						},
+						"2": {
+							"name": "comment.line"
+						}
+					}
 				}
 			]
 		},

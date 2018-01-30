@@ -1,79 +1,146 @@
-import { ICodeToken, IItemToken, CodeTokenType } from "../api/ICodeToken";
+import { ICodeToken, CodeTokenType } from "../api/ICodeToken";
 
-export enum CodeLineType {
-	Unknown = 'Unknown',
-	Empty = 'Empty',
-	Comment = 'Comment',
-	Item = 'Item',
-	Literal = 'Literal',
+interface IParserState {
+	tokens: ICodeToken[];
+	cursor: {
+		line: number;
+		symbol: number;
+	},
+	lines: string[],
 }
 
-export interface ICodeLine {
-	index: number;
-	indent: number;
-	codeLineType: CodeLineType;
-	content?: string;
-	whitespace?: string;
+export const parseFileContent = (sourceCode: string) => {
+	const parserState: IParserState = {
+		tokens: [],
+		cursor: {line: 0, symbol: 0},
+		lines: sourceCode.split(/\r?\n/g),
+	}	
+
+	const parsed = parseNextLine(parserState);
+	console.log(parsed.tokens.length);
 }
 
-export interface ISourceCode {
-	sourceLines: string[];
-	codeTokens: ICodeToken[];
-	tokensGraph: ICodeToken[];
-}
-
-export const parseFileContent = (fileContent: string): ICodeToken => {
-
-	const rootToken: IItemToken = {
-		codeTokenType: CodeTokenType.Item,
-		itemName: 'fileRoot',
-		content: fileContent,
+const parseNextLine = (state: IParserState): IParserState => {
+	
+	if (isEndOfFile(state)) {
+		return state;
+	}
+	
+	const nsResult = parseNamespace(state);
+	if (nsResult.result === true) {
+		return parseNextLine(nsResult.state);
 	}
 
-	const result = parseTokenContent(rootToken);
-	return result;
-}
+	state = {
+		...state,
+		cursor: {
+			line: state.cursor.line + 1,
+			symbol: 0,
+		}
+	}
+	return parseNextLine(state);
 
-export const parseTokenContent = (token: ICodeToken): ICodeToken => {
-	
-	
-	return token;
-}
-
-const parseLine = (sourceCode: ISourceCode, index: number) => {
-	if (!sourceCode || sourceCode.sourceLines.length <= index) {
-		return sourceCode;
+	const unparsedLineText = getLineTextFromCursor(state);
+	if (!unparsedLineText || unparsedLineText.length === 0) {
+		state = {
+			...state,
+			cursor: {
+				...state.cursor,
+				line: state.cursor.line + 1,
+				symbol: 0,
+			}
+		}
 	}
 
-	const line = sourceCode.sourceLines[index];
+	if (isEndOfFile(state)) {
+		return state;
+	}
 
+	return parseNextLine(state);
+}
+
+const parseNamespace = (state: IParserState): {result: boolean, state: IParserState} => {
+	if (state.cursor.symbol > 0) {
+		return { result: false, state };
+	}
+
+	const lineText = getCurrentLine(state);
 	
-	return sourceCode;
+	if (!lineText) {
+		return { result: false, state };
+	}
+
+	const match = lineText.match(/\- (.+) \-\s+?(\/\/.*)?/);
+	
+	if (!match || match.length === 0) {
+		return { result: false, state };
+	}
+	
+	const ns = match[1];
+	
+	if (ns && ns.length > 0) {
+		const nsToken: ICodeToken = {
+			codeTokenType: CodeTokenType.Namespace,
+			position: {
+				length: ns.length,
+				line: state.cursor.line,
+				symbol: 3,
+			},
+			value: ns,
+		}
+
+		state = {
+			...state,
+			cursor: {
+				line: state.cursor.line + 1,
+				symbol: 0,
+			},
+			tokens: [
+				...state.tokens,
+				nsToken,
+			]
+		}
+	}
+
+	return { result: true, state };
 }
 
-const extractLineContent = (line: string = '') => {
-	const match = line.match(/^(?:((?: {2})+)|(\t)+)?(.*)/);
-	const whitespace = match[1] || match[2];
-	const indent = match[1]
-		? (match[1].length / 2)
-		: (match[2] ? match[2].length : 0)
-	const lineContent = match[3];
+const isEndOfFile = (state: IParserState): boolean => {
+	if (!state.lines || state.lines.length <= state.cursor.line) {
+		return true;
+	}
 
-	return { indent, lineContent, whitespace };
+	return false;
 }
 
-const extractEndlineComment = (lineContent: string = '') => {
-	const match1 = lineContent.match(/([^\/{2}]+)?(.*)?/);
-	const codeContent = match1[1];
-	const endlineComment = match1[2];
+const getLineTextFromCursor = (state: IParserState): string => {
+	const line = getCurrentLine(state);
+	if (!line) {
+		return undefined;
+	}
 
-	return { codeContent, endlineComment };
+	const symbol = state.cursor.symbol;
+	
+	if (symbol === 0) {
+		return line;
+	}
+
+	if (line.length <= symbol) {
+		return undefined;
+	}
+
+	return line.substring(symbol);
 }
 
-const checkContentType = (codeContent: string = '') => {
-	const match = codeContent.match(/\s*(\* [\w.]+:)(.*)/);
-	const itemContent = match ? match[1] : undefined;
-	const literalContent = match ? undefined : codeContent;
+const getCurrentLine = (state: IParserState): string => {
+	const lineIndex = state.cursor.line;
+	const lines = state.lines;
 
-	return { itemContent, literalContent };
+	if (lines.length <= lineIndex) {
+		return undefined;
+	}
+
+	const currentLine = lines[lineIndex];
+	return currentLine;
 }
+
