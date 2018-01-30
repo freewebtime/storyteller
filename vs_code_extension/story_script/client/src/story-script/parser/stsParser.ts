@@ -1,4 +1,4 @@
-import { ICodeToken, CodeTokenType } from "../api/ICodeToken";
+import { ICodeToken, CodeTokenType, ITokenItem, ITokenLiteral } from "../api/ICodeToken";
 import { isNullOrUndefined } from "util";
 
 interface ICursorPosition {
@@ -39,19 +39,103 @@ const parseNext = (state: IParserState): IpsResult => {
 		return { result: false, state };
 	}
 	
-	state = parseNamespace(state).state;
-	state = parseCommentLine(state).state;
 	state = parseCommentBlock(state).state;
+	state = parseNamespace(state).state;
+	state = parseItemLine(state).state;
+	state = parseCommentLine(state).state;
+	state = parseLiteralLine(state).state;
 
 	if (isEndOfLine(state)) {
+		state = jumpToNextLine(state);
+	} else {
 		state = jumpToNextLine(state);
 	}
 
 	return { result: true, state };
 }
 
+const parseItemLine = (state: IParserState): IpsResult => {
+
+	if (state.cursor.symbol === 0) {
+		
+		const line = getCurrentLine(state);
+		if (line) {
+			const match = line.match(/^(\s*)\* (.+?):(?: )?(.+)?/);
+			if (match) {
+				const whitespace = match[1] || '';
+				const indent = Math.floor(whitespace.length / 2);
+
+				const itemName = match[2] || '';
+				const itemType = match[3] || '';
+				const symbolPos = {
+					line: state.cursor.line,
+					symbol: whitespace.length + 2,
+					length: itemName.length + 2 + itemType.length,
+				};
+
+				const itemToken: ITokenItem = {
+					codeTokenType: CodeTokenType.Item,
+					itemName,
+					itemType,
+					indent,
+					position: symbolPos,
+					value: `${itemName}: ${itemType}`,
+				};
+
+				state = {
+					...state,
+					tokens: [...state.tokens, itemToken],
+				}
+
+				state = skipSymbols(state, line.length);
+
+				return { result: true, state };
+			}
+		}
+
+	}
+
+	return { result: false, state };
+}
+
+const parseLiteralLine = (state: IParserState): IpsResult => {
+
+	const line = getLineTextFromCursor(state);
+	if (line) {
+		const match = line.match(/^(\s*)(.+?)$/);
+		if (match) {
+			const whitespace = match[1] || '';
+			const indent = Math.floor(whitespace.length / 2);
+
+			const literalText = match[2] || '';
+			const symbolPos = {
+				line: state.cursor.line,
+				symbol: whitespace.length,
+				length: literalText.length,
+			};
+
+			const itemToken: ITokenLiteral = {
+				codeTokenType: CodeTokenType.Literal,
+				indent,
+				position: symbolPos,
+				value: literalText,
+			};
+
+			state = {
+				...state,
+				tokens: [...state.tokens, itemToken],
+			}
+
+			state = skipSymbols(state, line.length);
+
+			return { result: true, state };
+		}
+	}
+
+	return { result: false, state };
+}
+
 const parseCommentLine = (state: IParserState): IpsResult => {
-	state = skipEmptySymbols(state);
 	const str = getLineTextFromCursor(state);
 	if (!str) {
 		return { result: false, state };
@@ -88,7 +172,6 @@ const parseCommentLine = (state: IParserState): IpsResult => {
 }
 
 const parseCommentBlock = (state: IParserState): IpsResult => {
-	state = skipEmptySymbols(state);
 	const str = getLineTextFromCursor(state);
 	if (!str) {
 		return { result: false, state };
@@ -149,7 +232,7 @@ const parseNamespace = (state: IParserState): IpsResult => {
 		return { result: false, state };
 	}
 	
-	const match = lineText.match(/^\- (.+) \-\s+?(\/\/.*)?$/);
+	const match = lineText.match(/^\- (.+) \-/);
 	
 	if (!match || match.length === 0) {
 		return { result: false, state };
@@ -178,7 +261,9 @@ const parseNamespace = (state: IParserState): IpsResult => {
 				...state.tokens,
 				nsToken,
 			]
-		}
+		},
+
+		state = skipEmptySymbols(state).state;
 	}
 
 	return { result: true, state };
@@ -289,25 +374,40 @@ const skipSymbols = (state: IParserState, symbolsCount: number): IParserState =>
 	return state;
 }
 
-const skipEmptySymbols = (state: IParserState): IParserState => {
-	const str = getLineTextFromCursor(state);
-	if (!str) {
-		return state;
+const skipEmptySymbolsMultiline = (state: IParserState): IParserState => {
+	
+	let skipResult = skipEmptySymbols(state);
+
+	while (skipResult.result) {
+		if (!isEndOfLine(skipResult.state)) {
+			break;
+		}
+
+		state = jumpToNextLine(skipResult.state);
+		skipResult = skipEmptySymbols(state);
 	}
 
-	const match = str.match(/^\s+/);
-	if (match) {
-		const length = match.length;
-		state = {
-			...state,
-			cursor: {
-				...state.cursor,
-				symbol: state.cursor.symbol + length,
+	return skipResult.state;
+}
+const skipEmptySymbols = (state: IParserState): IpsResult => {
+	const str = getLineTextFromCursor(state);
+	if (str) {
+		const match = str.match(/^\s+/);
+		if (match) {
+			const length = match.length;
+			state = {
+				...state,
+				cursor: {
+					...state.cursor,
+					symbol: state.cursor.symbol + length,
+				}
 			}
+
+			return { result: true, state };
 		}
 	}
 
-	return state;
+	return { result: false, state };
 }
 
 const jumpToNextLine = (state: IParserState): IParserState => {

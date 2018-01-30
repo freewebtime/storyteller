@@ -5,8 +5,7 @@ export enum CodeTokenType {
 	Invalid = 'Invalid',
 	Literal = 'Literal',
 	Comment = 'Comment',
-	ItemMark = 'ItemMark',
-	Special = 'Colon',
+	Item = 'Item',
 }
 
 export interface ICodeToken {
@@ -17,4 +16,13 @@ export interface ICodeToken {
 		symbol: number;
 		length: number;
 	}
+}
+
+export interface ITokenItem extends ICodeToken {
+	itemName: string;
+	itemType: string;
+	indent: number;
+}
+export interface ITokenLiteral extends ICodeToken {
+	indent: number;
 }
