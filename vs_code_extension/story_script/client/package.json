@@ -80,6 +80,27 @@
 				"command": "extension.stsCompile",
 				"title": "Compile Story Script",
 				"category": "Compile"
+			},
+			{
+				"command": "extension.showHtmlPreview",
+				"title": "Show Html Preview",
+				"category": "Compile"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"command": "extension.showHtmlPreview",
+					"when": "resourceLangId == storyscript",
+					"group": "StoryScript"
+				}
+			]
+		},
+		"keybindings": [
+			{
+				"command": "extension.showHtmlPreview",
+				"when": "resourceLangId == storyscript",
+				"key": "Ctrl+B"
 			}
 		]
 	},

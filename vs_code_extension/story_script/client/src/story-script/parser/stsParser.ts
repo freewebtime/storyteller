@@ -30,7 +30,7 @@ export const parseFileContent = (sourceCode: string) => {
 		state = nlResult.state;
 	}
 
-	console.log(state.tokens.length);
+	return state;
 }
 
 const parseNext = (state: IParserState): IpsResult => {
