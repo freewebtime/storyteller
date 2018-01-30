@@ -100,7 +100,7 @@
 			{
 				"command": "extension.showHtmlPreview",
 				"when": "resourceLangId == storyscript",
-				"key": "Ctrl+B"
+				"key": "Ctrl+Shift+B"
 			}
 		]
 	},

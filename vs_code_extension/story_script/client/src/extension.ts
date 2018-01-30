@@ -10,6 +10,7 @@ import * as vscode from 'vscode';
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
 import { compileStoryScript } from './story-script/StoryScript';
+import { ICodeToken } from './story-script/api/ICodeToken';
 
 const stsCompile = () => {
 	const editor = vscode.window.activeTextEditor;
@@ -50,7 +51,7 @@ const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
 
 			return `
 				<body>
-					${JSON.stringify(compiled)}
+					${compiled.tokens.map((token) => { return JSON.stringify(token); }).join('<br/><br/>')}
 				</body>`;
 		}
 
