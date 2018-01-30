@@ -79,7 +79,7 @@ const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
 	// });
 
 	let disposable = vscode.commands.registerCommand('extension.showHtmlPreview', () => {
-		return vscode.commands.executeCommand('vscode.previewHtml', previewUri, vscode.ViewColumn.Two, 'Sts Property Preview').then((success) => {
+		return vscode.commands.executeCommand('vscode.previewHtml', previewUri, vscode.ViewColumn.Two, vscode.window.activeTextEditor.document.fileName).then((success) => {
 		}, (reason) => {
 			vscode.window.showErrorMessage(reason);
 		});

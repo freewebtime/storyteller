@@ -36,7 +36,7 @@ export const parseFileContent = (sourceCode: string) => {
 const parseNext = (state: IParserState): IpsResult => {
 	
 	if (isEndOfLine(state)) {
-		state = jumpToNextLine(state);
+		state = jumpToNextLine(state, true);
 	}
 	
 	if (isEndOfFile(state)) {
@@ -391,21 +391,6 @@ const skipSymbols = (state: IParserState, symbolsCount: number): IParserState =>
 	return state;
 }
 
-const skipEmptySymbolsMultiline = (state: IParserState): IParserState => {
-	
-	let skipResult = skipEmptySymbols(state);
-
-	while (skipResult.result) {
-		if (!isEndOfLine(skipResult.state)) {
-			break;
-		}
-
-		state = jumpToNextLine(skipResult.state);
-		skipResult = skipEmptySymbols(state);
-	}
-
-	return skipResult.state;
-}
 const skipEmptySymbols = (state: IParserState): IpsResult => {
 	const str = getLineTextFromCursor(state);
 	if (str) {
@@ -427,7 +412,21 @@ const skipEmptySymbols = (state: IParserState): IpsResult => {
 	return { result: false, state };
 }
 
-const jumpToNextLine = (state: IParserState): IParserState => {
+const jumpToNextLine = (state: IParserState, addNewLineToken: boolean): IParserState => {
+	
+	if (addNewLineToken) {
+		const line = getCurrentLine(state) || '';
+		const newLineToken: ICodeToken = {
+			codeTokenType: CodeTokenType.NewLine,
+			position: {line: state.cursor.line, symbol: line.length, length: 0}
+		}
+
+		state = {
+			...state,
+			tokens: [...state.tokens, newLineToken],
+		}
+	}
+
 	state = {
 		...state,
 		cursor: {

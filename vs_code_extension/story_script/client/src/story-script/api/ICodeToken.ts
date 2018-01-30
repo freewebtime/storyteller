@@ -6,6 +6,7 @@ export enum CodeTokenType {
 	Literal = 'Literal',
 	Comment = 'Comment',
 	Item = 'Item',
+	NewLine = 'NewLine',
 }
 
 export interface ICodeToken {
