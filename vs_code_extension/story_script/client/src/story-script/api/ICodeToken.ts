@@ -2,6 +2,7 @@ import { IHash } from "../../shared/IHash";
 
 export enum CodeTokenType {
 	Namespace = 'Namespace',
+	Invalid = 'Invalid',
 	Literal = 'Literal',
 	Comment = 'Comment',
 	ItemMark = 'ItemMark',
