@@ -76,13 +76,18 @@
 		"module-declaration": {
 			"patterns": [
 				{
-					"match": "^(- [\\w\\.]+ -\\s+)(\/\/.*)?$",
-					"name": "keyword.other.unit",
+					"match": "^(-) ([\\w\\.]+) (-)\\s+(\/\/.*)?$",
 					"captures": {
 						"1": {
-							"name": "keyword.other.unit"
+							"name": "keyword"
 						},
 						"2": {
+							"name": "keyword.other.unit"
+						},
+						"3": {
+							"name": "keyword"
+						},
+						"4": {
 							"name": "comment.line"
 						}
 					}

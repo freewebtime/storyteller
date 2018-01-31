@@ -1,7 +1,6 @@
-import * as vscode from 'vscode';
-import { ICodeToken } from './api/ICodeToken';
-import { parseFileContent } from './parser/stsParser';
+import { parseStoryScript } from "./parser/stsParser";
 
 export const compileStoryScript = (sourceCode: string) => {
-	return parseFileContent(sourceCode);
+	// return parseFileContent(sourceCode);
+	return parseStoryScript(sourceCode);
 }

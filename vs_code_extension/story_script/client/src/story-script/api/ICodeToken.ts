@@ -1,29 +1,56 @@
 import { IHash } from "../../shared/IHash";
 
 export enum CodeTokenType {
-	Namespace = 'Namespace',
-	Invalid = 'Invalid',
-	Literal = 'Literal',
 	Comment = 'Comment',
+
+	Endline = 'Endline',
+	Space = 'Space',
+	Colon = 'Colon',
+	Dot = 'Dot',
+	Comma = 'Comma',
+	Star = 'Star',
+	ParenOpen = 'ParenOpen',
+	ParenClose = 'ParenClose',
+	Backslash = 'Backslash',
+	Slash = 'Slash',
+
+	Text = 'Text',
+	Number = 'Number',
+	Boolean = 'Boolean',
+
 	Item = 'Item',
-	NewLine = 'NewLine',
+	ItemName = 'ItemName',
+	ItemType = 'ItemType',
+	ItemTypeFunc = 'ItemTypeFunc',
+	ItemTypeStruct = 'ItemTypeStruct',
+
+	Namespace = 'Namespace',
+
+	Literal = 'Literal',
+
+	Mention = 'Mention',
+	Call = 'Call',
+	ParamValue = 'ParamValue'
+}
+
+export interface ISymbolPosition {
+	line: number;
+	symbol: number;
 }
 
 export interface ICodeToken {
-	codeTokenType: CodeTokenType;
-	value?: any;
-	position?: {
-		line: number;
-		symbol: number;
-		length: number;
-	}
+	type: CodeTokenType;
+	value?: string;
+	position?: ISymbolPosition;
 }
 
 export interface ITokenItem extends ICodeToken {
-	itemName: string;
+	whitespace: number;
+	itemMark: ICodeToken;
+	itemName: ICodeToken;
 	itemType: string;
-	indent: number;
 }
+
 export interface ITokenLiteral extends ICodeToken {
-	indent: number;
+	whitespace: number;
 }
