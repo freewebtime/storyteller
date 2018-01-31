@@ -98,7 +98,7 @@
 		"item-line": {
 			"patterns": [
 				{
-					"match": "^\\s*(\\*)\\s(\\b\\w+\\b):(.*)?",
+					"match": "^\\s*(\\*)\\s(\\b\\w+\\b)?:(.*)?",
 					"name": "entity",
 					"captures": {
 						"1": {

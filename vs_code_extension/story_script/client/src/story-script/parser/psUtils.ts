@@ -18,6 +18,8 @@ const separators = {
 	[CodeTokenType.ParenOpen]: '\\(',
 	[CodeTokenType.Backslash]: '\\\\',
 	[CodeTokenType.Slash]: '\/',
+	[CodeTokenType.SqBracketOpen]: '\[',
+	[CodeTokenType.SqBracketClose]: '\]',
 };
 
 const _allSeparators = Object.keys(separators).map((sepId: string) => {

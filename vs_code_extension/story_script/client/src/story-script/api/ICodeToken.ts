@@ -11,6 +11,8 @@ export enum CodeTokenType {
 	Star = 'Star',
 	ParenOpen = 'ParenOpen',
 	ParenClose = 'ParenClose',
+	SqBracketOpen = 'SqBracketOpen',
+	SqBracketClose = 'SqBracketClose',
 	Backslash = 'Backslash',
 	Slash = 'Slash',
 
