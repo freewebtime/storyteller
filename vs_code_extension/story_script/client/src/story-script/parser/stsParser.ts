@@ -48,6 +48,18 @@ const parseNext = (state: IParserState): IParserState => {
 		return clResult;
 	}
 
+	//namespace
+	const nsResult = parseNamespace(state);
+	if (nsResult) {
+		return nsResult;
+	}
+
+	//item line
+	const ilResult = parseItemLine(state);
+	if (ilResult) {
+		return ilResult;
+	}
+
 	state = psUtils.setCursorAtLineEnd(state);
 	return state;
 }
@@ -104,4 +116,192 @@ const addEndlineToken = (state: IParserState): IParserState => {
 	};
 
 	return state;
+}
+
+const parseNamespace = (state: IParserState): IParserState => {
+	if (state.cursor.symbol !== 0) {
+		return undefined;
+	}
+
+	const startResult = psUtils.readNext(state, /^- /);
+	if (startResult) {
+		const nsResult = psUtils.readUntil(state, / -/, undefined, 2);
+		if (nsResult) {
+			const openToken: ICodeToken = {
+				type: CodeTokenType.NsMark,
+				position: {
+					line: state.cursor.line,
+					symbol: 0,
+				},
+				value: startResult
+			}
+			
+			const closeToken: ICodeToken = {
+				type: CodeTokenType.NsMark,
+				position: {
+					line: state.cursor.line,
+					symbol: 2 + nsResult.length + 1,
+				},
+				value: ' -'
+			}
+
+			const nsToken: ICodeToken = {
+				type: CodeTokenType.Namespace,
+				position: {
+					line: state.cursor.line,
+					symbol: 2,
+				},
+				value: nsResult
+			};
+
+			state = {
+				...state,
+				tokens: [
+					...state.tokens,
+					openToken,
+					nsToken,
+					closeToken,
+				]
+			}
+
+			const endLinePos = psUtils.getEndLinePos(state);
+			state = psUtils.setCursor(state, endLinePos.line, endLinePos.symbol);
+
+			return state;
+		}
+	}
+
+	return undefined;
+}
+
+const parseItemLine = (state: IParserState): IParserState => {
+	if (state.cursor.symbol !== 0) {
+		return undefined;
+	}
+
+	const str = psUtils.getLineText(state);
+
+	const whitespace = psUtils.readNext(state, /^\s*/) || '';
+	const itemMarkIndex = whitespace.length;
+
+	const itemMarkResult = psUtils.readNext(state, /\* /, undefined, itemMarkIndex);
+	if (itemMarkResult) {
+		const itemNameIndex = itemMarkIndex + itemMarkResult.length;
+
+		const inResult = psUtils.readUntil(state, /: /, undefined, itemNameIndex);
+		if (inResult) {
+			const colonIndex = itemNameIndex + inResult.length;
+			const itemTypeIndex = colonIndex + 2;
+
+			const itResult = psUtils.readUntil(state, /[\*,; $]/, undefined, itemTypeIndex);
+			if (itResult) {
+				const itemMarkToken: ICodeToken = {
+					type: CodeTokenType.Item,
+					position: {
+						line: state.cursor.line,
+						symbol: itemMarkIndex,
+					},
+					value: itemMarkResult
+				}
+				const itemNameToken: ICodeToken = {
+					type: CodeTokenType.ItemName,
+					position: {
+						line: state.cursor.line,
+						symbol: itemNameIndex,
+					},
+					value: inResult
+				};
+				const colonToken: ICodeToken = {
+					type: CodeTokenType.Colon,
+					position: {
+						line: state.cursor.line,
+						symbol: colonIndex,
+					},
+					value: ': ' 
+				}
+				const itemTypeToken: ICodeToken = {
+					type: CodeTokenType.ItemType,
+					position: {
+						line: state.cursor.line,
+						symbol: itemTypeIndex,
+					},
+					value: itResult,
+				}
+
+				state = {
+					...state,
+					tokens: [
+						...state.tokens,
+						itemMarkToken,
+						itemNameToken,
+						colonToken,
+						itemTypeToken,
+					]
+				}
+
+				const endLinePos = psUtils.getEndLinePos(state);
+				state = psUtils.setCursor(state, endLinePos.line, endLinePos.symbol);
+
+				return state;
+			}
+		}
+	}
+
+	return undefined;
+}
+
+const parseLiteral = (state: IParserState): IParserState => {
+	if (state.cursor.symbol !== 0) {
+		return undefined;
+	}
+
+	const startResult = psUtils.readNext(state, /^- /);
+	if (startResult) {
+		const nsResult = psUtils.readUntil(state, / -/, undefined, 2);
+		if (nsResult) {
+			const openToken: ICodeToken = {
+				type: CodeTokenType.NsMark,
+				position: {
+					line: state.cursor.line,
+					symbol: 0,
+				},
+				value: '-'
+			}
+
+			const closeToken: ICodeToken = {
+				type: CodeTokenType.NsMark,
+				position: {
+					line: state.cursor.line,
+					symbol: 2 + nsResult.length + 1,
+				},
+				value: '-'
+			}
+
+			const nsToken: ICodeToken = {
+				type: CodeTokenType.Namespace,
+				position: {
+					line: state.cursor.line,
+					symbol: 2,
+				},
+				value: nsResult
+			};
+
+			state = {
+				...state,
+				tokens: [
+					...state.tokens,
+					openToken,
+					nsToken,
+					closeToken,
+				]
+			}
+
+			const endLinePos = psUtils.getEndLinePos(state);
+			state = psUtils.setCursor(state, endLinePos.line, endLinePos.symbol);
+
+			return state;
+		}
+	}
+
+	return undefined;
 }

@@ -25,6 +25,7 @@ export enum CodeTokenType {
 	ItemTypeStruct = 'ItemTypeStruct',
 
 	Namespace = 'Namespace',
+	NsMark = 'NsMark',
 
 	Literal = 'Literal',
 
