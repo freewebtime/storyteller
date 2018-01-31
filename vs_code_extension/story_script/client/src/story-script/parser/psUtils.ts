@@ -12,7 +12,7 @@ const separators = {
 	[CodeTokenType.Endline]: '\\r?\\n',
 	[CodeTokenType.Colon]: ':',
 	[CodeTokenType.Comma]: ',',
-	[CodeTokenType.Dot]: ',',
+	[CodeTokenType.Dot]: '\\.',
 	[CodeTokenType.Space]: '\\s',
 	[CodeTokenType.ParenClose]: '\\)',
 	[CodeTokenType.ParenOpen]: '\\(',
@@ -20,12 +20,16 @@ const separators = {
 	[CodeTokenType.Slash]: '\/',
 };
 
-const allSeparators = Object.keys(separators).map((sepId: string) => {
-	return {
+const _allSeparators = Object.keys(separators).map((sepId: string) => {
+	const result = {
 		id: sepId, 
 		pattern: separators[sepId],
 	};
+
+	return result;
 });
+
+const allSeparators = [..._allSeparators, {id: CodeTokenType.Endline, pattern: '$'}];
 
 const allSeparatorsPattern = allSeparators.reduce((prev: string, curr: {id: string, pattern: string}, index, array): string=>{
 	return prev ? `${prev}|(${curr.pattern})` : `(${curr.pattern})`;
@@ -195,9 +199,11 @@ export const psUtils = {
 			return undefined;
 		}
 
-		const match = str.match(psUtils.allSeparatorsPattern);
+		const pattern = psUtils.allSeparatorsPattern;
+		const match = str.match(pattern);
 		if (match) {
-			return str.substring(0, match.index);
+			const result = str.substring(0, match.index);
+			return result;
 		}
 
 		return undefined;
@@ -326,5 +332,12 @@ export const psUtils = {
 		return false;
 	},
 
+	combinePatterns: (patterns: string[]) => {
+		const result = patterns.reduce((prev: string, curr: string, index, array): string => {
+			return prev ? `${prev}|(${curr})` : `(${curr})`;
+		}, '');
+
+		return result;
+	},
 
 }

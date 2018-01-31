@@ -14,6 +14,7 @@ export enum CodeTokenType {
 	Backslash = 'Backslash',
 	Slash = 'Slash',
 
+	Whitespace = 'Whitespace',
 	Text = 'Text',
 	Number = 'Number',
 	Boolean = 'Boolean',

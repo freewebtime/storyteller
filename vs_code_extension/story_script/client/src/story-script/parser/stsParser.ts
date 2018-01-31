@@ -1,7 +1,7 @@
 import { ICodeToken, CodeTokenType, ITokenItem, ITokenLiteral } from "../api/ICodeToken";
 import { psUtils } from "./psUtils";
 import { IParserState } from "./IParserState";
-import { isNullOrUndefined } from "util";
+import * as vscode from 'vscode';
 
 export const parseStoryScript = (sourceCode: string) => {
 	const parserState: IParserState = {
@@ -58,6 +58,12 @@ const parseNext = (state: IParserState): IParserState => {
 	const ilResult = parseItemLine(state);
 	if (ilResult) {
 		return ilResult;
+	}
+
+	//and finally literal
+	const lResult = parseLiteral(state);
+	if (lResult) {
+		return lResult;
 	}
 
 	state = psUtils.setCursorAtLineEnd(state);
@@ -188,37 +194,60 @@ const parseItemLine = (state: IParserState): IParserState => {
 	if (itemMarkResult) {
 		const itemNameIndex = itemMarkIndex + itemMarkResult.length;
 
-		const inResult = psUtils.readUntil(state, /: /, undefined, itemNameIndex);
+		const inResult = psUtils.readUntil(state, /:/, undefined, itemNameIndex);
 		if (inResult) {
 			const colonIndex = itemNameIndex + inResult.length;
-			const itemTypeIndex = colonIndex + 2;
+			
+			const itemMarkToken: ICodeToken = {
+				type: CodeTokenType.Item,
+				position: {
+					line: state.cursor.line,
+					symbol: itemMarkIndex,
+				},
+				value: itemMarkResult
+			};
+			const itemNameToken: ICodeToken = {
+				type: CodeTokenType.ItemName,
+				position: {
+					line: state.cursor.line,
+					symbol: itemNameIndex,
+				},
+				value: inResult
+			};
+			const colonToken: ICodeToken = {
+				type: CodeTokenType.Colon,
+				position: {
+					line: state.cursor.line,
+					symbol: colonIndex,
+				},
+				value: ': '
+			};
+			const whitespaceToken: ICodeToken = {
+				type: CodeTokenType.Whitespace,
+				position: {
+					line: state.cursor.line,
+					symbol: 0,
+				},
+				value: whitespace
+			};
 
-			const itResult = psUtils.readUntil(state, /[\*,; $]/, undefined, itemTypeIndex);
+			state = {
+				...state,
+				tokens: [
+					...state.tokens,
+					whitespaceToken,
+					itemMarkToken,
+					itemNameToken,
+					colonToken,
+				]
+			};
+			state = psUtils.skipSymbols(state, colonIndex + 2);
+
+			const itemTypeIndex = colonIndex + 2;
+			const pattern = psUtils.combinePatterns(['\\*', ',', ';', '$'])
+			const itResult = psUtils.readUntil(state, new RegExp(pattern), undefined, itemTypeIndex);
 			if (itResult) {
-				const itemMarkToken: ICodeToken = {
-					type: CodeTokenType.Item,
-					position: {
-						line: state.cursor.line,
-						symbol: itemMarkIndex,
-					},
-					value: itemMarkResult
-				}
-				const itemNameToken: ICodeToken = {
-					type: CodeTokenType.ItemName,
-					position: {
-						line: state.cursor.line,
-						symbol: itemNameIndex,
-					},
-					value: inResult
-				};
-				const colonToken: ICodeToken = {
-					type: CodeTokenType.Colon,
-					position: {
-						line: state.cursor.line,
-						symbol: colonIndex,
-					},
-					value: ': ' 
-				}
+
 				const itemTypeToken: ICodeToken = {
 					type: CodeTokenType.ItemType,
 					position: {
@@ -226,15 +255,12 @@ const parseItemLine = (state: IParserState): IParserState => {
 						symbol: itemTypeIndex,
 					},
 					value: itResult,
-				}
+				};
 
 				state = {
 					...state,
 					tokens: [
 						...state.tokens,
-						itemMarkToken,
-						itemNameToken,
-						colonToken,
 						itemTypeToken,
 					]
 				}
@@ -251,53 +277,111 @@ const parseItemLine = (state: IParserState): IParserState => {
 }
 
 const parseLiteral = (state: IParserState): IParserState => {
-	if (state.cursor.symbol !== 0) {
-		return undefined;
+	const mentionResult = parseMention(state);
+	if (mentionResult) {
+		return mentionResult;
 	}
 
-	const startResult = psUtils.readNext(state, /^- /);
-	if (startResult) {
-		const nsResult = psUtils.readUntil(state, / -/, undefined, 2);
-		if (nsResult) {
-			const openToken: ICodeToken = {
-				type: CodeTokenType.NsMark,
-				position: {
-					line: state.cursor.line,
-					symbol: 0,
-				},
-				value: '-'
-			}
+	const pattern = /(\/\/)|(\/\*)|(\*)|($)/
+	const lResult = psUtils.readUntil(state, pattern);
 
-			const closeToken: ICodeToken = {
-				type: CodeTokenType.NsMark,
-				position: {
-					line: state.cursor.line,
-					symbol: 2 + nsResult.length + 1,
-				},
-				value: '-'
-			}
+	if (lResult) {
+		const literalToken: ICodeToken = {
+			type: CodeTokenType.Literal,
+			position: {
+				line: state.cursor.line,
+				symbol: state.cursor.symbol,
+			},
+			value: lResult
+		}
 
-			const nsToken: ICodeToken = {
-				type: CodeTokenType.Namespace,
+		state = {
+			...state,
+			tokens: [
+				...state.tokens,
+				literalToken,
+			]
+		};
+
+		state = psUtils.skipSymbols(state, lResult.length);
+		return state;
+	}
+
+	return undefined;
+}
+
+const parseMention = (state: IParserState): IParserState => {
+	const mMark = psUtils.readNext(state, /\*/);
+	const line = state.cursor.line;
+	const mentionMarkIndex = state.cursor.symbol;
+	const refNameIndex = mentionMarkIndex + 1;
+
+	if (mMark) {
+		const refName = psUtils.readUtilSeparator(state, undefined, refNameIndex);
+		if (refName) {
+			const mMarkToken: ICodeToken = {
+				type: CodeTokenType.Mention,
 				position: {
-					line: state.cursor.line,
-					symbol: 2,
+					line,
+					symbol: mentionMarkIndex
 				},
-				value: nsResult
+				value: mMark,
+			};
+
+			const refNameToken: ICodeToken = {
+				type: CodeTokenType.Text,
+				position: {
+					line,
+					symbol: refNameIndex
+				},
+				value: refName
 			};
 
 			state = {
 				...state,
 				tokens: [
 					...state.tokens,
-					openToken,
-					nsToken,
-					closeToken,
+					mMarkToken,
+					refNameToken
 				]
-			}
+			};
 
-			const endLinePos = psUtils.getEndLinePos(state);
-			state = psUtils.setCursor(state, endLinePos.line, endLinePos.symbol);
+			state = psUtils.skipSymbols(state, mMark.length + refName.length);
+
+			while (psUtils.readNext(state, /\./)) {
+				const subrefNameIndex = state.cursor.symbol + 1;
+				const subrefName = psUtils.readUtilSeparator(state, undefined, subrefNameIndex);
+				if (subrefName) {
+					const dotToken: ICodeToken = {
+						type: CodeTokenType.Dot,
+						position: {
+							line,
+							symbol: state.cursor.symbol
+						},
+						value: '.'
+					};
+
+					const subrefNameToken: ICodeToken = {
+						type: CodeTokenType.Text,
+						position: {
+							line,
+							symbol: subrefNameIndex
+						},
+						value: subrefName
+					};
+
+					state = {
+						...state,
+						tokens: [
+							...state.tokens,
+							dotToken,
+							subrefNameToken,
+						]
+					};
+
+					state = psUtils.skipSymbols(state, 1 + subrefName.length);
+				}
+			}
 
 			return state;
 		}
