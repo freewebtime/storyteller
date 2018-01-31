@@ -189,8 +189,8 @@ const parseItemLine = (state: IParserState): IParserState => {
 
 	const whitespace = psUtils.readNext(state, /^\s*/) || '';
 	const itemMarkIndex = whitespace.length;
-
 	const itemMarkResult = psUtils.readNext(state, /\* /, undefined, itemMarkIndex);
+	
 	if (itemMarkResult) {
 		const itemNameIndex = itemMarkIndex + itemMarkResult.length;
 
@@ -243,37 +243,40 @@ const parseItemLine = (state: IParserState): IParserState => {
 			};
 			state = psUtils.skipSymbols(state, colonIndex + 2);
 
-			const itemTypeIndex = colonIndex + 2;
-			const pattern = psUtils.combinePatterns(['\\*', ',', ';', '$'])
-			const itResult = psUtils.readUntil(state, new RegExp(pattern), undefined, itemTypeIndex);
-			if (itResult) {
-
-				const itemTypeToken: ICodeToken = {
-					type: CodeTokenType.ItemType,
-					position: {
-						line: state.cursor.line,
-						symbol: itemTypeIndex,
-					},
-					value: itResult,
-				};
-
-				state = {
-					...state,
-					tokens: [
-						...state.tokens,
-						itemTypeToken,
-					]
-				}
-
-				const endLinePos = psUtils.getEndLinePos(state);
-				state = psUtils.setCursor(state, endLinePos.line, endLinePos.symbol);
-
-				return state;
-			}
+			state = parseItemType(state) || state;
+			return state;
 		}
 	}
 
 	return undefined;
+}
+
+const parseItemType = (state: IParserState): IParserState => {
+	const pattern = psUtils.combinePatterns(['\\*', ',', ';', '\\/\\/', '$'])
+	const itResult = psUtils.readUntil(state, new RegExp(pattern));
+
+	if (!itResult) {
+		return undefined;
+	}
+
+	const itemTypeToken: ICodeToken = {
+		type: CodeTokenType.ItemType,
+		position: {...state.cursor},
+		value: itResult,
+	};
+
+	state = {
+		...state,
+		tokens: [
+			...state.tokens,
+			itemTypeToken,
+		]
+	}
+
+	const endLinePos = psUtils.getEndLinePos(state);
+	state = psUtils.setCursor(state, endLinePos.line, endLinePos.symbol);
+
+	return state;
 }
 
 const parseLiteral = (state: IParserState): IParserState => {
