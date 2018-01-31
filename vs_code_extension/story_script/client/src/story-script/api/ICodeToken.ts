@@ -22,8 +22,9 @@ export enum CodeTokenType {
 	Item = 'Item',
 	ItemName = 'ItemName',
 	ItemType = 'ItemType',
-	ItemTypeFunc = 'ItemTypeFunc',
-	ItemTypeStruct = 'ItemTypeStruct',
+	
+	ParamName = 'ParamName',
+	ParamType = 'ParamType',
 
 	Namespace = 'Namespace',
 	NsMark = 'NsMark',

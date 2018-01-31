@@ -14,7 +14,7 @@ export const parseStoryScript = (sourceCode: string) => {
 	let state = parserState;
 
 	const separator = psUtils.readSeparator(state);
-	const untilSeparator = psUtils.readUtilSeparator(state);
+	const untilSeparator = psUtils.readUntilSeparator(state);
 	const endBlock = psUtils.readUntilMultiline(state, /\*\//)
 
 	while (!psUtils.isEndOfFile(state)) {
@@ -191,69 +191,75 @@ const parseItemLine = (state: IParserState): IParserState => {
 	const itemMarkIndex = whitespace.length;
 	const itemMarkResult = psUtils.readNext(state, /\* /, undefined, itemMarkIndex);
 	
-	if (itemMarkResult) {
-		const itemNameIndex = itemMarkIndex + itemMarkResult.length;
-
-		const inResult = psUtils.readUntil(state, /:/, undefined, itemNameIndex);
-		if (inResult) {
-			const colonIndex = itemNameIndex + inResult.length;
-			
-			const itemMarkToken: ICodeToken = {
-				type: CodeTokenType.Item,
-				position: {
-					line: state.cursor.line,
-					symbol: itemMarkIndex,
-				},
-				value: itemMarkResult
-			};
-			const itemNameToken: ICodeToken = {
-				type: CodeTokenType.ItemName,
-				position: {
-					line: state.cursor.line,
-					symbol: itemNameIndex,
-				},
-				value: inResult
-			};
-			const colonToken: ICodeToken = {
-				type: CodeTokenType.Colon,
-				position: {
-					line: state.cursor.line,
-					symbol: colonIndex,
-				},
-				value: ': '
-			};
-			const whitespaceToken: ICodeToken = {
-				type: CodeTokenType.Whitespace,
-				position: {
-					line: state.cursor.line,
-					symbol: 0,
-				},
-				value: whitespace
-			};
-
-			state = {
-				...state,
-				tokens: [
-					...state.tokens,
-					whitespaceToken,
-					itemMarkToken,
-					itemNameToken,
-					colonToken,
-				]
-			};
-			state = psUtils.skipSymbols(state, colonIndex + 2);
-
-			state = parseItemType(state) || state;
-			return state;
-		}
+	if (!itemMarkResult) {
+		return undefined;
 	}
 
-	return undefined;
+	const itemNameIndex = itemMarkIndex + itemMarkResult.length;
+
+	const inResult = psUtils.readUntil(state, /:/, undefined, itemNameIndex);
+
+	if (!inResult) {
+		return undefined;
+	}
+
+	const colonIndex = itemNameIndex + inResult.length;
+	
+	const itemMarkToken: ICodeToken = {
+		type: CodeTokenType.Item,
+		position: {
+			line: state.cursor.line,
+			symbol: itemMarkIndex,
+		},
+		value: itemMarkResult
+	};
+	const itemNameToken: ICodeToken = {
+		type: CodeTokenType.ItemName,
+		position: {
+			line: state.cursor.line,
+			symbol: itemNameIndex,
+		},
+		value: inResult
+	};
+	const colonToken: ICodeToken = {
+		type: CodeTokenType.Colon,
+		position: {
+			line: state.cursor.line,
+			symbol: colonIndex,
+		},
+		value: ': '
+	};
+	const whitespaceToken: ICodeToken = {
+		type: CodeTokenType.Whitespace,
+		position: {
+			line: state.cursor.line,
+			symbol: 0,
+		},
+		value: whitespace
+	};
+
+	state = {
+		...state,
+		tokens: [
+			...state.tokens,
+			whitespaceToken,
+			itemMarkToken,
+			itemNameToken,
+			colonToken,
+		]
+	};
+	state = psUtils.skipSymbols(state, colonIndex + 2);
+	state = skipCommentBlock(state) || state;
+
+	state = parseItemType(state) || state;
+
+	return state;
 }
 
 const parseItemType = (state: IParserState): IParserState => {
-	const pattern = psUtils.combinePatterns(['\\*', ',', ';', '\\/\\/', '$'])
-	const itResult = psUtils.readUntil(state, new RegExp(pattern));
+	state = skipCommentBlock(state) || state;
+
+	const itResult = psUtils.readUntilSeparator(state);
 
 	if (!itResult) {
 		return undefined;
@@ -265,16 +271,133 @@ const parseItemType = (state: IParserState): IParserState => {
 		value: itResult,
 	};
 
-	state = {
-		...state,
-		tokens: [
-			...state.tokens,
-			itemTypeToken,
-		]
+	state = psUtils.addToken(state, itemTypeToken);
+	state = psUtils.skipSymbols(state, itResult.length);
+	state = skipCommentBlock(state) || state;
+
+	const dotResult = parseDot(state);
+	if (dotResult) {
+		state = dotResult;
+		state = parseItemType(state) || state;
 	}
 
-	const endLinePos = psUtils.getEndLinePos(state);
-	state = psUtils.setCursor(state, endLinePos.line, endLinePos.symbol);
+	state = parseFunctionSignature(state) || state;
+
+	return state;
+}
+
+const parseFunctionSignature = (state: IParserState): IParserState => {
+	
+	state = parseParenOpen(state);
+	if (!state) {
+		return undefined;
+	}
+
+	let paramState = parseFsParam(state);
+	while (paramState) {
+		state = paramState;
+		state = psUtils.skipEmptySymbols(state);
+
+		const commaResult = parseComma(state);
+		if (!commaResult) {
+			break;
+		}
+
+		state = commaResult;
+		state = psUtils.skipEmptySymbols(state);
+
+		paramState = parseFsParam(state);
+	}
+
+	const pcResult = parseParenClose(state);
+	if (pcResult) {
+		state = pcResult;
+		state = psUtils.skipEmptySymbols(state);
+	}
+
+	return state;
+}
+
+const parseFsParam = (state: IParserState): IParserState => {
+	state = parseParamName(state);
+	
+	if (!state) {
+		return undefined;
+	}
+
+	state = psUtils.skipEmptySymbols(state);
+
+	if (parseComma(state) || parseParenClose(state)) {
+		// this param is over and it's hasn't type
+		return state;
+	}
+
+	const colonResult = parseColon(state);
+	if (!colonResult) {
+		return state;
+	}
+
+	state = colonResult;
+	state = parseParamType(state) || state;
+
+	return state;
+}
+
+const parseParamName = (state: IParserState): IParserState => {
+	const pnResult = psUtils.readUntilSeparator(state);
+
+	if (!pnResult) {
+		return undefined;
+	}
+
+	const paramNameToken: ICodeToken = {
+		type: CodeTokenType.ParamName,
+		position: { ...state.cursor },
+		value: pnResult,
+	};
+
+	state = psUtils.addToken(state, paramNameToken);
+	state = psUtils.skipSymbols(state, pnResult.length);
+	state = psUtils.skipEmptySymbols(state);
+
+	return state;
+}
+
+const parseParamType = (state: IParserState): IParserState => {
+	state = psUtils.skipEmptySymbols(state);
+	const ptResult = psUtils.readUntilSeparator(state);
+
+	if (!ptResult) {
+		return undefined;
+	}
+
+	const paramTypeToken: ICodeToken = {
+		type: CodeTokenType.ParamType,
+		position: { ...state.cursor },
+		value: ptResult,
+	};
+
+	state = psUtils.addToken(state, paramTypeToken);
+	state = psUtils.skipSymbols(state, ptResult.length);
+	state = psUtils.skipEmptySymbols(state);
+
+	if (parseParenClose(state) || parseComma(state)) {
+		return state;
+	}
+
+	const dotResult = parseDot(state);
+	if (dotResult) {
+		state = dotResult;
+
+		state = parseParamType(state) || state;
+		return state;
+	}
+
+	const poResult = parseParenOpen(state);
+	if (poResult) {
+		state = parseFunctionSignature(state);
+		return state;
+	}
 
 	return state;
 }
@@ -320,7 +443,7 @@ const parseMention = (state: IParserState): IParserState => {
 	const refNameIndex = mentionMarkIndex + 1;
 
 	if (mMark) {
-		const refName = psUtils.readUtilSeparator(state, undefined, refNameIndex);
+		const refName = psUtils.readUntilSeparator(state, undefined, refNameIndex);
 		if (refName) {
 			const mMarkToken: ICodeToken = {
 				type: CodeTokenType.Mention,
@@ -353,7 +476,7 @@ const parseMention = (state: IParserState): IParserState => {
 
 			while (psUtils.readNext(state, /\./)) {
 				const subrefNameIndex = state.cursor.symbol + 1;
-				const subrefName = psUtils.readUtilSeparator(state, undefined, subrefNameIndex);
+				const subrefName = psUtils.readUntilSeparator(state, undefined, subrefNameIndex);
 				if (subrefName) {
 					const dotToken: ICodeToken = {
 						type: CodeTokenType.Dot,
@@ -391,4 +514,113 @@ const parseMention = (state: IParserState): IParserState => {
 	}
 
 	return undefined;
+}
+
+const parseParenOpen = (state: IParserState): IParserState => {
+	const opResult = psUtils.readNext(state, new RegExp(/\(/));
+
+	if (!opResult) {
+		return undefined;
+	}
+
+	const openParenToken: ICodeToken = {
+		type: CodeTokenType.ParenOpen,
+		position: { ...state.cursor },
+		value: opResult
+	};
+
+	state = psUtils.addToken(state, openParenToken);
+	state = psUtils.skipSymbols(state, opResult.length);
+
+	return state;
+}
+const parseParenClose = (state: IParserState): IParserState => {
+	const cpResult = psUtils.readNext(state, new RegExp(/\)/));
+
+	if (!cpResult) {
+		return undefined;
+	}
+
+	const closeParenToken: ICodeToken = {
+		type: CodeTokenType.ParenClose,
+		position: { ...state.cursor },
+		value: cpResult
+	};
+
+	state = psUtils.addToken(state, closeParenToken);
+	state = psUtils.skipSymbols(state, cpResult.length);
+
+	return state;
+}
+const parseColon = (state: IParserState): IParserState => {
+	const colonResult = psUtils.readNext(state, new RegExp(/:/));
+
+	if (!colonResult) {
+		return undefined;
+	}
+
+	const colonToken: ICodeToken = {
+		type: CodeTokenType.Colon,
+		position: { ...state.cursor },
+		value: colonResult
+	};
+
+	state = psUtils.addToken(state, colonToken);
+	state = psUtils.skipSymbols(state, colonResult.length);
+
+	return state;
+}
+const parseComma = (state: IParserState): IParserState => {
+	const commaResult = psUtils.readNext(state, new RegExp(/,/));
+
+	if (!commaResult) {
+		return undefined;
+	}
+
+	const commaToken: ICodeToken = {
+		type: CodeTokenType.Comma,
+		position: { ...state.cursor },
+		value: commaResult
+	};
+
+	state = psUtils.addToken(state, commaToken);
+	state = psUtils.skipSymbols(state, commaResult.length);
+
+	return state;
+}
+const parseStar = (state: IParserState): IParserState => {
+	const starResult = psUtils.readNext(state, new RegExp(/\*/));
+
+	if (!starResult) {
+		return undefined;
+	}
+
+	const starToken: ICodeToken = {
+		type: CodeTokenType.Star,
+		position: { ...state.cursor },
+		value: starResult
+	};
+
+	state = psUtils.addToken(state, starToken);
+	state = psUtils.skipSymbols(state, starResult.length);
+
+	return state;
+}
+const parseDot = (state: IParserState): IParserState => {
+	const dotResult = psUtils.readNext(state, new RegExp(/\./));
+
+	if (!dotResult) {
+		return undefined;
+	}
+
+	const dotToken: ICodeToken = {
+		type: CodeTokenType.Dot,
+		position: { ...state.cursor },
+		value: dotResult
+	};
+
+	state = psUtils.addToken(state, dotToken);
+	state = psUtils.skipSymbols(state, dotResult.length);
+
+	return state;
 }

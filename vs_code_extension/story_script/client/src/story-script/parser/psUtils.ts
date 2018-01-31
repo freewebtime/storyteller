@@ -88,6 +88,29 @@ export const psUtils = {
 			}
 		}
 	},
+	skipEmptySymbols: (state: IParserState): IParserState => {
+		const rr = psUtils.readNext(state, / +/);
+
+		if (!rr) {
+			return state;
+		}
+
+		return psUtils.skipSymbols(state, rr.length);
+	},
+
+	addToken: (state: IParserState, token: ICodeToken): IParserState => {
+		if (!token) {
+			return state;
+		}
+
+		return {
+			...state,
+			tokens: [
+				...state.tokens,
+				token
+			]
+		};
+	},
 
 	readNext: (state: IParserState, pattern: RegExp, line: number | undefined = undefined, symbol: number | undefined = undefined): string => {
 		const str = psUtils.getLineText(state, line, symbol);
@@ -193,7 +216,7 @@ export const psUtils = {
 		return undefined;
 	},
 
-	readUtilSeparator: (state: IParserState, line: number | undefined = undefined, symbol: number | undefined = undefined): string => {
+	readUntilSeparator: (state: IParserState, line: number | undefined = undefined, symbol: number | undefined = undefined): string => {
 		const str = psUtils.getLineText(state, line, symbol);
 		if (!str) {
 			return undefined;
@@ -306,8 +329,8 @@ export const psUtils = {
 
 		const lineText = state.lines[line] || '';
 		const lineLength = lineText.length;
-		const result = symbol < lineLength - 1;
-		return !result;
+		const result = symbol >= lineLength;
+		return result;
 	},
 
 	isEndOfFile: (state: IParserState, line: number | undefined = undefined, symbol: number | undefined = undefined): boolean => {
