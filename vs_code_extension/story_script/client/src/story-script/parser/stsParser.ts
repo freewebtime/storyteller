@@ -13,8 +13,10 @@ export const parseStoryScript = (sourceCode: string) => {
 
 	let state = parserState;
 
+	const nsResult = psUtils.parseNamespace(state);
+
 	const separator = psUtils.readSeparator(state);
-	const untilSeparator = psUtils.readUntilSeparator(state);
+	const untilSeparator = psUtils.readWord(state);
 	const endBlock = psUtils.readUntilMultiline(state, /\*\//)
 
 	while (!psUtils.isEndOfFile(state)) {
@@ -259,7 +261,7 @@ const parseItemLine = (state: IParserState): IParserState => {
 const parseItemType = (state: IParserState): IParserState => {
 	state = skipCommentBlock(state) || state;
 
-	const itResult = psUtils.readUntilSeparator(state);
+	const itResult = psUtils.readWord(state);
 
 	if (!itResult) {
 		return undefined;
@@ -275,7 +277,7 @@ const parseItemType = (state: IParserState): IParserState => {
 	state = psUtils.skipSymbols(state, itResult.length);
 	state = skipCommentBlock(state) || state;
 
-	const dotResult = psUtils.parseDot(state);
+	const dotResult = psUtils.parseDot2(state);
 	if (dotResult) {
 		state = dotResult;
 		state = parseItemType(state) || state;
@@ -288,7 +290,7 @@ const parseItemType = (state: IParserState): IParserState => {
 
 const parseFunctionSignature = (state: IParserState): IParserState => {
 	
-	state = psUtils.parseParenOpen(state);
+	state = psUtils.parseParenOpen2(state);
 	if (!state) {
 		return undefined;
 	}
@@ -298,7 +300,7 @@ const parseFunctionSignature = (state: IParserState): IParserState => {
 		state = paramState;
 		state = psUtils.skipEmptySymbols(state);
 
-		const commaResult = psUtils.parseComma(state);
+		const commaResult = psUtils.parseComma2(state);
 		if (!commaResult) {
 			break;
 		}
@@ -309,7 +311,7 @@ const parseFunctionSignature = (state: IParserState): IParserState => {
 		paramState = parseFsParam(state);
 	}
 
-	const pcResult = psUtils.parseParenClose(state);
+	const pcResult = psUtils.parseParenClose2(state);
 	if (pcResult) {
 		state = pcResult;
 		state = psUtils.skipEmptySymbols(state);
@@ -327,12 +329,12 @@ const parseFsParam = (state: IParserState): IParserState => {
 
 	state = psUtils.skipEmptySymbols(state);
 
-	if (psUtils.parseComma(state) || psUtils.parseParenClose(state)) {
+	if (psUtils.parseComma2(state) || psUtils.parseParenClose2(state)) {
 		// this param is over and it's hasn't type
 		return state;
 	}
 
-	const colonResult = psUtils.parseColon(state);
+	const colonResult = psUtils.parseColon2(state);
 	if (!colonResult) {
 		return state;
 	}
@@ -344,7 +346,7 @@ const parseFsParam = (state: IParserState): IParserState => {
 }
 
 const parseParamName = (state: IParserState): IParserState => {
-	const pnResult = psUtils.readUntilSeparator(state);
+	const pnResult = psUtils.readWord(state);
 
 	if (!pnResult) {
 		return undefined;
@@ -365,7 +367,7 @@ const parseParamName = (state: IParserState): IParserState => {
 
 const parseParamType = (state: IParserState): IParserState => {
 	state = psUtils.skipEmptySymbols(state);
-	const ptResult = psUtils.readUntilSeparator(state);
+	const ptResult = psUtils.readWord(state);
 
 	if (!ptResult) {
 		return undefined;
@@ -381,11 +383,11 @@ const parseParamType = (state: IParserState): IParserState => {
 	state = psUtils.skipSymbols(state, ptResult.length);
 	state = psUtils.skipEmptySymbols(state);
 
-	if (psUtils.parseParenClose(state) || psUtils.parseComma(state)) {
+	if (psUtils.parseParenClose2(state) || psUtils.parseComma2(state)) {
 		return state;
 	}
 
-	const dotResult = psUtils.parseDot(state);
+	const dotResult = psUtils.parseDot2(state);
 	if (dotResult) {
 		state = dotResult;
 
@@ -393,7 +395,7 @@ const parseParamType = (state: IParserState): IParserState => {
 		return state;
 	}
 
-	const poResult = psUtils.parseParenOpen(state);
+	const poResult = psUtils.parseParenOpen2(state);
 	if (poResult) {
 		state = parseFunctionSignature(state);
 		return state;
@@ -443,7 +445,7 @@ const parseMention = (state: IParserState): IParserState => {
 	const refNameIndex = mentionMarkIndex + 1;
 
 	if (mMark) {
-		const refName = psUtils.readUntilSeparator(state, undefined, refNameIndex);
+		const refName = psUtils.readWord(state, undefined, refNameIndex);
 		if (refName) {
 			const mMarkToken: ICodeToken = {
 				type: CodeTokenType.Mention,
@@ -476,7 +478,7 @@ const parseMention = (state: IParserState): IParserState => {
 
 			while (psUtils.readNext(state, /\./)) {
 				const subrefNameIndex = state.cursor.symbol + 1;
-				const subrefName = psUtils.readUntilSeparator(state, undefined, subrefNameIndex);
+				const subrefName = psUtils.readWord(state, undefined, subrefNameIndex);
 				if (subrefName) {
 					const dotToken: ICodeToken = {
 						type: CodeTokenType.Dot,

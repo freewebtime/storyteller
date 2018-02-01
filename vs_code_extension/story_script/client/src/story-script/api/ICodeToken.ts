@@ -18,6 +18,7 @@ export enum CodeTokenType {
 
 	Whitespace = 'Whitespace',
 	Text = 'Text',
+	Word = 'Word',
 	Number = 'Number',
 	Boolean = 'Boolean',
 
@@ -29,7 +30,8 @@ export enum CodeTokenType {
 	ParamType = 'ParamType',
 
 	Namespace = 'Namespace',
-	NsMark = 'NsMark',
+	NsMarkStart = 'NsMarkStart',
+	NsMarkEnd = 'NsMarkEnd',
 
 	Literal = 'Literal',
 
@@ -47,6 +49,16 @@ export interface ICodeToken {
 	type: CodeTokenType;
 	value?: string;
 	position?: ISymbolPosition;
+}
+
+export interface INamespaceToken extends ICodeToken {
+	openMark: ICodeToken;
+	name: ICodeToken;
+	closeMark: ICodeToken;	
+}
+
+export interface ITextToken extends ICodeToken {
+	words: ICodeToken[];
 }
 
 export interface ITokenItem extends ICodeToken {

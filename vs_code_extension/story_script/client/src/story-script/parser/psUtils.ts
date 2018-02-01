@@ -5,7 +5,9 @@ import {
 import {
 	ICodeToken,
 	CodeTokenType,
-	ISymbolPosition
+	ISymbolPosition,
+	INamespaceToken,
+	ITextToken
 } from "../api/ICodeToken";
 
 const separators = {
@@ -21,6 +23,12 @@ const separators = {
 	[CodeTokenType.SqBracketOpen]: '\[',
 	[CodeTokenType.SqBracketClose]: '\]',
 };
+
+const keywords = {
+	...separators,
+	[CodeTokenType.NsMarkStart]: '- ',
+	[CodeTokenType.NsMarkEnd]: ' -',
+}
 
 const _allSeparators = Object.keys(separators).map((sepId: string) => {
 	const result = {
@@ -39,6 +47,7 @@ const allSeparatorsPattern = allSeparators.reduce((prev: string, curr: {id: stri
 
 export const psUtils = {
 	separators,
+	keywords,
 	allSeparators,
 	allSeparatorsPattern,
 
@@ -100,18 +109,25 @@ export const psUtils = {
 		return psUtils.skipSymbols(state, rr.length);
 	},
 
-	addToken: (state: IParserState, token: ICodeToken): IParserState => {
+	addToken: (state: IParserState, token: ICodeToken, isSkipSymbols: boolean = true): IParserState => {
 		if (!token) {
 			return state;
 		}
 
-		return {
+		state = {
 			...state,
 			tokens: [
 				...state.tokens,
 				token
 			]
 		};
+
+		if (isSkipSymbols) {
+			const tokenLength = (token.value || '').length;
+			state = psUtils.skipSymbols(state, tokenLength);
+		}
+
+		return state;
 	},
 
 	readNext: (state: IParserState, pattern: RegExp, line: number | undefined = undefined, symbol: number | undefined = undefined): string => {
@@ -218,7 +234,7 @@ export const psUtils = {
 		return undefined;
 	},
 
-	readUntilSeparator: (state: IParserState, line: number | undefined = undefined, symbol: number | undefined = undefined): string => {
+	readWord: (state: IParserState, line: number | undefined = undefined, symbol: number | undefined = undefined): string => {
 		const str = psUtils.getLineText(state, line, symbol);
 		if (!str) {
 			return undefined;
@@ -365,7 +381,61 @@ export const psUtils = {
 		return result;
 	},
 
-	parseParenOpen: (state: IParserState): IParserState => {
+	parseWord: (state: IParserState, tokenType: CodeTokenType): ICodeToken => {
+		const tokenValue = psUtils.readWord(state);
+
+		if (!tokenValue) {
+			return undefined;
+		}
+
+		const token: ICodeToken = {
+			type: tokenType,
+			position: { ...state.cursor },
+			value: tokenValue
+		};
+
+		return token;
+	},
+	
+	parseNext: (state: IParserState, pattern: RegExp, tokenType: CodeTokenType): ICodeToken => {
+		const tokenValue = psUtils.readNext(state, pattern);
+
+		if (!tokenValue) {
+			return undefined;
+		}
+
+		const token: ICodeToken = {
+			type: tokenType,
+			position: { ...state.cursor },
+			value: tokenValue
+		};
+
+		return token;
+	},
+
+	parseKeyword: (state: IParserState, keyword: CodeTokenType): ICodeToken => {
+		const pattern = psUtils.keywords[keyword];
+		if (!pattern) {
+			return undefined;
+		}
+
+		const regex = new RegExp(pattern);
+		const kwValue = psUtils.readNext(state, regex);
+
+		if (!kwValue) {
+			return undefined;
+		}
+
+		const token: ICodeToken = {
+			type: keyword,
+			position: { ...state.cursor },
+			value: kwValue
+		};
+
+		return token;
+	},
+
+	parseParenOpen2: (state: IParserState): IParserState => {
 		const opResult = psUtils.readNext(state, new RegExp(/\(/));
 
 		if (!opResult) {
@@ -383,7 +453,7 @@ export const psUtils = {
 
 		return state;
 	},
-	parseParenClose: (state: IParserState): IParserState => {
+	parseParenClose2: (state: IParserState): IParserState => {
 		const cpResult = psUtils.readNext(state, new RegExp(/\)/));
 
 		if (!cpResult) {
@@ -401,7 +471,7 @@ export const psUtils = {
 
 		return state;
 	},
-	parseColon: (state: IParserState): IParserState => {
+	parseColon2: (state: IParserState): IParserState => {
 		const colonResult = psUtils.readNext(state, new RegExp(/:/));
 
 		if (!colonResult) {
@@ -419,7 +489,7 @@ export const psUtils = {
 
 		return state;
 	},
-	parseComma: (state: IParserState): IParserState => {
+	parseComma2: (state: IParserState): IParserState => {
 		const commaResult = psUtils.readNext(state, new RegExp(/,/));
 
 		if (!commaResult) {
@@ -437,7 +507,7 @@ export const psUtils = {
 
 		return state;
 	},
-	parseStar: (state: IParserState): IParserState => {
+	parseStar2: (state: IParserState): IParserState => {
 		const starResult = psUtils.readNext(state, new RegExp(/\*/));
 
 		if (!starResult) {
@@ -455,7 +525,7 @@ export const psUtils = {
 
 		return state;
 	},
-	parseDot: (state: IParserState): IParserState => {
+	parseDot2: (state: IParserState): IParserState => {
 		const dotResult = psUtils.readNext(state, new RegExp(/\./));
 
 		if (!dotResult) {
@@ -473,4 +543,112 @@ export const psUtils = {
 
 		return state;
 	},
+	parseNsMarkStart2: (state: IParserState): IParserState => {
+		const nsmResult = psUtils.readNext(state, new RegExp(/- /));
+
+		if (!nsmResult) {
+			return undefined;
+		}
+
+		const nsmToken: ICodeToken = {
+			type: CodeTokenType.NsMarkStart,
+			position: { ...state.cursor },
+			value: nsmResult
+		};
+
+		state = psUtils.addToken(state, nsmToken);
+		state = psUtils.skipSymbols(state, nsmResult.length);
+
+		return state;
+	},
+	parseNsMarkEnd2: (state: IParserState): IParserState => {
+		const nsmResult = psUtils.readNext(state, new RegExp(/ -/));
+
+		if (!nsmResult) {
+			return undefined;
+		}
+
+		const nsmToken: ICodeToken = {
+			type: CodeTokenType.NsMarkStart,
+			position: { ...state.cursor },
+			value: nsmResult
+		};
+
+		state = psUtils.addToken(state, nsmToken);
+		state = psUtils.skipSymbols(state, nsmResult.length);
+
+		return state;
+	},
+
+	parseNamespace: (state: IParserState): ICodeToken => {
+		
+		if (state.cursor.symbol !== 0) {
+			return undefined;
+		}
+
+		const openMark = psUtils.parseKeyword(state, CodeTokenType.NsMarkStart);
+		
+		if (openMark) {
+			state = psUtils.skipSymbols(state, openMark.value.length);
+			const nsName = psUtils.parseNsName(state);
+			
+			if (nsName) {
+				state = psUtils.skipSymbols(state, nsName.value.length);
+				const closeMark = psUtils.parseKeyword(state, CodeTokenType.NsMarkEnd);
+
+				if (closeMark) {
+
+					const token: INamespaceToken = {
+						type: CodeTokenType.Namespace,
+						position: {...openMark.position},
+						value: '' + openMark.value + nsName.value + closeMark.value,
+						openMark,
+						closeMark,
+						name: nsName
+					}
+
+					return token;
+				}
+
+			}
+
+		}
+	
+		return undefined;
+	},
+
+	parseNsName: (state: IParserState): ICodeToken => {
+		const nsName = psUtils.parseWord(state, CodeTokenType.Word);
+		if (!nsName) {
+			return undefined;
+		}
+
+		let words = [nsName];
+		let textValue = nsName.value || '';
+		state = psUtils.skipSymbols(state, nsName.value.length);
+
+		let dot: ICodeToken;
+		while (dot = psUtils.parseKeyword(state, CodeTokenType.Dot)) {
+			words = [...words, dot];
+			textValue = textValue + dot.value;
+			state = psUtils.skipSymbols(state, dot.value.length);
+
+			const word = psUtils.parseWord(state, CodeTokenType.Word);
+			if (word) {
+				words = [...words, word];
+				textValue = textValue + word.value;
+				state = psUtils.skipSymbols(state, word.value.length);
+			}
+		}
+
+		const nsNameToken: ITextToken = {
+			type: CodeTokenType.Text,
+			position: {...nsName.position},
+			value: textValue,
+			words: words,
+		};
+
+		return nsNameToken;
+	},
+
 }
