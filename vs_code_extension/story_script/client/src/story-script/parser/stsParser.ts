@@ -1,4 +1,4 @@
-import { ICodeToken, CodeTokenType, ITokenItem, ITokenLiteral } from "../api/ICodeToken";
+import { ICodeToken, CodeTokenType, ITokenLiteral } from "../api/ICodeToken";
 import { psUtils } from "./psUtils";
 import { IParserState } from "./IParserState";
 import * as vscode from 'vscode';
@@ -13,6 +13,7 @@ export const parseStoryScript = (sourceCode: string) => {
 
 	let state = parserState;
 
+	const itemResult = psUtils.parseItem(state);
 	const nsResult = psUtils.parseNamespace(state);
 
 	const separator = psUtils.readSeparator(state);
@@ -136,7 +137,7 @@ const parseNamespace = (state: IParserState): IParserState => {
 		const nsResult = psUtils.readUntil(state, / -/, undefined, 2);
 		if (nsResult) {
 			const openToken: ICodeToken = {
-				type: CodeTokenType.NsMark,
+				type: CodeTokenType.NsMarkStart,
 				position: {
 					line: state.cursor.line,
 					symbol: 0,
@@ -145,7 +146,7 @@ const parseNamespace = (state: IParserState): IParserState => {
 			}
 			
 			const closeToken: ICodeToken = {
-				type: CodeTokenType.NsMark,
+				type: CodeTokenType.NsMarkEnd,
 				position: {
 					line: state.cursor.line,
 					symbol: 2 + nsResult.length + 1,

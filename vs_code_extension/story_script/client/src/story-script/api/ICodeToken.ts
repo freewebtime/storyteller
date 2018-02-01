@@ -16,16 +16,21 @@ export enum CodeTokenType {
 	Backslash = 'Backslash',
 	Slash = 'Slash',
 
+	Array = 'Array',
+	FuncType = 'FuncType',
+
 	Whitespace = 'Whitespace',
 	Text = 'Text',
 	Word = 'Word',
 	Number = 'Number',
 	Boolean = 'Boolean',
-
+	
 	Item = 'Item',
+	ItemMark = 'ItemMark',
 	ItemName = 'ItemName',
 	ItemType = 'ItemType',
 	
+	Param = 'Param',
 	ParamName = 'ParamName',
 	ParamType = 'ParamType',
 
@@ -61,11 +66,31 @@ export interface ITextToken extends ICodeToken {
 	words: ICodeToken[];
 }
 
-export interface ITokenItem extends ICodeToken {
-	whitespace: number;
+export interface IItemToken extends ICodeToken {
+	whitespace: ICodeToken;
 	itemMark: ICodeToken;
 	itemName: ICodeToken;
-	itemType: string;
+	itemType: ICodeToken;
+}
+
+export interface IArrayToken extends ICodeToken {
+	openBracket: ICodeToken;
+	arrayIndex: ICodeToken;
+	closeBracket: ICodeToken;	
+}
+
+export interface IFuncTypeToken extends ICodeToken {
+	openParen: ICodeToken;
+	params: ICodeToken[];
+	closeParen: ICodeToken;
+}
+
+export interface IFuncParamToken extends ICodeToken {
+	paramName: ICodeToken;
+	paramType: ICodeToken;
+}
+
+export interface IItemTypeToken extends ITextToken {
 }
 
 export interface ITokenLiteral extends ICodeToken {

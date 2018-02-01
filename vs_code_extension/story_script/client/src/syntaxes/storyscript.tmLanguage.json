@@ -237,7 +237,7 @@
 					"match": "(\\b[\\w]+\\b)\\((.+?)\\)(.*)",
 					"captures": {
 						"1": {
-							"name": "support.function"
+							"name": "support.type"
 						},
 						"2": {
 							"patterns": [
