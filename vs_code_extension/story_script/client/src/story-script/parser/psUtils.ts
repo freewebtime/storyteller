@@ -565,6 +565,7 @@ export const psUtils = {
 			position: { ...nsName.token.position },
 			name: nsName.token
 		};
+		state = psUtils.setCursorAtLineEnd(state);
 	
 		return {
 			state,
@@ -651,6 +652,7 @@ export const psUtils = {
 			itemType: itemType ? itemType.token : undefined,
 		};
 
+		state = psUtils.setCursorAtLineEnd(state);
 		return {
 			token,
 			state
@@ -838,7 +840,7 @@ export const psUtils = {
 			return mention;
 		}
 
-		const word = psUtils.parseUntil(state, /[\*$]/, CodeTokenType.Word);
+		const word = psUtils.parseUntil(state, /\*|$/, CodeTokenType.Word);
 		if (word) {
 			return word;
 		}

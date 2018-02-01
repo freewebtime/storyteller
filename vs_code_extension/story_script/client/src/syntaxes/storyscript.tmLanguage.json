@@ -162,7 +162,7 @@
 				"match": "(\\w+)(?=\\()(.*)",
 				"captures": {
 					"1": {
-						"name": "support.function"
+						"name": "string"
 					},
 					"2": {
 						"patterns": [
