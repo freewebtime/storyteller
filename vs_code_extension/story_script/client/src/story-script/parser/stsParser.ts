@@ -13,6 +13,7 @@ export const parseStoryScript = (sourceCode: string) => {
 
 	let state = parserState;
 
+	const literalResult = psUtils.parseLiteral(state);
 	const itemResult = psUtils.parseItem(state);
 	const nsResult = psUtils.parseNamespace(state);
 

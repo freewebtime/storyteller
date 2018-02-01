@@ -41,6 +41,7 @@ export enum CodeTokenType {
 	Literal = 'Literal',
 
 	Mention = 'Mention',
+	MentionMark = 'MentionMark',
 	Call = 'Call',
 	ParamValue = 'ParamValue'
 }
@@ -57,9 +58,7 @@ export interface ICodeToken {
 }
 
 export interface INamespaceToken extends ICodeToken {
-	openMark: ICodeToken;
 	name: ICodeToken;
-	closeMark: ICodeToken;	
 }
 
 export interface ITextToken extends ICodeToken {
@@ -67,27 +66,29 @@ export interface ITextToken extends ICodeToken {
 }
 
 export interface IItemToken extends ICodeToken {
-	whitespace: ICodeToken;
-	itemMark: ICodeToken;
+	indent: number;
 	itemName: ICodeToken;
 	itemType: ICodeToken;
 }
 
 export interface IArrayToken extends ICodeToken {
-	openBracket: ICodeToken;
 	arrayIndex: ICodeToken;
-	closeBracket: ICodeToken;	
 }
 
 export interface IFuncTypeToken extends ICodeToken {
-	openParen: ICodeToken;
 	params: ICodeToken[];
-	closeParen: ICodeToken;
+}
+
+export interface ICallToken extends ICodeToken {
+	params: ICodeToken[];
 }
 
 export interface IFuncParamToken extends ICodeToken {
 	paramName: ICodeToken;
 	paramType: ICodeToken;
+}
+
+export interface IMentionToken extends ITextToken {
 }
 
 export interface IItemTypeToken extends ITextToken {
