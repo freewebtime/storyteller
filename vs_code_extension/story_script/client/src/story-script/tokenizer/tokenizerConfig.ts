@@ -1,11 +1,12 @@
 import { TokenType } from "../api/TokenType";
+import { IHash } from "../../shared/IHash";
 
 export interface ITokenConfig {
 	type: TokenType;
 	pattern: string;
 }
 
-const tokens: ITokenConfig[] = [
+const separators: ITokenConfig[] = [
 	{
 		type: TokenType.Endline,
 		pattern: '\\r?\\n',
@@ -156,12 +157,32 @@ const tokens: ITokenConfig[] = [
 	},
 ];
 
-const sortedTokens = tokens.reduce((prev: {}, curr: ITokenConfig, index: number, array: ITokenConfig[]) => {
-	return {
-		...prev,
-		[curr.type]: curr,
-	};
-}, {});
+const tokens: ITokenConfig[] = [
+	{
+		type: TokenType.ItemMark,
+		pattern: '\\*\\s',
+	},
+	{
+		type: TokenType.ItemTypeMark,
+		pattern: '\\:\\s',
+	},
+
+	...separators,
+];
+
+const sortTokenConfigs = (configs: ITokenConfig[]): IHash<ITokenConfig> => {
+	const result = configs.reduce((prev: IHash<ITokenConfig>, curr: ITokenConfig, index: number, array: ITokenConfig[]) => {
+		return {
+			...prev,
+			[curr.type]: curr,
+		};
+	}, {});
+
+	return result;
+}
+
+const sortedSeparators = sortTokenConfigs(separators);
+const sortedTokens = sortTokenConfigs(tokens);
 
 const combinePatterns = (patterns: string[], separator: string = '|', isGroup: boolean = true) => {
 	const result = patterns.reduce((prev: string, curr: string, index: number, array: string[]) => {
@@ -173,12 +194,22 @@ const combinePatterns = (patterns: string[], separator: string = '|', isGroup: b
 	return result;
 }
 
-const allTokensPattern = combinePatterns(tokens.map((token) => {return token.pattern}));
+const allSeparatorsPattern = combinePatterns(separators.map((token) => { return token.pattern }));
+const allSeparatorsRegexp = new RegExp(allSeparatorsPattern);
+
+const allTokensPattern = combinePatterns(tokens.map((token) => { return token.pattern }));
 const allTokensRegexp = new RegExp(allTokensPattern);
 
 export const tokenizerConfig = {
+	separators,
 	tokens,
+
+	sortedSeparators,
 	sortedTokens,
+
+	allSeparatorsPattern,
+	allSeparatorsRegexp,
+
 	allTokensPattern,
 	allTokensRegexp,
 

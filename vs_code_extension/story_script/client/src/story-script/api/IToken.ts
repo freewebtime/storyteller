@@ -6,4 +6,5 @@ export interface IToken {
 	value?: string;
 	start: ISymbolPosition;
 	end: ISymbolPosition;
+	length: number;
 }

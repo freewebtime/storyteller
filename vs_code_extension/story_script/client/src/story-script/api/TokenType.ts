@@ -76,6 +76,11 @@ export enum TokenType {
 	// */
 	CommentBlockClose = 'CommentBlockClose',
 
+	// *\s
+	ItemMark = 'ItemMark',
+	// :\s
+	ItemTypeMark = 'ItemTypeMark',
+
 	// everything all is Text
 	Text = 'Text',
 }
