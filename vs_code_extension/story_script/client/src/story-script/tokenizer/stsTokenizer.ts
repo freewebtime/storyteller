@@ -22,11 +22,10 @@ export const stsTokenizer = {
 			tokens: [],
 		};
 
-		let nextToken = stsTokenizer.getNextToken(state, TokenType.Text, tokenizerConfig.allTokensPattern);
-		state = stsTokenizer.addToken(state, nextToken);
-		
-		nextToken = stsTokenizer.getNextToken(state, TokenType.Text);
-		state = stsTokenizer.addToken(state, nextToken);
+		let nextToken: IToken;
+		while (nextToken = stsTokenizer.getNextToken(state, TokenType.Text)) {
+			state = stsTokenizer.addToken(state, nextToken);
+		}
 
 		return state;
 	},
@@ -97,7 +96,7 @@ export const stsTokenizer = {
 		];
 		const tokenLenght = token.end.symbol - token.start.symbol;
 		const globalCursor = state.globalCursor + tokenLenght;
-		let cursor: ISymbolPosition;
+		let cursor: ISymbolPosition = {...state.cursor};
 
 		if (token.type === TokenType.Endline) {
 			cursor = {
