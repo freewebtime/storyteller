@@ -1,9 +1,12 @@
-import { ICodeToken, CodeTokenType, ITokenLiteral } from "../api/ICodeToken";
+import { ICodeToken, ITokenLiteral } from "../api/ICodeToken";
 import { psUtils } from "./psUtils";
 import { IParserState, IParseTokenResult } from "./IParserState";
 import * as vscode from 'vscode';
+import { IHash } from "../../shared/IHash";
 
 export const parseStoryScript = (sourceCode: string) => {
+	return stsParser.parseSourceCode(sourceCode);
+	
 	const parserState: IParserState = {
 		sourceCode,
 		tokens: [],
@@ -44,3 +47,28 @@ const parseNext = (state: IParserState): IParseTokenResult => {
 
 	return undefined;
 }
+
+
+
+
+const stsParser = {
+
+	parseSourceCode: (sourceCode: string): IParserState => {
+		let state: IParserState = {
+			sourceCode,
+			tokens: [],
+			cursor: { line: 0, symbol: 0 },
+			lines: sourceCode.split(/\r?\n/g),
+		};
+
+		return state;
+	},
+
+	parseNext: (state: IParserState): IParserState => {
+		return state;
+	},
+}
+
+
+
+

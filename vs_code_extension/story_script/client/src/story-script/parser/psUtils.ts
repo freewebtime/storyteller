@@ -5,7 +5,6 @@ import {
 } from "./IParserState";
 import {
 	ICodeToken,
-	CodeTokenType,
 	ISymbolPosition,
 	INamespaceToken,
 	ITextToken,
@@ -17,6 +16,7 @@ import {
 	IMentionToken,
 	ICallToken
 } from "../api/ICodeToken";
+import { CodeTokenType } from "./CodeTokenType";
 
 const separators = {
 	[CodeTokenType.Endline]: '\\r?\\n',
@@ -28,8 +28,8 @@ const separators = {
 	[CodeTokenType.ParenOpen]: '\\(',
 	[CodeTokenType.Backslash]: '\\\\',
 	[CodeTokenType.Slash]: '\/',
-	[CodeTokenType.SqBracketOpen]: '\\[',
-	[CodeTokenType.SqBracketClose]: '\\]',
+	[CodeTokenType.BracketClose]: '\\[',
+	[CodeTokenType.BracketClose]: '\\]',
 };
 
 const keywords = {
@@ -776,7 +776,7 @@ export const psUtils = {
 	},
 	parseArray: (state: IParserState): IParseTokenResult => {
 		state = psUtils.skipEmptySymbols(state);
-		const openBracket = psUtils.parseKeyword(state, CodeTokenType.SqBracketOpen);
+		const openBracket = psUtils.parseKeyword(state, CodeTokenType.BracketClose);
 
 		if (!openBracket) {
 			return undefined;
@@ -789,7 +789,7 @@ export const psUtils = {
 			state = arrayIndex.state;
 		}
 
-		const closeBracket = psUtils.parseKeyword(state, CodeTokenType.SqBracketClose);
+		const closeBracket = psUtils.parseKeyword(state, CodeTokenType.BracketClose);
 		if (!closeBracket) {
 			return undefined;
 		}		
@@ -966,7 +966,7 @@ export const psUtils = {
 	},
 	parseCallArray: (state: IParserState): IParseTokenResult => {
 		state = psUtils.skipEmptySymbols(state);
-		const openBracket = psUtils.parseKeyword(state, CodeTokenType.SqBracketOpen);
+		const openBracket = psUtils.parseKeyword(state, CodeTokenType.BracketClose);
 
 		if (!openBracket) {
 			return undefined;
@@ -979,7 +979,7 @@ export const psUtils = {
 			state = arrayIndex.state;
 		}
 
-		const closeBracket = psUtils.parseKeyword(state, CodeTokenType.SqBracketClose);
+		const closeBracket = psUtils.parseKeyword(state, CodeTokenType.BracketClose);
 		if (!closeBracket) {
 			return undefined;
 		}

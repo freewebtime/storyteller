@@ -1,50 +1,6 @@
 import { IHash } from "../../shared/IHash";
+import { CodeTokenType } from "../parser/CodeTokenType";
 
-export enum CodeTokenType {
-	Comment = 'Comment',
-
-	Endline = 'Endline',
-	Space = 'Space',
-	Colon = 'Colon',
-	Dot = 'Dot',
-	Comma = 'Comma',
-	Star = 'Star',
-	ParenOpen = 'ParenOpen',
-	ParenClose = 'ParenClose',
-	SqBracketOpen = 'SqBracketOpen',
-	SqBracketClose = 'SqBracketClose',
-	Backslash = 'Backslash',
-	Slash = 'Slash',
-
-	Array = 'Array',
-	FuncType = 'FuncType',
-
-	Whitespace = 'Whitespace',
-	Text = 'Text',
-	Word = 'Word',
-	Number = 'Number',
-	Boolean = 'Boolean',
-	
-	Item = 'Item',
-	ItemMark = 'ItemMark',
-	ItemName = 'ItemName',
-	ItemType = 'ItemType',
-	
-	Param = 'Param',
-	ParamName = 'ParamName',
-	ParamType = 'ParamType',
-
-	Namespace = 'Namespace',
-	NsMarkStart = 'NsMarkStart',
-	NsMarkEnd = 'NsMarkEnd',
-
-	Literal = 'Literal',
-
-	Mention = 'Mention',
-	MentionMark = 'MentionMark',
-	Call = 'Call',
-	ParamValue = 'ParamValue'
-}
 
 export interface ISymbolPosition {
 	line: number;
