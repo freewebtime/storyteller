@@ -3,30 +3,34 @@ import { psUtils } from "./psUtils";
 import { IParserState, IParseTokenResult } from "./IParserState";
 import * as vscode from 'vscode';
 import { IHash } from "../../shared/IHash";
+import { stsTokenizer } from "../tokenizer/stsTokenizer";
 
 export const parseStoryScript = (sourceCode: string) => {
-	return stsParser.parseSourceCode(sourceCode);
+
+	return stsTokenizer.tokenizeCode(sourceCode);
+
+	// return stsParser.parseSourceCode(sourceCode);
 	
-	const parserState: IParserState = {
-		sourceCode,
-		tokens: [],
-		cursor: {line: 0, symbol: 0},
-		lines: sourceCode.split(/\r?\n/g),
-	}	
+	// const parserState: IParserState = {
+	// 	sourceCode,
+	// 	tokens: [],
+	// 	cursor: {line: 0, symbol: 0},
+	// 	lines: sourceCode.split(/\r?\n/g),
+	// }	
 
-	let state = parserState;
+	// let state = parserState;
 
-	while (!psUtils.isEndOfFile(state)) {
-		const nextLine = parseNext(state);
-		if (nextLine) {
-			state = nextLine.state;
-			state = psUtils.addToken(state, nextLine.token);
-		}
+	// while (!psUtils.isEndOfFile(state)) {
+	// 	const nextLine = parseNext(state);
+	// 	if (nextLine) {
+	// 		state = nextLine.state;
+	// 		state = psUtils.addToken(state, nextLine.token);
+	// 	}
 
-		state = psUtils.setCursor(state, state.cursor.line + 1, 0);
-	}
+	// 	state = psUtils.setCursor(state, state.cursor.line + 1, 0);
+	// }
 
-	return state;
+	// return state;
 }
 
 const parseNext = (state: IParserState): IParseTokenResult => {

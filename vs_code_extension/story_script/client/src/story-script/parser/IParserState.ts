@@ -1,4 +1,5 @@
-import { ICodeToken, ISymbolPosition } from "../api/ICodeToken";
+import { ICodeToken } from "../api/ICodeToken";
+import { ISymbolPosition } from "../api/ISymbolPosition";
 
 export interface IParserState {
 	sourceCode: string;

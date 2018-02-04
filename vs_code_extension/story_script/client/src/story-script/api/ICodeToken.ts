@@ -1,11 +1,6 @@
 import { IHash } from "../../shared/IHash";
 import { CodeTokenType } from "../parser/CodeTokenType";
-
-
-export interface ISymbolPosition {
-	line: number;
-	symbol: number;
-}
+import { ISymbolPosition } from "./ISymbolPosition";
 
 export interface ICodeToken {
 	type: CodeTokenType;

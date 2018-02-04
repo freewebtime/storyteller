@@ -5,7 +5,6 @@ import {
 } from "./IParserState";
 import {
 	ICodeToken,
-	ISymbolPosition,
 	INamespaceToken,
 	ITextToken,
 	IItemToken,
@@ -17,6 +16,7 @@ import {
 	ICallToken
 } from "../api/ICodeToken";
 import { CodeTokenType } from "./CodeTokenType";
+import { ISymbolPosition } from "../api/ISymbolPosition";
 
 const separators = {
 	[CodeTokenType.Endline]: '\\r?\\n',
