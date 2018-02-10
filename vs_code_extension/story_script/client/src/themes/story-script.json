@@ -390,11 +390,11 @@
 		},
 		{
 			"name": "Support Type",
-			"scope": [
+      "scope": [
 				"support.type"
-			],
+      ],
 			"settings": {
-				"foreground": "#56B6C2"
+        "foreground": "#56B6C2"
 			}
 		},
 		{

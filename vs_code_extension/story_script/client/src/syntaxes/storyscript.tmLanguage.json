@@ -4,9 +4,6 @@
 	"scopeName": "source.storyscript",
 	"patterns": [
 		{
-			"include": "#comment-line"
-		},
-		{
 			"include": "#storyScript"
 		}
 	],
@@ -15,413 +12,195 @@
 		
 		"storyScript": {
 			"patterns": [
-				{
-					"include": "#comment-block"
-				},
-				{
-					"include": "#code-line"
-				}
+        {
+          "include": "#codebehind"
+        },
+        {
+          "include": "#template"
+        }
 			]
-		},
+    },
 
-		"comment-line": {
-			"patterns": [
-				{
-					"name": "comment",
-					"match": "//.*$"
-				}
-			]
-		},
-		"comment-block": {
-			"patterns": [
-				{
-					"begin": "/\\*",
-					"end": "\\*/",
-					"name": "comment"
-				}
-			]
-		},
+    "codebehind": {
+      "patterns": [
+        {
+          "begin": "\\*\\/",
+          "end": "\\/\\*",
+          "captures": {
+            "0": {
+              "name": "comment"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#item-line"
+            },
+            {
+              "include": "#template"
+            }
+          ]
+        }
+      ]
+    },
 
-		"comment": {
-			"patterns": [
-				{
-					"include": "#comment-block"
-				},
-				{
-					"include": "#comment-line"
-				}
-			]
-		},
+    "expression-area": {
+      "patterns": [
+        {
+          "begin": "\\=\\/",
+          "end": "\\/\\=",
+          "captures": {
+            "0": {
+              "name": "support.function"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#expression-content"
+            }
+          ]
+        }
+      ]      
+    },
+    
+    "expression-content": {
+      "patterns": [
+        {
+          "match": "\\d+",
+          "name": "constant.numeric"
+        },
+        {
+          "match": "\\w+(?:\\.\\w+)*",
+          "name": "variable"
+        },
+        {
+          "match": "(?:\\(|\\))",
+          "name": "support.function"
+        },
+        {
+          "match": "(?:,|\\+|\\-|\\\\|\\/(?!\\*|\\=)|\\*|\\%)",
+          "name": "keyword"
+        },
+        {
+          "match": "(\\\")(.*)((?<!\\\\)\\\")",
+          "name": "string"
+        }
+      ]
+    },
 
-		"code-line": {
-			"patterns": [
-				{
-					"include": "#comment-block"
-				},
-				{
-					"include": "#comment-line"
-				},
-				{
-					"include": "#item-line"
-				},
-				{
-					"include": "#text-line"
-				},
-				{
-					"include": "#module-declaration"
-				}
-			]
-		},
+    "item-line": {
+      "patterns": [
+        {
+          "include": "#copy-from-line"
+        },
+        {
+          "include": "#function-item-line"
+        },
+        {
+          "include": "#delete-item-line"
+        },
+        {
+          "include": "#item-line-var"
+        }
+      ]
+    },
 
-		"module-declaration": {
-			"patterns": [
-				{
-					"match": "^(-) ([\\w\\.]+) (-)\\s+(\/\/.*)?$",
-					"captures": {
-						"1": {
-							"name": "keyword"
-						},
-						"2": {
-							"name": "keyword.other.unit"
-						},
-						"3": {
-							"name": "keyword"
-						},
-						"4": {
-							"name": "comment.line"
-						}
-					}
-				}
-			]
-		},
+    "item-line-var": {
+      "patterns": [
+        {
+          "match": "^\\s*(\\*)\\s(\\w+)(:)(.*)",
+          "name": "support.type",
+          "captures": {
+            "1": {
+              "name": "string"
+            },
+            "3": {
+              "name": "string"
+            },
+            "4": {
+              "patterns": [
+                {
+                  "include": "#item-type"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
 
-		"item-line": {
-			"patterns": [
-				{
-					"match": "^\\s*(\\*)\\s(\\b\\w+\\b)?:(.*)?",
-					"name": "entity",
-					"captures": {
-						"1": {
-							"name": "keyword"
-						},
-						"2": {
-							"name": "constant.character.escape"
-						},
-						"3": {
-							"patterns": [{
-								"include": "#item-type"
-							}]
-						}
-					}
-				}
-			]
-		},
-		
-		"text-line": {
-			"patterns": [
-				{
-					"include": "#mention"
-				},
-				{
-					"match": "\\*[\\w\\.]+\\s",
-					"name": "string"
-				}
-			]
-		},
+    "copy-from-line": {
+      "patterns": [
+        {
+          "match": "^\\s*(\\*)(\\.\\.\\.)(\\w+)",
+          "name": "constant.character.escape",
+          "captures": {
+            "1": {
+              "name": "string"
+            },
+            "2": {
+              "name": "keyword"
+            },
+            "3": {
+              "name": "support.variable"
+            }
+          }
+        }
+      ]
+    },
+    
+    "delete-item-line": {
+      "patterns": [
+        {
+          "match": "^\\s*(\\*)\\s(\\w+)(:)(\\s\\-\\s?)",
+          "name": "invalid"
+        }
+      ]
+    },
+    
+    "function-item-line": {
+      "patterns": [
+        {
+          "match": "^\\s*(\\*)\\s(\\w+)(:)(\\s\\(.*)",
+          "name": "support.function"
+        }
+      ]
+    },
+    
+    "item-type": {
+      "patterns": [
+        {
+          "match": "(\\\")(\\.?\\.?\\/[\\w\\/\\.]+)(\\\")",
+          "name": "string"
+        }
+      ]
+    },
 
-		"mention": {
-			"patterns": [{
-					"match": "((?<!\\*)\\*|(?<=\\w|\\)|\\])\\.)(?=[\\w]+\\b)(.*)",
-					"captures": {
-						"1": {
-							"name": "keyword.other.unit"
-						},
-						"2": {
-							"patterns": [{
-									"include": "#mention-function"
-								},
-								{
-									"include": "#mention-array"
-								},
-								{
-									"include": "#mention-item"
-								}
-							]
-						}
-					}
-				},
-				{
-					"match": "\\d+",
-					"name": "constant.numeric"
-				}
-			]
-		},
+    "template": {
+      "patterns": [
+        {
+          "include": "#expression-area"
+        },
+        {
+          "include": "#mention"
+        }
+      ]
+    },
+    "mention": {
+      "patterns": [
+        {
+          "match": "(\\*)(\\w+(?:\\.\\w+)*)",
+          "captures": {
+            "1": {
+              "name": "constant.character.escape"
+            },
+            "2": {
+              "name": "constant.character.escape"
+            }
+          }
+        }
+      ]
+    }
 
-		"mention-function": {
-			"patterns": [{
-				"match": "(\\w+)(?=\\()(.*)",
-				"captures": {
-					"1": {
-						"name": "string"
-					},
-					"2": {
-						"patterns": [
-							{
-								"include": "#mention"
-							}
-						]
-					}
-				}
-			}]
-		},
-		"mention-array": {
-			"patterns": [{
-				"match": "(\\w+)(?=\\[)(.*)",
-				"captures": {
-					"1": {
-						"name": "support.type"
-					},
-					"2": {
-						"patterns": [
-							{
-								"include": "#mention"
-							}
-						]
-					}
-				}
-			}]
-		},
-		"mention-item": {
-			"patterns": [
-				{
-					"match": "(?<=\\*|\\.)(\\w+\\b)(.*)",
-					"captures": {
-						"1": {
-							"name": "string"
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#mention"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-
-		"item-type": {
-			"patterns": [
-				{
-					"include": "#comment"
-				},
-				{
-					"match": "\\d+",
-					"name": "constant.numeric"
-				},
-				{
-					"include": "#item-type-function"
-				},
-				{
-					"include": "#item-type-array"
-				},
-				{
-					"include": "#item-type-simple"
-				}
-			]
-		},
-		"item-type-function": {
-			"patterns": [
-				{
-					"match": "(\\b[\\w]+\\b)\\((.+?)\\)(.*)",
-					"captures": {
-						"1": {
-							"name": "support.type"
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#function-params"
-								}
-							]
-						},
-						"3": {
-							"patterns": [
-								{
-									"include": "#item-type"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		"item-type-array": {
-			"patterns": [
-				{
-					"match": "(\\b[\\w]+)\\[(.+?)\\](.*)",
-					"captures": {
-						"1": {
-							"name": "support.type"
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#expression"
-								}
-							]
-						},
-						"3": {
-							"patterns": [
-								{
-									"include": "#item-type"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		"item-type-simple": {
-			"patterns": [
-				{
-					"match": "(\\b[\\w]+\\b)(.*)",
-					"captures": {
-						"1": {
-							"name": "support.type"
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#item-type"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-
-		"function-params": {
-			"patterns": [
-				{
-					"include": "#comment"
-				},
-				{
-					"match": "(\\b\\w+\\b)(.*)",
-					"captures": {
-						"1": {
-							"name": "support.variable"
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#function-param-type"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-		"function-param-type": {
-			"patterns": [
-				{
-					"include": "#comment"
-				},
-				{
-					"match": "(: [\\w\\.\\[\\]]+)(.*)",
-					"captures": {
-						"1": {
-							"patterns": [
-								{
-									"include": "#item-type"
-								}
-							]
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#function-params"
-								}
-							]
-						}
-					}
-				},
-				{
-					"match": ", (.*)",
-					"captures": {
-						"1": {
-							"patterns": [
-								{
-									"include": "#function-params"
-								}
-							]
-						}
-					}
-				}
-			]
-		},
-
-		"expression": {
-			"patterns": [
-				{
-					"include": "#item-type"
-				}
-			]
-		},
-
-		"invalid": {
-			"patterns": [
-				{
-					"name": "invalid.illegal",
-					"match": ".+?(?=//)"
-				}
-			]
-		},
-		
-		"array-brackets": {
-			"patterns": [
-				{
-					"match": "(\\[)(\\d+)*?(\\])",
-					"captures": {
-						"1": {
-							"name": "constant"
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#digit"
-								}
-							]
-						},
-						"3": {
-							"name": "constant"
-						}
-					}
-				}
-			]
-		},
-
-		"keywords": {
-			"patterns": [
-				{
-					"name": "keyword",
-					"match": "\\b(true|false|функция)\\b"
-				}
-			]
-		},
-
-		"digit": {
-			"patterns": [
-				{
-					"name": "constant.numeric",
-					"match": "\\d+"
-				}
-			]
-		}
-
-	}
+  }
 
 }

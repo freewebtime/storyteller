@@ -17,6 +17,9 @@ const stsCompile = () => {
 	const compiled = compileStoryScript(fileContent);
 }
 
+const initCustomColorizer = (context: ExtensionContext) => {
+}
+
 const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
 	let previewUri = vscode.Uri.parse('sts-preview://authority/sts-preview');
 	
@@ -101,8 +104,8 @@ const initLanguageServer = (context: ExtensionContext) => {
 	let serverOptions: ServerOptions = {
 		run: { module: serverModule, transport: TransportKind.ipc },
 		debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
-	}
-
+  }
+  
 	// Options to control the language client
 	let clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
@@ -127,6 +130,7 @@ export function activate(context: ExtensionContext) {
 	initLanguageServer(context);
 	initStsCompileCommand(context);
 	initShowHtmlPreviewCommand(context);
-	
+  initCustomColorizer(context);
+  
 	stsCompile();
 }

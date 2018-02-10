@@ -81,6 +81,8 @@ export enum TokenType {
 	// :\s
 	ItemTypeMark = 'ItemTypeMark',
 
-	// everything all is Text
-	Text = 'Text',
+	// everything else is Word
+  Word = 'Word',
+
+  
 }

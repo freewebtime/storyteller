@@ -23,7 +23,7 @@ export const stsTokenizer = {
 		};
 
 		let nextToken: IToken;
-		while (nextToken = stsTokenizer.getNextToken(state, TokenType.Text)) {
+		while (nextToken = stsTokenizer.getNextToken(state, TokenType.Word)) {
 			state = stsTokenizer.addToken(state, nextToken);
 		}
 
@@ -54,7 +54,7 @@ export const stsTokenizer = {
 		if (!tokenValue) {
 			//token type is fallbackTokenType
 			tokenLength = searchIndex;
-			tokenValue = state.sourceCode.substring(state.globalCursor, tokenLength) || '';
+			tokenValue = str.substring(0, tokenLength) || '';
 			tokenType = fallbackTokenType;
 		}
 
