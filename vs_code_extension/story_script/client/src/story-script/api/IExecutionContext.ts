@@ -12,8 +12,10 @@ interface IModule {
 
 enum ObjectType {
   Item = 'Item',
-  TextLine = 'TextLine'
+  TextLine = 'TextLine',
 }
+
+const asda = /^asdd/
 
 interface IObject {
   id: string;

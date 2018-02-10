@@ -65,6 +65,9 @@
     "expression-content": {
       "patterns": [
         {
+          "include": "#expression-area"
+        },
+        {
           "match": "\\d+",
           "name": "constant.numeric"
         },
@@ -152,7 +155,15 @@
       "patterns": [
         {
           "match": "^\\s*(\\*)\\s(\\w+)(:)(\\s\\-\\s?)",
-          "name": "invalid"
+          "name": "invalid",
+          "captures": {
+            "1": {
+              "name": "string"
+            },
+            "3": {
+              "name": "string"
+            }
+          }
         }
       ]
     },
@@ -161,7 +172,40 @@
       "patterns": [
         {
           "match": "^\\s*(\\*)\\s(\\w+)(:)(\\s\\(.*)",
-          "name": "support.function"
+          "name": "support.function",
+          "captures": {
+            "1": {
+              "name": "string"
+            },
+            "3": {
+              "name": "string"
+            },
+            "4": {
+              "patterns": [
+                {
+                  "match": "(\\()(.*)(\\))",
+                  "captures": {
+                    "2": {
+                      "patterns": [
+                        {
+                          "match": "(\\w+)(?:(:) ([\\w\\.]+))?",
+                          "name": "variable.parameter",
+                          "captures": {
+                            "2": {
+                              "name": "string"
+                            },
+                            "3": {
+                              "name": "support.type"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -181,6 +225,9 @@
           "include": "#expression-area"
         },
         {
+          "include": "#mention-fcall"
+        },
+        {
           "include": "#mention"
         }
       ]
@@ -191,12 +238,73 @@
           "match": "(\\*)(\\w+(?:\\.\\w+)*)",
           "captures": {
             "1": {
-              "name": "constant.character.escape"
+              "name": "string"
             },
             "2": {
               "name": "constant.character.escape"
             }
           }
+        }
+      ]
+    },
+
+    "mention-fcall": {
+      "patterns": [
+        {
+          "begin": "(\\*)(\\w+(?:\\.\\w+)*)(\\()",
+          "end": "\\)",
+          "endCaptures": {
+            "0": {
+              "name": "support.function"
+            }
+          },
+          "captures": {
+            "1": {
+              "name": "support.function"
+            },
+            "2": {
+              "name": "string"
+            },
+            "3": {
+              "name": "support.function"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#mention-fcall-content"
+            }
+          ]
+        }
+      ]
+    },
+
+    "mention-fcall-content": {
+      "patterns": [
+        {
+          "include": "#mention-fcall"
+        },
+        {
+          "include": "#mention"
+        },
+        {
+          "match": "\\d+",
+          "name": "constant.numeric"
+        },
+        {
+          "match": "(\\\")([^((?<!\\\\)\")]*)((?<!\\\\)\\\")",
+          "name": "constant",
+          "captures": {
+            "1": {
+              "name": "keyword"
+            },
+            "3": {
+              "name": "keyword"
+            }
+          }
+        },
+        {
+          "match": "(?:,|\\+|\\-|\\\\|\\/(?!\\*|\\=)|\\*|\\%)",
+          "name": "keyword"
         }
       ]
     }
