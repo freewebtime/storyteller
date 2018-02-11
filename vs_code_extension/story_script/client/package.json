@@ -64,7 +64,7 @@
 			{
 				"language": "storyscript",
 				"scopeName": "source.storyscript",
-				"path": "./src/syntaxes/storyscript3.tmLanguage.json"
+				"path": "./src/syntaxes/storyscript.tmLanguage.json"
 			}
 		],
 		"themes": [
