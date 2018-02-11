@@ -271,13 +271,23 @@
     "mention": {
       "patterns": [
         {
-          "match": "(\\*)(\\w+(?:\\.\\w+)*)(;?)",
+          "match": "(\\*)((?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*)(;?)",
           "captures": {
             "1": {
-              "name": "string"
+              "name": "constant.character.escape"
             },
             "2": {
-              "name": "constant.character.escape"
+              "name": "variable",
+              "patterns": [
+                {
+                  "match": "\\\"",
+                  "name": "constant.character.escape"
+                },
+                {
+                  "match": "\\.",
+                  "name": "constant.character.escape"
+                }
+              ]
             },
             "3": {
               "name": "string"
@@ -290,22 +300,32 @@
     "mention-fcall": {
       "patterns": [
         {
-          "begin": "(\\*)(\\w+(?:\\.\\w+)*)(\\()",
+          "begin": "(\\*)((?:\\w+|\\\"[\\w\\s]+\\\")(?:\\.(?:\\w+|\\\"[\\w\\s]+\\\"))*)?(\\()",
           "end": "\\)",
           "endCaptures": {
             "0": {
-              "name": "support.function"
+              "name": "constant.character.escape"
             }
           },
           "captures": {
             "1": {
-              "name": "support.function"
+              "name": "constant.character.escape"
             },
             "2": {
-              "name": "string"
+              "name": "support.function",
+              "patterns": [
+                {
+                  "match": "\\\"",
+                  "name": "string"
+                },
+                {
+                  "match": "\\.",
+                  "name": "constant.character.escape"
+                }
+              ]
             },
             "3": {
-              "name": "support.function"
+              "name": "constant.character.escape"
             }
           },
           "patterns": [
@@ -330,20 +350,37 @@
           "name": "constant.numeric"
         },
         {
-          "match": "(\\\")([^((?<!\\\\)\")]*)((?<!\\\\)\\\")",
-          "name": "constant",
-          "captures": {
-            "1": {
-              "name": "keyword"
-            },
-            "3": {
-              "name": "keyword"
+          "begin": "\\\"",
+          "end": "(?<!\\\\)\\\"",
+          "beginCaptures": {
+            "0": {
+              "name": "string"
             }
-          }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "string"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#template"
+            }
+          ]
         },
         {
           "match": "(?:,|\\+|\\-|\\\\|\\/(?!\\*|\\=)|\\*|\\%)",
           "name": "keyword"
+        }
+      ]
+    },
+
+    "mention2": {
+      "patterns": [
+        {
+          "begin": "(\\*)(?=\\w)",
+          "end": "\r\r\n\n",
+          "name": "string"
         }
       ]
     }
