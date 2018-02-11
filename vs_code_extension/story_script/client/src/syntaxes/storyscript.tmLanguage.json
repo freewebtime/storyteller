@@ -236,7 +236,13 @@
               "name": "constant.character.escape"
             },
             "3": {
-              "name": "support.function"
+              "name": "support.function",
+              "patterns": [
+                {
+                  "match": "(\\.|\\\")",
+                  "name": "constant.character.escape"
+                }
+              ]
             },
             "4": {
               "name": "keyword"
@@ -244,7 +250,7 @@
           }
         },
         {
-          "match": "(\\*)(\\.\\.\\.)?((?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*)",
+          "match": "(\\*)(\\.\\.\\.)?((?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*)(;)?",
           "captures": {
             "1": {
               "name": "constant.character.escape"
@@ -256,7 +262,7 @@
               "name": "string"
             },
             "4": {
-              "name": "keyword"
+              "name": "constant.character.escape"
             }
           }
         }
@@ -268,10 +274,14 @@
           "begin": "(\\*(?:\\.\\.\\.)?(?:(?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*))(\\()",
           "end": "\\)",
           "beginCaptures": {
-            "1": {
+            "0": {
               "patterns": [
                 {
                   "include": "#templ-mention"
+                },
+                {
+                  "match": "\\(",
+                  "name": "support.function"
                 }
               ]
             },
