@@ -1,22 +1,31 @@
-Начало истории
+Начало истории *mention; ."sub*mention(somehing: type).submention asdasd
+*asdasd."asdas*da(asdasda: asdasd) sd".asdasdasd;asdasdasd
+
+*asdasdasd; asdasd *asdasd[asda].asdasdasd
+asdasdasd
 *(
-  *"Номер серии"."номер серии 2": 5 
+  Номер_Серии = 25
+  нечто = num.val.other(22, 123123, 123123)
+  "Номер *asdasd(asdasd)[asdasd].asdasd серии"."номер серии 2" = 5 
   
-  *Конкат: (префикс: строка = (*asdasda = 25), разделитель, постфикс, *Номер.Серии(ффывфывфыв)) *(
-    = "*префикс*разделитель(*постфикс, *префикс)"
+  Конкат: (префикс: строка(asdasdasd) = (asdasda = 25), разделитель, постфикс, Номер.Серии(ффывфывфыв)) (
+    "*префикс*разделитель(aksjdh akjshd aksjdh kajsd)"
   )
 
-  *Персонаж = (
-    *...Персонаж 
-    *Имя: "Имя Персонажа"
-    *Возраст: 12 + 8
-    *Отчество: *Константы.Хз
-    *-Поле.asd
-    *Конкат: (префикс, разделитель: строка, постфикс) *(
-      *вар1 = *вар2
+  asdasdasd[asdasd]
+
+  Персонаж = (
+    ...Персонаж 
+    Имя = "Имя П*ерсо(asd, asd, "a*s;d")нажа"
+    Возраст = 12 + 8
+    Отчество = Константы.Хз
+    -Поле.asd
+    Конкат = (префикс, разделитель: строка, постфикс) = (
+      переменная1 = префикс + разделитель + постфикс
+      *= переменная1
     )
   )
 
   *tmp = *Конкат(asdasd, asdasdasd, asdasdasd: (asdasd, asdasd, asd))
   
-) и *упоминание."wsdlkfjsdf" *"egjlsdfsdf sd fsdf sdf"."alskdjalsdasd"() *(*fcall(*arguments: 21)) as*da."asdasd" sd asd asd a
+) и *упоминание."wsdlkfjsdf".фы(фывфыв фы вфыв)вфыв фыв фыв фыв ";egjlsdfsdf sd fsdf sdf"."alskdjalsdasd"().asdasd *(fcall(arguments: 21)) as*da."asdasd" sd asd asd a

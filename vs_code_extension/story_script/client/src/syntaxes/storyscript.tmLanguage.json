@@ -18,55 +18,26 @@
     "template": {
       "patterns": [
         {
-          "include": "#expression-block"
-        },
-        {
-          "include": "#templ-fcall"
-        },
-        {
           "include": "#templ-mention"
-        }
-      ]
-    },
-    "expression-block": {
-      "patterns": [
-        {
-          "begin": "\\*\\(",
-          "end": "\\)",
-          "beginCaptures": {
-            "0": {
-              "name": "constant.character.escape"
-            }
-          },
-          "endCaptures": {
-            "0": {
-              "name": "constant.character.escape"
-            }
-          },
-          "patterns": [
-            {
-              "include": "#expression"
-            }
-          ]
         }
       ]
     },
     "expression": {
       "patterns": [
         {
-          "include": "#expression-block"
+          "include": "#expr-fparams"
         },
         {
-          "include": "#expr-fparams"
+          "include": "#expr-array"
+        },
+        {
+          "include": "#expr-numbers"
         },
         {
           "include": "#expr-mention"
         },
         {
           "include": "#expr-template"
-        },
-        {
-          "include": "#expr-numbers"
         },
         {
           "include": "#expr-keywords"
@@ -76,8 +47,8 @@
     "expr-keywords": {
       "patterns": [
         {
-          "match": "(\\+|\\-|\\/|\\%|\\=|:)",
-          "name": "keyword"
+          "match": "(\\+|\\-|\\/|\\%|\\=|:|\\\"|\\.|\\,|\\*|\\;)",
+          "name": "constant.character.escape"
         }
       ]
     },
@@ -135,163 +106,19 @@
         }
       ]
     },
-    "expr-fparams-content": {
+    "expr-array": {
       "patterns": [
         {
-          "include": "#expression"
-        },
-        {
-          "match": "(\\w+)(?:(:)\\s*(\\w+(?:\\.\\w+)?))?",
-          "captures": {
-            "1": {
-              "name": "variable"
-            },
-            "2": {
-              "name": "keyword"
-            },
-            "3": {
-              "name": "support.type"
-            }
-          }
-        },
-        {
-          "match": ",",
-          "name": "keyword"
-        }
-      ]
-    },
-    "expr-mention": {
-      "patterns": [
-        {
-          "match": "(\\*)(\\.\\.\\.)?((?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*)(?=\\s*\\()",
-          "captures": {
-            "1": {
-              "name": "constant.character.escape"
-            },
-            "2": {
-              "name": "constant.character.escape"
-            },
-            "3": {
-              "name": "support.function",
-              "patterns": [
-                {
-                  "match": "\\.",
-                  "name": "constant.character.escape"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "match": "(\\*)(-)((?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*)",
-          "captures": {
-            "1": {
-              "name": "string.regexp"
-            },
-            "2": {
-              "name": "string.regexp"
-            },
-            "3": {
-              "name": "string.regexp",
-              "patterns": [
-                {
-                  "match": "\\.",
-                  "name": "constant.character.escape"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "match": "(\\*)(\\.\\.\\.)?((?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*)",
-          "captures": {
-            "1": {
-              "name": "constant.character.escape"
-            },
-            "2": {
-              "name": "constant.character.escape"
-            },
-            "3": {
-              "name": "variable",
-              "patterns": [
-                {
-                  "match": "\\.",
-                  "name": "constant.character.escape"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "templ-mention": {
-      "patterns": [
-        {
-          "match": "(\\*)(\\.\\.\\.)?((?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*)(?=\\()",
-          "captures": {
-            "1": {
-              "name": "constant.character.escape"
-            },
-            "2": {
-              "name": "constant.character.escape"
-            },
-            "3": {
-              "name": "support.function",
-              "patterns": [
-                {
-                  "match": "(\\.|\\\")",
-                  "name": "constant.character.escape"
-                }
-              ]
-            },
-            "4": {
-              "name": "keyword"
-            }
-          }
-        },
-        {
-          "match": "(\\*)(\\.\\.\\.)?((?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*)(;)?",
-          "captures": {
-            "1": {
-              "name": "constant.character.escape"
-            },
-            "2": {
-              "name": "constant.character.escape"
-            },
-            "3": {
-              "name": "string"
-            },
-            "4": {
-              "name": "constant.character.escape"
-            }
-          }
-        }
-      ]
-    },
-    "templ-fcall": {
-      "patterns": [
-        {
-          "begin": "(\\*(?:\\.\\.\\.)?(?:(?:\\w+|\\\".+?\\\")(?:\\.(?:\\w+|\\\".+?\\\"))*))(\\()",
-          "end": "\\)",
+          "begin": "\\[",
+          "end": "\\]",
           "beginCaptures": {
             "0": {
-              "patterns": [
-                {
-                  "include": "#templ-mention"
-                },
-                {
-                  "match": "\\(",
-                  "name": "support.function"
-                }
-              ]
-            },
-            "2": {
-              "name": "support.function"
+              "name": "support.type"
             }
           },
           "endCaptures": {
             "0": {
-              "name": "support.function"
+              "name": "support.type"
             }
           },
           "patterns": [
@@ -299,6 +126,102 @@
               "include": "#expr-fparams-content"
             }
           ]
+        }
+      ]
+    },
+    "expr-mention": {
+      "patterns": [
+        {
+          "match": "\\w+",
+          "name": "variable"
+        }
+      ]
+    },
+    
+    "expr-fparams-content": {
+      "patterns": [
+        {
+          "include": "#expression"
+        }
+      ]
+    },
+    
+    "templ-mention": {
+      "patterns": [
+        {
+          "begin": "\\*",
+          "end": "(;|(?<!\\*)(\\b|\\)|\\])(?!\\.|\\(|\\[)|\\s|(?=\\\"))",
+          "beginCaptures": {
+            "0": {
+              "patterns": [{
+                "include": "#expr-keywords"
+              }]
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "patterns": [{
+                "include": "#expr-keywords"
+              }]
+            }
+          },
+          "patterns": [
+            {
+              "include": "#templ-submention"
+            }
+          ]
+        }
+      ]
+    },
+
+    "templ-submention": {
+      "patterns": [
+        {
+          "begin": "\\.?\\\"",
+          "end": "\\\"",
+          "beginCaptures": {
+            "0": {
+              "patterns": [{
+                "include": "#expr-keywords"
+              }]
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "patterns": [{
+                "include": "#expr-keywords"
+              }]
+            }
+          },
+          "patterns": [
+            {
+              "include": "#template"
+            }
+          ]
+        },
+        {
+          "include": "#expr-fparams"
+        },
+        {
+          "include": "#expr-array"
+        },
+        {
+          "match": "(\\.?)(\\w+)",
+          "captures": {
+            "1": {
+              "patterns": [
+                {
+                  "include": "#expr-keywords"
+                }
+              ]
+            },
+            "2": {
+              "name": "string"
+            }
+          }
+        },
+        {
+          "include": "#expr-keywords"
         }
       ]
     }
