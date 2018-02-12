@@ -47,7 +47,7 @@
     "expr-keywords": {
       "patterns": [
         {
-          "match": "(\\+|\\-|\\/|\\%|\\=|:|\\\"|\\.|\\,|\\*|\\;|\\!|\\^|\\\\|\\||\\@|\\{|\\}|\\'|\\#|\\№|\\$|\\&|\\`|\\~)",
+          "match": "(\\+|\\-|\\/|\\%|\\=|:|\\\"|\\.|\\,|\\*|\\;|\\!|\\^|\\\\|\\||\\@|\\{|\\}|\\'|\\#|\\№|\\$|\\&|\\`|\\~|\\>|\\<|\\?)",
           "name": "constant.character.escape"
         }
       ]
@@ -131,6 +131,28 @@
     },
     "expr-mention": {
       "patterns": [
+        {
+          "match": "(:)\\s*(\\w+(?:\\.\\w+)*)",
+          "captures": {
+            "1": {
+              "patterns": [
+                {
+                  "include": "#expr-keywords"
+                }
+              ]
+            },
+            "2": {
+              "patterns": [{
+                  "include": "#expr-keywords"
+                },
+                {
+                  "match": "\\w+",
+                  "name": "support.type"
+                }
+              ]
+            }
+          }
+        },
         {
           "match": "\\w+",
           "name": "variable"
