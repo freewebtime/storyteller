@@ -54,6 +54,12 @@
     "expression": {
       "patterns": [
         {
+          "include": "#comment-line"
+        },
+        {
+          "include": "#comment-block"
+        },
+        {
           "include": "#expr-fparams"
         },
         {
