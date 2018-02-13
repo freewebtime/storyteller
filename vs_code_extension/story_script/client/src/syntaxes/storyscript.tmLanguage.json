@@ -11,6 +11,12 @@
     "storyScript": {
       "patterns": [
         {
+          "include": "#comment-line"
+        },
+        {
+          "include": "#comment-block"
+        },
+        {
           "include": "#template"
         }
       ]
@@ -21,6 +27,29 @@
           "include": "#templ-mention"
         }
       ]
+    },
+    "comment-line": {
+      "patterns": [
+        {
+          "match": "(?<!\\\\)(\\/\\/.*)",
+          "name": "comment.line"
+        }
+      ]
+    },
+    "comment-block": {
+      "patterns": [{
+        "begin": "\\/\\*",
+        "end": "\\*\\/",
+        "name": "comment.block",
+        "patterns": [
+          {
+            "include": "#comment-line"
+          },
+          {
+            "include": "#comment-block"
+          }
+        ]
+      }]
     },
     "expression": {
       "patterns": [
@@ -172,7 +201,7 @@
       "patterns": [
         {
           "begin": "\\*",
-          "end": "(;|(?<!\\*)(\\b|\\)|\\])(?!\\.|\\(|\\[)|\\s|(?=\\\"))",
+          "end": "(;|(?<!\\*)(\\)|\\]|\\b)(?!\\.|\\(|\\[)|\\s|(?=\\\"))",
           "beginCaptures": {
             "0": {
               "patterns": [{
