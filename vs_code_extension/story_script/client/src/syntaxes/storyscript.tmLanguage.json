@@ -59,18 +59,19 @@
         {
           "include": "#comment-block"
         },
-        {
-          "include": "#expr-fparams"
-        },
-        {
-          "include": "#expr-array"
-        },
+
         {
           "include": "#expr-numbers"
         },
         {
           "include": "#expr-mention"
         },
+        {
+          "include": "#expr-fparams"
+        }, 
+        {
+          "include": "#expr-array"
+        }, 
         {
           "include": "#expr-template"
         },
@@ -148,12 +149,12 @@
           "end": "\\]",
           "beginCaptures": {
             "0": {
-              "name": "support.type"
+              "name": "support.function"
             }
           },
           "endCaptures": {
             "0": {
-              "name": "support.type"
+              "name": "support.function"
             }
           },
           "patterns": [
@@ -167,26 +168,31 @@
     "expr-mention": {
       "patterns": [
         {
-          "match": "(:)\\s*(\\w+(?:\\.\\w+)*)",
+          "match": "(\\w+)\\s*(:)\\s*(\\w+(?:\\.\\w+)*)",
           "captures": {
             "1": {
+              "name": "variable"
+            },
+            "2": {
               "patterns": [
                 {
                   "include": "#expr-keywords"
                 }
               ]
             },
-            "2": {
-              "patterns": [{
-                  "include": "#expr-keywords"
-                },
+            "3": {
+              "name": "support.type",
+              "patterns": [
                 {
-                  "match": "\\w+",
-                  "name": "support.type"
+                  "include": "#expr-keywords"
                 }
               ]
             }
           }
+        },
+        {
+          "match": "(\\w+)(?=\\s*\\()",
+          "name": "support.function"
         },
         {
           "match": "\\w+",
@@ -207,7 +213,7 @@
       "patterns": [
         {
           "begin": "\\*",
-          "end": "(;|(?<!\\*)(\\)|\\]|\\b)(?!\\.|\\(|\\[)|\\s|(?=\\\"))",
+          "end": "(;|$|\\r?\\n|(?<!\\*)(\\b|(?<=\\)|\\])\\B)(?!\\.|\\(|\\[))",
           "beginCaptures": {
             "0": {
               "patterns": [{
