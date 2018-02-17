@@ -1,8 +1,8 @@
 import { ISymbolPosition } from "../api/ISymbolPosition";
-import { TokenType } from "./TokenType";
+import { CodeTokenType } from "./CodeTokenType";
 
-export interface IToken {
-	type: TokenType;
+export interface ICodeToken {
+	type: CodeTokenType;
 	value?: string;
 	start: ISymbolPosition;
 	end: ISymbolPosition;

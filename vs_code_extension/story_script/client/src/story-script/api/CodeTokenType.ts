@@ -1,4 +1,4 @@
-export enum TokenType {
+export enum CodeTokenType {
 	// \r?\n
 	Endline = 'Endline',
 	// \s
@@ -24,7 +24,9 @@ export enum TokenType {
 	// ?
 	Question = 'Question',
 	// №
-	NumSign = 'NumSign',
+  NumSign = 'NumSign',
+  // "
+  Quote = 'Quote',
 
 	// *
 	Star = 'Star',
@@ -76,13 +78,6 @@ export enum TokenType {
 	// */
 	CommentBlockClose = 'CommentBlockClose',
 
-	// *\s
-	ItemMark = 'ItemMark',
-	// :\s
-	ItemTypeMark = 'ItemTypeMark',
-
 	// everything else is Word
   Word = 'Word',
-
-  
 }

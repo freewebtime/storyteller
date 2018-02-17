@@ -1,172 +1,167 @@
-import { TokenType } from "../api/TokenType";
+import { CodeTokenType } from "../api/CodeTokenType";
 import { IHash } from "../../shared/IHash";
 
 export interface ITokenConfig {
-	type: TokenType;
+	type: CodeTokenType;
 	pattern: string;
 }
 
 const separators: ITokenConfig[] = [
 	{
-		type: TokenType.Endline,
+		type: CodeTokenType.Endline,
 		pattern: '\\r?\\n',
 	},
 	{
-		type: TokenType.Whitespace,
+		type: CodeTokenType.Whitespace,
 		pattern: '\\s\\s+',
 	},
 	{
-		type: TokenType.Space,
+		type: CodeTokenType.Space,
 		pattern: '\\s',
 	},
 	{
-		type: TokenType.Colon,
+		type: CodeTokenType.Colon,
 		pattern: '\\:',
 	},
 	{
-		type: TokenType.Semicolon,
+		type: CodeTokenType.Semicolon,
 		pattern: '\\;',
 	},
 	{
-		type: TokenType.Dot,
+		type: CodeTokenType.Dot,
 		pattern: '\\.',
 	},
 	{
-		type: TokenType.Comma,
+		type: CodeTokenType.Comma,
 		pattern: '\\,',
 	},
 	{
-		type: TokenType.NotSign,
+		type: CodeTokenType.NotSign,
 		pattern: '\\!',
 	},
 	{
-		type: TokenType.Prime,
+		type: CodeTokenType.Prime,
 		pattern: '\\\'',
 	},
 	{
-		type: TokenType.Tilde,
+		type: CodeTokenType.Tilde,
 		pattern: '\\`',
 	},
 	{
-		type: TokenType.OrSign,
+		type: CodeTokenType.OrSign,
 		pattern: '\\|',
 	},
 	{
-		type: TokenType.Question,
+		type: CodeTokenType.Question,
 		pattern: '\\?',
 	},
 
 	{
-		type: TokenType.Star,
+		type: CodeTokenType.Star,
 		pattern: '\\*',
 	},
 	{
-		type: TokenType.Minus,
+		type: CodeTokenType.Minus,
 		pattern: '\\-',
 	},
 	{
-		type: TokenType.Plus,
+		type: CodeTokenType.Plus,
 		pattern: '\\+',
 	},
 	{
-		type: TokenType.Equals,
+		type: CodeTokenType.Equals,
 		pattern: '\\=',
 	},
 	{
-		type: TokenType.Caret,
+		type: CodeTokenType.Caret,
 		pattern: '\\^',
 	},
 	{
-		type: TokenType.Percent,
+		type: CodeTokenType.Percent,
 		pattern: '\\%',
 	},
 	{
-		type: TokenType.Dollar,
+		type: CodeTokenType.Dollar,
 		pattern: '\\$',
 	},
 	{
-		type: TokenType.Hash,
+		type: CodeTokenType.Hash,
 		pattern: '\\#',
 	},
 	{
-		type: TokenType.AtSign,
+		type: CodeTokenType.AtSign,
 		pattern: '\\@',
 	},
 	{
-		type: TokenType.Ampersand,
+		type: CodeTokenType.Ampersand,
 		pattern: '\\&',
 	},
 	{
-		type: TokenType.NumSign,
+		type: CodeTokenType.NumSign,
 		pattern: '\\№',
 	},
 
 	{
-		type: TokenType.ParenOpen,
+		type: CodeTokenType.ParenOpen,
 		pattern: '\\(',
 	},
 	{
-		type: TokenType.ParenClose,
+		type: CodeTokenType.ParenClose,
 		pattern: '\\)',
 	},
 	{
-		type: TokenType.BracketOpen,
+		type: CodeTokenType.BracketOpen,
 		pattern: '\\[',
 	},
 	{
-		type: TokenType.BracketClose,
+		type: CodeTokenType.BracketClose,
 		pattern: '\\]',
 	},
 	{
-		type: TokenType.BraceOpen,
+		type: CodeTokenType.BraceOpen,
 		pattern: '\\{',
 	},
 	{
-		type: TokenType.BraceClose,
+		type: CodeTokenType.BraceClose,
 		pattern: '\\}',
 	},
 	{
-		type: TokenType.TupleOpen,
+		type: CodeTokenType.TupleOpen,
 		pattern: '\\<',
 	},
-	{
-		type: TokenType.TupleClose,
-		pattern: '\\>',
-	},
+  {
+    type: CodeTokenType.TupleClose,
+    pattern: '\\>',
+  },
+  {
+    type: CodeTokenType.Quote,
+    pattern: '\\\"',
+  },
 
 	{
-		type: TokenType.CommentLine,
+		type: CodeTokenType.CommentLine,
 		pattern: '\\/\\/',
 	},
 	{
-		type: TokenType.CommentBlockOpen,
+		type: CodeTokenType.CommentBlockOpen,
 		pattern: '\\/\\*',
 	},
 	{
-		type: TokenType.CommentBlockClose,
+		type: CodeTokenType.CommentBlockClose,
 		pattern: '\\*\\/',
 	},
 
 	{
-		type: TokenType.Slash,
+		type: CodeTokenType.Slash,
 		pattern: '\\/',
 	},
 	{
-		type: TokenType.Backslash,
+		type: CodeTokenType.Backslash,
 		pattern: '\\\\',
 	},
 ];
 
 const tokens: ITokenConfig[] = [
-	{
-		type: TokenType.ItemMark,
-		pattern: '\\*\\s',
-	},
-	{
-		type: TokenType.ItemTypeMark,
-		pattern: '\\:\\s',
-	},
-
 	...separators,
 ];
 
@@ -193,6 +188,9 @@ const combinePatterns = (patterns: string[], separator: string = '|', isGroup: b
 
 	return result;
 }
+const wrapPatternWithCursorPos = (pattern: string, cursorPos: number) => {
+  return `.{${cursorPos}}(?:${pattern})`
+}
 
 const allSeparatorsPattern = combinePatterns(separators.map((token) => { return token.pattern }));
 const allSeparatorsRegexp = new RegExp(allSeparatorsPattern);
@@ -200,7 +198,7 @@ const allSeparatorsRegexp = new RegExp(allSeparatorsPattern);
 const allTokensPattern = combinePatterns(tokens.map((token) => { return token.pattern }));
 const allTokensRegexp = new RegExp(allTokensPattern);
 
-export const tokenizerConfig = {
+export const stsParserConfig = {
 	separators,
 	tokens,
 
@@ -213,5 +211,6 @@ export const tokenizerConfig = {
 	allTokensPattern,
 	allTokensRegexp,
 
-	combinePatterns,
+  combinePatterns,
+  wrapPatternWithCursorPos,
 }
