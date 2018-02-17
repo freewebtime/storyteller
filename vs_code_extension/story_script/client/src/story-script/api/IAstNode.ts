@@ -11,7 +11,7 @@ export enum AstNodeType {
 }
 
 export interface IAstNode {
-  type: AstNodeType;
+  astNodeType: AstNodeType;
   codeToken?: ICodeToken;
 }
 

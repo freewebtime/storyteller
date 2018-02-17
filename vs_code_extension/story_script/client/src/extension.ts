@@ -51,9 +51,13 @@ const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
 			const fileContent = editor.document.getText();
 			const compiled = compileStoryScript(fileContent);
 
-			return `
+      // return `
+			// 	<body>
+			// 		${compiled.tokens.map((token) => { return JSON.stringify(token); }).join('<br/><br/>')}
+			// 	</body>`;
+      return `
 				<body>
-					${compiled.tokens.map((token) => { return JSON.stringify(token); }).join('<br/><br/>')}
+					${JSON.stringify(compiled)}
 				</body>`;
 		}
 

@@ -1,6 +1,8 @@
 export enum CodeTokenType {
 	// \r?\n
 	Endline = 'Endline',
+  // $
+  Endfile = 'Endfile',
 	// \s
 	Space = 'Space',
 	// \s\s+

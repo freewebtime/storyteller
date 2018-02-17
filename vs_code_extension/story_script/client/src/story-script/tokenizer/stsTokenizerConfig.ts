@@ -7,10 +7,14 @@ export interface ITokenConfig {
 }
 
 const separators: ITokenConfig[] = [
-	{
-		type: CodeTokenType.Endline,
-		pattern: '\\r?\\n',
-	},
+  {
+    type: CodeTokenType.Endline,
+    pattern: '\\r?\\n',
+  },
+  // {
+  //   type: CodeTokenType.Endfile,
+  //   pattern: '$',
+  // },
 	{
 		type: CodeTokenType.Whitespace,
 		pattern: '\\s\\s+',
@@ -189,7 +193,7 @@ const combinePatterns = (patterns: string[], separator: string = '|', isGroup: b
 	return result;
 }
 const wrapPatternWithCursorPos = (pattern: string, cursorPos: number) => {
-  return `.{${cursorPos}}(?:${pattern})`
+  return `(?:.|\\r|\\n){${cursorPos}}(?:${pattern})`
 }
 
 const allSeparatorsPattern = combinePatterns(separators.map((token) => { return token.pattern }));

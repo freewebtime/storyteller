@@ -18,7 +18,7 @@ export interface IParseResult<TAstNode = IAstNode> {
 
 export const stsParser = {
   parseCode: (sourceCode: string): IAstNode => {
-    let tokenizerState: ITokenizerState = {
+    let state: ITokenizerState = {
       sourceCode: sourceCode,
       cursor: {
         line: 0,
@@ -29,16 +29,17 @@ export const stsParser = {
     };
 
     let result: IAstNodeBlock = {
-      type: AstNodeType.Block,
+      astNodeType: AstNodeType.Block,
       value: []
     }
 
     let parseResult: IParseResult;
-    while (parseResult = stsParser.parseTemplate(tokenizerState)) {
-      if (!parseResult.astNode) {
+    while (parseResult = stsParser.parseTemplate(state)) {
+      if (!parseResult) {
         continue;
       }
       
+      state = parseResult.state;
       result = {
         ...result,
         value: [
@@ -46,11 +47,6 @@ export const stsParser = {
           parseResult.astNode,
         ]
       }
-    }
-
-    let nextToken: ICodeToken;
-    while (nextToken = stsParser.getNextToken(tokenizerState, CodeTokenType.Word)) {
-      tokenizerState = stsParser.addToken(tokenizerState, nextToken);
     }
 
     return result;
@@ -62,7 +58,7 @@ export const stsParser = {
     }
     
     let astNode: IAstNodeBlock = {
-      type: AstNodeType.Block,
+      astNodeType: AstNodeType.Block,
       value: [],
     };
 
@@ -106,7 +102,7 @@ export const stsParser = {
       state = stsParser.addToken(state, nextToken);
 
       textBuffer = textBuffer || {
-        type: AstNodeType.Primitive,
+        astNodeType: AstNodeType.Primitive,
         value: ''
       };
 
@@ -170,7 +166,7 @@ export const stsParser = {
     }
 
     let semicolonToken = stsParser.getNextToken(state, CodeTokenType.Word);
-    if (semicolonToken) {
+    if (semicolonToken && semicolonToken.type === CodeTokenType.Semicolon) {
       state = stsParser.addToken(state, semicolonToken);
     }
 
@@ -182,7 +178,7 @@ export const stsParser = {
 
   parseReference: (state: ITokenizerState): IParseResult<IAstNodeReference> => {
     let astNode: IAstNodeReference = {
-      type: AstNodeType.Reference,
+      astNodeType: AstNodeType.Reference,
       value: [],
     };
 
@@ -229,7 +225,7 @@ export const stsParser = {
         state = codeBlockResult.state;
 
         let astNode: IAstNodeCall = {
-          type: AstNodeType.Call,
+          astNodeType: AstNodeType.Call,
           target: result.astNode,
           arguments: codeBlockResult.astNode,
         };
@@ -259,7 +255,7 @@ export const stsParser = {
     state = stsParser.skipWhitespace(state) || state;
 
     let astNode: IAstNodeBlock = {
-      type: AstNodeType.Block,
+      astNodeType: AstNodeType.Block,
       value: []
     };
 
@@ -340,7 +336,7 @@ export const stsParser = {
     //TODO: sort operations by priority
 
     let astNode: IAstNodeOperation = {
-      type: AstNodeType.Operation,
+      astNodeType: AstNodeType.Operation,
       value: operations,
     }
 
@@ -364,10 +360,11 @@ export const stsParser = {
       case CodeTokenType.Slash:
       case CodeTokenType.Percent:
       case CodeTokenType.OrSign:
+      case CodeTokenType.Equals:
       case CodeTokenType.Ampersand:
         {
           const operatorNode: IAstNodePrimitive = {
-            type: AstNodeType.Primitive,
+            astNodeType: AstNodeType.Primitive,
             value: nextToken.value || ''
           };
 
@@ -414,17 +411,17 @@ export const stsParser = {
     }
 
     let targetNode: IAstNodePrimitive = {
-      type: AstNodeType.Primitive,
+      astNodeType: AstNodeType.Primitive,
       value: 'Output.Write',
     }
 
     let argumentsNode: IAstNodeBlock = {
-      type: AstNodeType.Block,
+      astNodeType: AstNodeType.Block,
       value: [],
     }
 
     let astNode: IAstNodeCall = {
-      type: AstNodeType.Call,
+      astNodeType: AstNodeType.Call,
       codeToken: nextToken,
       target: targetNode,
       arguments: argumentsNode,
@@ -444,7 +441,7 @@ export const stsParser = {
       }
 
       const argNode: IAstNodePrimitive = {
-        type: AstNodeType.Primitive,
+        astNodeType: AstNodeType.Primitive,
         value: nextToken.value || '',
         codeToken: nextToken
       };
@@ -478,7 +475,7 @@ export const stsParser = {
     }
 
     let astNode: IAstNodePrimitive = {
-      type: AstNodeType.Primitive,
+      astNodeType: AstNodeType.Primitive,
       value: nextToken.value || '',
     };
     state = stsParser.addToken(state, nextToken);
@@ -513,19 +510,27 @@ export const stsParser = {
     pattern = stsParserConfig.wrapPatternWithCursorPos(pattern, state.globalCursor);
 		const regexp = new RegExp(pattern);
 
-		const match = regexp.exec(state.sourceCode);
-		if (!match) {
-			return undefined;
-		}
+    const ln = state.sourceCode.length;
 
+		let match = regexp.exec(state.sourceCode);
+    let searchIndex: number = match ? match.index : 0;
+    if (!match) {
+      //check is it last token in file
+      let pattern2 = `(?:.|\\r|\\n){${state.globalCursor}}(.*)`;
+      match = new RegExp(pattern2).exec(state.sourceCode);
+      
+      if (!match) {
+        return undefined;
+      }
+    }
+    
 		let tokenLength: number;
 		let tokenValue: string;
 		let tokenType: CodeTokenType;
 
-		const searchIndex = match.index;
 		if (searchIndex === 0) {
       tokenValue = match[0].substr(state.globalCursor);
-			tokenType = stsParser.getTokenType(tokenValue);
+			tokenType = stsParser.getTokenType(tokenValue) || fallbackTokenType;
 			tokenLength = tokenValue.length;
 		}
 		
@@ -598,17 +603,22 @@ export const stsParser = {
 		return state;
   },
   
-  skipWhitespace: (state: ITokenizerState): ITokenizerState => {
-    const nextToken = stsParser.getNextToken(state, CodeTokenType.Word);
-    if (!nextToken) {
-      return undefined;
+  skipWhitespace: (state: ITokenizerState, skipEndline: boolean = true): ITokenizerState => {
+    let nextToken: ICodeToken;
+    while (nextToken = stsParser.getNextToken(state, CodeTokenType.Word)) {
+      if (nextToken.type === CodeTokenType.Endline && skipEndline) {
+        state = stsParser.addToken(state, nextToken);
+        continue;
+      }
+
+      if (nextToken.type === CodeTokenType.Space || nextToken.type === CodeTokenType.Whitespace) {
+        state = stsParser.addToken(state, nextToken);
+        continue;
+      }
+      
+      break;
     }
 
-    if (nextToken.type !== CodeTokenType.Whitespace  && nextToken.type !== CodeTokenType.Space) {
-      return undefined;
-    }
-
-    state = stsParser.addToken(state, nextToken);
     return state;
   },
 
