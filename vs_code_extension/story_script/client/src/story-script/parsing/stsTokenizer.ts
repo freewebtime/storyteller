@@ -1,6 +1,6 @@
 import { ISymbolPosition } from "../api/ISymbolPosition";
 import { ICodeToken } from "../api/ICodeToken";
-import { stsParserConfig, ITokenConfig, IOperationConfig } from "./stsTokenizerConfig";
+import { stsConfig, ITokenConfig, IOperationConfig } from "./stsConfig";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { IAstNode, AstNodeType, IAstNodeText, IAstNodeOperation, IAstNodeVariable, IAstNodeReference, OperationType } from "../api/IAstNode";
 
@@ -17,7 +17,7 @@ export interface IParseResult<TAstNode = IAstNode> {
 }
 
 export const stsTokenizer = {
-  tokenizeCode: (sourceCode: string): ITokenizerState => {
+  tokenizeCode: (sourceCode: string): ICodeToken[] => {
 		let state: ITokenizerState = {
 			sourceCode: sourceCode,
 			cursor: {
@@ -33,12 +33,16 @@ export const stsTokenizer = {
 			state = stsTokenizer.addToken(state, nextToken);
 		}
 
-		return state;
+		return state.tokens;
 	},
 
 	getNextToken: (state: ITokenizerState, fallbackTokenType: CodeTokenType, pattern?: string): ICodeToken => {
-    pattern = pattern || stsParserConfig.allSeparatorsPattern;
-    pattern = stsParserConfig.wrapPatternWithCursorPos(pattern, state.globalCursor);
+    if (stsTokenizer.isEndOfFile(state)) {
+      return undefined;
+    }
+    
+    pattern = pattern || stsConfig.allSeparatorsPattern;
+    pattern = stsConfig.wrapPatternWithCursorPos(pattern, state.globalCursor);
 		const regexp = new RegExp(pattern);
 
     const ln = state.sourceCode.length;
@@ -64,7 +68,7 @@ export const stsTokenizer = {
 
 		if (searchIndex === 0) {
       tokenValue = match[0].substr(state.globalCursor);
-			tokenType = stsTokenizer.getTokenType(tokenValue) || fallbackTokenType;
+			tokenType = stsConfig.getTokenType(tokenValue) || fallbackTokenType;
 			tokenLength = tokenValue.length;
 		}
 		
@@ -91,34 +95,6 @@ export const stsTokenizer = {
 
 		return token;
 	},
-
-  getTokenType: (tokenValue: string, tokensConfigs?: ITokenConfig[]): CodeTokenType => {
-    tokensConfigs = tokensConfigs || stsParserConfig.tokens;
-    for (let tokenIndex = 0; tokenIndex < tokensConfigs.length; tokenIndex++) {
-      const tokenConfig = tokensConfigs[tokenIndex];
-      const regexp = new RegExp(tokenConfig.pattern);
-      const match = regexp.exec(tokenValue);
-      if (match) {
-        return tokenConfig.type;
-      }
-    }
-
-    return undefined;
-  },
-
-  getOperationType: (tokenValue: string, operationConfigs?: IOperationConfig[]): OperationType => {
-    operationConfigs = operationConfigs || stsParserConfig.operations;
-    for (let tokenIndex = 0; tokenIndex < operationConfigs.length; tokenIndex++) {
-      const operationConfig = operationConfigs[tokenIndex];
-      const regexp = new RegExp(operationConfig.pattern);
-      const match = regexp.exec(tokenValue);
-      if (match) {
-        return operationConfig.type;
-      }
-    }
-
-    return undefined;
-  },
 
 	addToken: (state: ITokenizerState, token: ICodeToken): ITokenizerState => {
 		const tokens = [

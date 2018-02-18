@@ -81,14 +81,14 @@ const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
 			const fileContent = editor.document.getText();
 			const compiled = compileStoryScript(fileContent);
 
-      // return `
-			// 	<body>
-			// 		${compiled.tokens.map((token) => { return JSON.stringify(token); }).join('<br/><br/>')}
-			// 	</body>`;
       return `
 				<body>
-					${JSON.stringify(compiled)}
+					${compiled.map((token) => { return JSON.stringify(token); }).join('<br/><br/>')}
 				</body>`;
+      // return `
+			// 	<body>
+			// 		${JSON.stringify(compiled)}
+			// 	</body>`;
 		}
 
 		private errorSnippet(error: string): string {

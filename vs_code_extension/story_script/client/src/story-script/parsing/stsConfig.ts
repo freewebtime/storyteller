@@ -179,6 +179,10 @@ const operations: IOperationConfig[] = [
   {
     type: OperationType.Delete,
     pattern: '\\*\\-'
+  }, 
+  {
+    type: OperationType.Return,
+    pattern: '\\*\\='
   },
   {
     type: OperationType.Diff,
@@ -200,6 +204,50 @@ const operations: IOperationConfig[] = [
     type: OperationType.Sum,
     pattern: '\\+'
   },
+  {
+    type: OperationType.Root,
+    pattern: '\\\\\\^'
+  }, 
+  {
+    type: OperationType.Power,
+    pattern: '\\^'
+  },
+  {
+    type: OperationType.MoreOrEquals,
+    pattern: '\\>='
+  },
+  {
+    type: OperationType.LessOrEquals,
+    pattern: '\\<='
+  },
+  {
+    type: OperationType.More,
+    pattern: '\\>'
+  },
+  {
+    type: OperationType.Less,
+    pattern: '\\<'
+  },
+  {
+    type: OperationType.Or,
+    pattern: '\\|\\|'
+  },
+  {
+    type: OperationType.And,
+    pattern: '\\&\\&'
+  },
+]
+
+// priority from low to hight
+const operationsByPriority: OperationType[][] = [
+  [OperationType.Return],
+  [OperationType.Set],
+  [OperationType.Or, OperationType.And],
+  [OperationType.More, OperationType.Less]
+  [OperationType.Sum, OperationType.Diff],
+  [OperationType.Multiply, OperationType.Divide, OperationType.Power, OperationType.Root],
+  [OperationType.Call],
+  [OperationType.Get, OperationType.Index]
 ]
 
 const sortTokenConfigs = (configs: ITokenConfig[]): IHash<ITokenConfig> => {
@@ -245,7 +293,35 @@ const allSeparatorsRegexp = new RegExp(allSeparatorsPattern);
 const allTokensPattern = combinePatterns(tokens.map((token) => { return token.pattern }));
 const allTokensRegexp = new RegExp(allTokensPattern);
 
-export const stsParserConfig = {
+const getTokenType = (tokenValue: string, tokensConfigs?: ITokenConfig[]): CodeTokenType => {
+  tokensConfigs = tokensConfigs || stsConfig.tokens;
+  for (let tokenIndex = 0; tokenIndex < tokensConfigs.length; tokenIndex++) {
+    const tokenConfig = tokensConfigs[tokenIndex];
+    const regexp = new RegExp(tokenConfig.pattern);
+    const match = regexp.exec(tokenValue);
+    if (match) {
+      return tokenConfig.type;
+    }
+  }
+
+  return undefined;
+};
+
+const getOperationType = (tokenValue: string, operationConfigs?: IOperationConfig[]): OperationType => {
+  operationConfigs = operationConfigs || stsConfig.operations;
+  for (let tokenIndex = 0; tokenIndex < operationConfigs.length; tokenIndex++) {
+    const operationConfig = operationConfigs[tokenIndex];
+    const regexp = new RegExp(operationConfig.pattern);
+    const match = regexp.exec(tokenValue);
+    if (match) {
+      return operationConfig.type;
+    }
+  }
+
+  return undefined;
+};
+
+export const stsConfig = {
 	separators,
 	tokens,
   operations,
@@ -262,4 +338,7 @@ export const stsParserConfig = {
 
   combinePatterns,
   wrapPatternWithCursorPos,
+
+  getTokenType,
+  getOperationType,
 }

@@ -16,6 +16,7 @@ export enum AstNodeType {
   Scope = 'Scope',
   Operation = 'Operation',
   Condition = 'Condition',
+  Operator = 'Operator',
 }
 
 export enum OperationType {
@@ -33,6 +34,34 @@ export enum OperationType {
   Delete = 'Delete',
   // = 
   Set = 'Set',
+
+  // ^x
+  Power = 'Power',
+  // \^
+  Root = 'Root',
+
+  // . // means item.subitem
+  Get = 'Get',
+  // function call
+  Call = 'Call',
+  // array index // means item[asd]
+  Index = 'Index',
+
+  // *=
+  Return = 'Return',
+
+  // ||
+  Or = 'Or',
+  // && 
+  And = 'And',
+  // >
+  More = 'More',
+  // < 
+  Less = 'Less',
+  // >=
+  MoreOrEquals = 'MoreOrEquals',
+  // <= 
+  LessOrEquals = 'LessOrEquals',
 }
 
 export interface IAstNode<TValue = any> {
@@ -44,7 +73,7 @@ export interface IAstNode<TValue = any> {
 export interface IAstNodeText extends IAstNode<string> {}
 
 export interface IAstNodeTemplate extends IAstNode<IAstNode[]>{}
-export interface IAstNodeMention extends IAstNode<IAstNodeReference>{}
+export interface IAstNodeMention extends IAstNode<IAstNodeOperation>{}
 
 export interface IAstNodeReference extends IAstNode<{
   target: IAstNode;
