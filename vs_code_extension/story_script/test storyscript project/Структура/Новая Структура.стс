@@ -1,1 +1,11 @@
-*mention.(asd + 22) submention
+*(
+  Utils = (
+    Unnamed = "Unnamed"
+
+    item: (subitem: number) = (
+      subitem = 22 > 16
+    )
+  )
+) and some text
+
+and *mention.funccall(param, param);

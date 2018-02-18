@@ -144,6 +144,12 @@ export const stsParser = {
     }
     state = operation.state;
 
+    //check if mention ends with semicolon
+    let semicolon = stsParser.getToken(state);
+    if (semicolon && semicolon.type === CodeTokenType.Semicolon) {
+      state = stsParser.skipTokens(state, 1);
+    }
+
     // if found * and operation is going after that means we have correct mention
     let astNode: IAstNodeMention = {
       type: AstNodeType.Mention,
@@ -389,6 +395,7 @@ export const stsParser = {
         || operatorType === OperationType.Less
         || operatorType === OperationType.Power
         || operatorType === OperationType.Set
+        || operatorType === OperationType.Signature
       )
     ) {
       let astNode: IAstNodeOperator = {
