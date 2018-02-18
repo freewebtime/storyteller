@@ -1,9 +1,15 @@
 import { CodeTokenType } from "../api/CodeTokenType";
 import { IHash } from "../../shared/IHash";
+import { OperationType } from "../api/IAstNode";
 
 export interface ITokenConfig {
 	type: CodeTokenType;
 	pattern: string;
+}
+
+export interface IOperationConfig {
+  type: OperationType;
+  pattern: string;
 }
 
 const separators: ITokenConfig[] = [
@@ -11,10 +17,6 @@ const separators: ITokenConfig[] = [
     type: CodeTokenType.Endline,
     pattern: '\\r?\\n',
   },
-  // {
-  //   type: CodeTokenType.Endfile,
-  //   pattern: '$',
-  // },
 	{
 		type: CodeTokenType.Whitespace,
 		pattern: '\\s\\s+',
@@ -169,19 +171,60 @@ const tokens: ITokenConfig[] = [
 	...separators,
 ];
 
+const operations: IOperationConfig[] = [
+  {
+    type: OperationType.Copy,
+    pattern: '\\.\\.\\.'
+  },
+  {
+    type: OperationType.Delete,
+    pattern: '\\*\\-'
+  },
+  {
+    type: OperationType.Diff,
+    pattern: '\\-'
+  },
+  {
+    type: OperationType.Divide,
+    pattern: '\\/'
+  },
+  {
+    type: OperationType.Multiply,
+    pattern: '\\*'
+  },
+  {
+    type: OperationType.Set,
+    pattern: '\\='
+  },
+  {
+    type: OperationType.Sum,
+    pattern: '\\+'
+  },
+]
+
 const sortTokenConfigs = (configs: ITokenConfig[]): IHash<ITokenConfig> => {
-	const result = configs.reduce((prev: IHash<ITokenConfig>, curr: ITokenConfig, index: number, array: ITokenConfig[]) => {
-		return {
-			...prev,
-			[curr.type]: curr,
-		};
-	}, {});
+  const result = configs.reduce((prev: IHash<ITokenConfig>, curr: ITokenConfig, index: number, array: ITokenConfig[]) => {
+    return {
+      ...prev,
+      [curr.type]: curr,
+    };
+  }, {});
 
-	return result;
+  return result;
 }
+const sortOperationConfigs = (configs: IOperationConfig[]): IHash<IOperationConfig> => {
+  const result = configs.reduce((prev: IHash<IOperationConfig>, curr: IOperationConfig, index: number, array: IOperationConfig[]) => {
+    return {
+      ...prev,
+      [curr.type]: curr,
+    };
+  }, {});
 
+  return result;
+}
 const sortedSeparators = sortTokenConfigs(separators);
 const sortedTokens = sortTokenConfigs(tokens);
+const sortedOperations = sortOperationConfigs(operations);
 
 const combinePatterns = (patterns: string[], separator: string = '|', isGroup: boolean = true) => {
 	const result = patterns.reduce((prev: string, curr: string, index: number, array: string[]) => {
@@ -205,9 +248,11 @@ const allTokensRegexp = new RegExp(allTokensPattern);
 export const stsParserConfig = {
 	separators,
 	tokens,
+  operations,
 
 	sortedSeparators,
 	sortedTokens,
+  sortedOperations,
 
 	allSeparatorsPattern,
 	allSeparatorsRegexp,

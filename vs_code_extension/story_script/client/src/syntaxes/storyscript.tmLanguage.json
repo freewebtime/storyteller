@@ -168,19 +168,16 @@
     "expr-mention": {
       "patterns": [
         {
-          "match": "(\\w+)\\s*(:)\\s*(\\w+(?:\\.\\w+)*)",
+          "match": "(:)\\s*(\\w+(?:\\.\\w+)*)",
           "captures": {
             "1": {
-              "name": "variable"
-            },
-            "2": {
               "patterns": [
                 {
                   "include": "#expr-keywords"
                 }
               ]
             },
-            "3": {
+            "2": {
               "name": "support.type",
               "patterns": [
                 {

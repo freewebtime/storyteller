@@ -17,7 +17,37 @@ const stsCompile = () => {
 	const compiled = compileStoryScript(fileContent);
 }
 
-const initCustomColorizer = (context: ExtensionContext) => {
+const toUpper = (e: vscode.TextEditor, d: vscode.TextDocument, sel: vscode.Selection[]) => {
+  e.edit(function (edit) {
+    // itterate through the selections and convert all text to Upper
+    for (var x = 0; x < sel.length; x++) {
+      let txt: string = d.getText(new vscode.Range(sel[x].start, sel[x].end));
+      edit.replace(sel[x], txt.toUpperCase());
+    }
+  });
+}
+
+const addCurlyBracket = () => {
+  if (!vscode.window.activeTextEditor) {
+    vscode.window.showInformationMessage('Open a file first to manipulate text selections');
+    return;
+  }     
+  
+  let editor = vscode.window.activeTextEditor;
+  let document = editor.document;
+  let selections = editor.selections;
+  let selection = editor.selection;
+
+  if (!selection) {
+    vscode.window.showInformationMessage('nothing selected');
+    return;
+  }
+
+  editor.edit(function (edit) {
+    edit.insert(selection.start, '{')
+  });
+
+  toUpper(editor, document, selections);
 }
 
 const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
@@ -93,8 +123,13 @@ const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
 }
 
 const initStsCompileCommand = (context: ExtensionContext) => {
-	var disposable = vscode.commands.registerCommand('extension.stsCompile', stsCompile);
-	context.subscriptions.push(disposable);
+  var disposable = vscode.commands.registerCommand('extension.stsCompile', stsCompile);
+  context.subscriptions.push(disposable);
+}
+
+const initAddCurlyBracketCommand = (context: ExtensionContext) => {
+  var disposable = vscode.commands.registerCommand('extension.addCurlyBracket', addCurlyBracket);
+  context.subscriptions.push(disposable);
 }
 
 const initLanguageServer = (context: ExtensionContext) => {
@@ -131,10 +166,10 @@ const initLanguageServer = (context: ExtensionContext) => {
 }
 
 export function activate(context: ExtensionContext) {
+  initAddCurlyBracketCommand(context);
 	initLanguageServer(context);
 	initStsCompileCommand(context);
 	initShowHtmlPreviewCommand(context);
-  initCustomColorizer(context);
   
-	stsCompile();
+	// stsCompile();
 }

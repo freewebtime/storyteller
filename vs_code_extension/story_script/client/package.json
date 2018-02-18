@@ -81,7 +81,12 @@
 				"title": "Compile Story Script",
 				"category": "Compile"
 			},
-			{
+      {
+        "command": "extension.addCurlyBracket",
+        "title": "Add curly bracket",
+        "category": "Edit"
+      },
+      {
 				"command": "extension.showHtmlPreview",
 				"title": "Show Html Preview",
 				"category": "Compile"
@@ -97,12 +102,17 @@
 			]
 		},
 		"keybindings": [
-			{
-				"command": "extension.showHtmlPreview",
-				"when": "resourceLangId == storyscript",
-				"key": "Ctrl+Shift+B"
-			}
-		]
+      {
+        "command": "extension.showHtmlPreview",
+        "when": "resourceLangId == storyscript",
+        "key": "Ctrl+Shift+B"
+      },
+      {
+        "command": "extension.addCurlyBracket",
+        "when": "resourceLangId == storyscript",
+        "key": "Ctrl+Shift+["
+      }
+    ]
 	},
 	"scripts": {
 		"vscode:prepublish": "tsc -p ./",

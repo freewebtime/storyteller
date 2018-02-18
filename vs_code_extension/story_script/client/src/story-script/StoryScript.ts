@@ -1,9 +1,6 @@
-import { stsParser } from "./tokenizer/stsTokenizer";
+import { stsTokenizer } from "./tokenizer/stsTokenizer";
 
 export const compileStoryScript = (sourceCode: string) => {
-	// return parseFileContent(sourceCode);
-  // const parsed = stsParser.parseCode(sourceCode);
-  // const tokenized = stsParser.tokenizeCode(sourceCode);
-  const parsed = stsParser.parseCode(sourceCode);
-  return parsed;
+  const tokenized = stsTokenizer.tokenizeCode(sourceCode);
+  return tokenized;
 }
