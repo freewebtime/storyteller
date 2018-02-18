@@ -11,11 +11,6 @@ export interface ITokenizerState {
 	tokens: ICodeToken[];
 }
 
-export interface IParseResult<TAstNode = IAstNode> {
-  state: ITokenizerState;
-  astNode: TAstNode;
-}
-
 export const stsTokenizer = {
   tokenizeCode: (sourceCode: string): ICodeToken[] => {
 		let state: ITokenizerState = {

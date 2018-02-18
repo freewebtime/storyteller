@@ -1,3 +1,6 @@
-let a = (b) => {
-  
+let foo = {
+  bar: 'bar'
 }
+
+foo . 
+bar

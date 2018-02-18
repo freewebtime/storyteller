@@ -177,12 +177,20 @@ const operations: IOperationConfig[] = [
     pattern: '\\.\\.\\.'
   },
   {
+    type: OperationType.Get,
+    pattern: '\\.'
+  },
+  {
     type: OperationType.Delete,
     pattern: '\\*\\-'
   }, 
   {
     type: OperationType.Return,
     pattern: '\\*\\='
+  },
+  {
+    type: OperationType.Signature,
+    pattern: '\\:'
   },
   {
     type: OperationType.Diff,
@@ -247,7 +255,8 @@ const operationsByPriority: OperationType[][] = [
   [OperationType.Sum, OperationType.Diff],
   [OperationType.Multiply, OperationType.Divide, OperationType.Power, OperationType.Root],
   [OperationType.Call],
-  [OperationType.Get, OperationType.Index]
+  [OperationType.Get, OperationType.Index],
+  [OperationType.Signature]
 ]
 
 const sortTokenConfigs = (configs: ITokenConfig[]): IHash<ITokenConfig> => {

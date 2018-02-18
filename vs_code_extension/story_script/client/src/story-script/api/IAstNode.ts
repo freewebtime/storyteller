@@ -62,6 +62,9 @@ export enum OperationType {
   MoreOrEquals = 'MoreOrEquals',
   // <= 
   LessOrEquals = 'LessOrEquals',
+
+  // : //var: signature
+  Signature = 'Signature'
 }
 
 export interface IAstNode<TValue = any> {
@@ -95,9 +98,13 @@ export interface IAstNodeArray extends IAstNode<IAstNode>{}
 
 export interface IAstNodeScope extends IAstNode<IAstNodeOperation[]>{}
 export interface IAstNodeOperation extends IAstNode<{
-  operationType: OperationType;
+  operator: IAstNodeOperator;
   leftOperand: IAstNode;
   rightOperand: IAstNode;
+}> {}
+export interface IAstNodeOperator extends IAstNode<{
+  value: string;
+  type: OperationType;
 }> {}
 export interface IAstNodeCondition extends IAstNode<{
   condition: IAstNode;
