@@ -31,6 +31,7 @@ export const stsParser = {
       state = stsParser.applyParseResult(template);
     }
 
+    console.log(state.ast);
     return state.ast;
   },
 
@@ -155,7 +156,7 @@ export const stsParser = {
     }
   },
 
-  parseOperation: (state: IParserState): IParseResult<IAstNodeOperation> => {
+  parseOperation: (state: IParserState): IParseResult => {
     let items: (IAstNode)[] = [];
 
     // read operand? operator operand (operator operand)*
@@ -170,43 +171,38 @@ export const stsParser = {
     // 2. read operator
     let operator = stsParser.parseOperator(state);
     if (operator) {
-      state = operator.state,
+      state = operator.state;
       items = [...items, operator.astNode];
-    }
 
-    // 3. read right operand
-    let rightOperand = stsParser.parseOperand(state);
-    if (rightOperand) {
-      state = rightOperand.state,
-      items = [...items, rightOperand.astNode];
-    }
+      // 3. read right operand
+      let rightOperand = stsParser.parseOperand(state);
+      if (rightOperand) {
+        state = rightOperand.state,
+        items = [...items, rightOperand.astNode];
 
-    let nextOperator: IParseResult;
-    while (nextOperator = stsParser.parseOperator(state)) {
-      state = nextOperator.state,
-      items = [...items, nextOperator.astNode];
+        // 4. read next operator
+        let nextOperator: IParseResult;
+        while (nextOperator = stsParser.parseOperator(state)) {
+          state = nextOperator.state,
+          items = [...items, nextOperator.astNode];
 
-      // 3. read next operand
-      let nextOperand = stsParser.parseOperand(state);
-      if (nextOperand) {
-        state = nextOperand.state,
-        items = [...items, nextOperand.astNode];
+          // 5. read next operand
+          let nextOperand = stsParser.parseOperand(state);
+          if (nextOperand) {
+            state = nextOperand.state,
+            items = [...items, nextOperand.astNode];
+          } else {
+            // if we don't have next operand that means this is the end of the operation
+            break;
+          }
+        }
       }
     }
 
     if (items.length > 0) {
-      let roNode: IAstNodeScope = {
-        type: AstNodeType.Scope,
-        value: [...items.slice(2)]
-      }
-
-      let astNode: IAstNodeOperation = {
+      let astNode = {
         type: AstNodeType.Operation,
-        value: {
-          leftOperand: leftOperand.astNode,
-          operator: operator.astNode,
-          rightOperand: roNode,
-        }
+        value: items
       };
 
       return {
@@ -220,9 +216,18 @@ export const stsParser = {
 
   parseOperand: (state: IParserState): IParseResult => {
     // can be
-    // parenBlock
+    // scope
+    let scope = stsParser.parseScope(state);
+    if (scope) {
+      return scope;
+    }
+
     // literal
-    
+    let literal = stsParser.parseLiteral(state);
+    if (literal) {
+      return literal;
+    }
+
     // word
     let nextToken = stsParser.getToken(state);
     if (!nextToken || nextToken.type !== CodeTokenType.Word) {
@@ -243,8 +248,56 @@ export const stsParser = {
   },
 
   parseOperator: (state: IParserState): IParseResult => {
+    let getOperator = stsParser.parseGetOperator(state);
+    if (getOperator) {
+      return getOperator;
+    }
+
+    let callOperator = stsParser.parseCallOperator(state);
+    if (callOperator) {
+      return callOperator;
+    }
+
+    state = stsParser.skipWhitespace(state);
+
+    let copyOperator = stsParser.parseCopyOperator(state);
+    if (copyOperator) {
+      return copyOperator;
+    }
+
+    let oneTokenOperator = stsParser.parseOneTokenOperator(state);
+    if (oneTokenOperator) {
+      return oneTokenOperator;
+    }
+
+    return undefined;
+  },
+
+  parseCallOperator: (state: IParserState): IParseResult => {
+    // 1. Call. scope without spaces
+    let scope = stsParser.parseScope(state);
+    if (!scope) {
+      return undefined;
+    }
+
+    let astNode: IAstNodeOperator = {
+      type: AstNodeType.Operator,
+      value: {
+        type: OperationType.Call,
+        value: '<Call>'
+      },
+    };
+
+    return {
+      astNode,
+      state
+    }
+  },
+
+  parseGetOperator: (state: IParserState): IParseResult => {
+    // 1. Get. dot and no spaces before and after
     let nextToken = stsParser.getToken(state);
-    if (!nextToken) {
+    if (!nextToken || nextToken.type !== CodeTokenType.Dot) {
       return undefined;
     }
 
@@ -253,61 +306,104 @@ export const stsParser = {
       value: undefined,
     };
 
-    // can be
+    state = stsParser.skipTokens(state, 1);
+    let afterDot = stsParser.getToken(state);
+    if (!afterDot || afterDot.type !== CodeTokenType.Dot) {
+      let operatorValue = nextToken.value || '';
+      let operatorType = stsConfig.getOperationType(operatorValue);
 
-    // 1. get - means no spaces before and after
-    if (nextToken.type === CodeTokenType.Dot) {
+      astNode = {
+        ...astNode,
+        value: {
+          type: operatorType,
+          value: operatorValue
+        }
+      };
+
+      return { astNode, state }
+    }
+
+    return undefined;
+  },
+
+  parseCopyOperator: (state: IParserState): IParseResult => {
+    // Copy (...)
+    let nextToken = stsParser.getToken(state);
+    if (!nextToken || nextToken.type !== CodeTokenType.Dot) {
+      return undefined;
+    }
+
+    let astNode: IAstNodeOperator = {
+      type: AstNodeType.Operator,
+      value: undefined,
+    };
+
+    state = stsParser.skipTokens(state, 1);
+    let dot2 = stsParser.getToken(state);
+    
+    if (dot2 && dot2.type === CodeTokenType.Dot) {
       state = stsParser.skipTokens(state, 1);
-      let afterDot = stsParser.getToken(state);
-      if (
-        !afterDot 
-        || afterDot.type !== CodeTokenType.Dot 
-      ) {
-        let operatorValue = nextToken.value || '';
+      let dot3 = stsParser.getToken(state);
+    
+      if (dot3 && dot3.type === CodeTokenType.Dot) {
+        state = stsParser.skipTokens(state, 1);
+        let operatorValue = `${nextToken.value}${dot2.value}${dot3.value}`;
         let operatorType = stsConfig.getOperationType(operatorValue);
 
         astNode = {
           ...astNode,
           value: {
-            type: operatorType,
-            value: operatorValue
+            value: operatorValue,
+            type: operatorType
           }
         };
 
-        return { astNode, state }
+        state = stsParser.skipWhitespace(state);
+
+        return { state, astNode }
       }
+
     }
 
-    // any other operators can be after whitespace
-    state = stsParser.skipWhitespace(state);
-    nextToken = stsParser.getToken(state);
+    return undefined;
+  },
 
+  parseOneTokenOperator: (state: IParserState): IParseResult => {
+    let nextToken = stsParser.getToken(state);
     if (!nextToken) {
       return undefined;
     }
 
-    // 2. Copy (...)
-    if (nextToken.type === CodeTokenType.Dot) {
-      state = stsParser.skipTokens(state, 1);
-      let dot2 = stsParser.getToken(state);
-      if (dot2 && dot2.type === CodeTokenType.Dot) {
-        state = stsParser.skipTokens(state, 1);
-        let dot3 = stsParser.getToken(state);
-        if (dot3 && dot3.type === CodeTokenType.Dot) {
-          state = stsParser.skipTokens(state, 1);
-          let operatorValue = `${nextToken.value}${dot2.value}${dot3.value}`;
-          let operatorType = stsConfig.getOperationType(operatorValue);
-          
-          astNode = {
-            ...astNode,
-            value: {
-              value: operatorValue,
-              type: operatorType
-            }
-          };
+    state = stsParser.skipTokens(state, 1);
+    let operatorValue = `${nextToken.value}`;
+    let operatorType = stsConfig.getOperationType(operatorValue);
 
-          return { state, astNode }
+    if (
+      operatorType 
+      && (
+        operatorType === OperationType.Sum
+        || operatorType === OperationType.Diff
+        || operatorType === OperationType.Multiply
+        || operatorType === OperationType.Divide
+        || operatorType === OperationType.More
+        || operatorType === OperationType.Less
+        || operatorType === OperationType.Power
+        || operatorType === OperationType.Set
+      )
+    ) {
+      let astNode: IAstNodeOperator = {
+        type: AstNodeType.Operator,
+        value: {
+          value: operatorValue,
+          type: operatorType
         }
+      };
+
+      state = stsParser.skipWhitespace(state);
+
+      return {
+        state,
+        astNode
       }
     }
 
@@ -321,15 +417,15 @@ export const stsParser = {
 
     // open paren
     let openParen = stsParser.getToken(state);
-    if (!openParen || openParen.type !== CodeTokenType.Star) {
+    if (!openParen || openParen.type !== CodeTokenType.ParenOpen) {
       return undefined;
     }
 
     state = stsParser.skipTokens(state, 1);
 
-    let astNode: IAstNode = {
-      type: AstNodeType.Mention,
-      value: openParen.value || ''
+    let astNode: IAstNodeScope = {
+      type: AstNodeType.Scope,
+      value: []
     };
 
     // collect content until close paren
@@ -352,8 +448,15 @@ export const stsParser = {
       
       nextToken = stsParser.getToken(state);
     }
-    
 
+    //and now we should find the closing paren
+    let closeParen = stsParser.getToken(state);
+    if (closeParen.type !== CodeTokenType.ParenClose) {
+      // TODO: parsing error! we should add error info
+    } else {
+      state = stsParser.skipTokens(state, 1);
+    }
+    
     return {
       state,
       astNode
