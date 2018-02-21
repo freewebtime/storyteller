@@ -82,8 +82,33 @@
 				"category": "Compile"
 			},
       {
-        "command": "extension.addCurlyBracket",
-        "title": "Add curly bracket",
+        "command": "extension.sts_insert_{",
+        "title": "Insert '{' ",
+        "category": "Edit"
+      },
+      {
+        "command": "extension.sts_insert_}",
+        "title": "Insert '}' ",
+        "category": "Edit"
+      },
+      {
+        "command": "extension.sts_insert_>>",
+        "title": "Insert '>>' ",
+        "category": "Edit"
+      },
+      {
+        "command": "extension.sts_insert_<<",
+        "title": "Insert '<<' ",
+        "category": "Edit"
+      },
+      {
+        "command": "extension.sts_insert_[",
+        "title": "Insert '[' ",
+        "category": "Edit"
+      },
+      {
+        "command": "extension.sts_insert_]",
+        "title": "Insert ']' ",
         "category": "Edit"
       },
       {
@@ -108,9 +133,40 @@
         "key": "Ctrl+Shift+B"
       },
       {
-        "command": "extension.addCurlyBracket",
+        "command": "extension.sts_insert_{",
         "when": "resourceLangId == storyscript",
         "key": "Ctrl+Shift+["
+      },
+      {
+        "command": "extension.sts_insert_}",
+        "when": "resourceLangId == storyscript",
+        "key": "Ctrl+Shift+]"
+      },
+      {
+        "command": "extension.sts_insert_[",
+        "when": "resourceLangId == storyscript",
+        "key": "Ctrl+Alt+["
+      },
+      {
+        "command": "extension.sts_insert_]",
+        "when": "resourceLangId == storyscript",
+        "key": "Ctrl+Alt+]"
+      },
+      {
+        "command": "extension.sts_insert_>>",
+        "when": "resourceLangId == storyscript",
+        "key": "Ctrl+Shift+."
+      },
+      {
+        "command": "extension.sts_insert_<<",
+        "when": "resourceLangId == storyscript",
+        "key": "Ctrl+Shift+,"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "storyscript",
+        "path": "./src/snippets/storyscript.json"
       }
     ]
 	},

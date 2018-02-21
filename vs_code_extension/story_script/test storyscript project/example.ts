@@ -1,6 +1,1 @@
-let foo = {
-  bar: 'bar'
-}
-
-foo . 
-bar
+const a = (name: string = "expression") => name + (45 + 99);

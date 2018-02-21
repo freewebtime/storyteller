@@ -27,27 +27,28 @@ const toUpper = (e: vscode.TextEditor, d: vscode.TextDocument, sel: vscode.Selec
   });
 }
 
-const addCurlyBracket = () => {
+const insertText = (text: string, isMoveCursor: boolean) => {
   if (!vscode.window.activeTextEditor) {
     vscode.window.showInformationMessage('Open a file first to manipulate text selections');
     return;
   }     
   
   let editor = vscode.window.activeTextEditor;
-  let document = editor.document;
-  let selections = editor.selections;
   let selection = editor.selection;
 
-  if (!selection) {
-    vscode.window.showInformationMessage('nothing selected');
-    return;
+  if (selection) {
+    editor.edit(function (edit) {
+      edit.insert(selection.start, text);
+    })
+    .then((value: boolean) => {
+      if (value && isMoveCursor) {
+        editor.selection = new vscode.Selection(
+          new vscode.Position(selection.start.line, selection.start.character + 1),
+          new vscode.Position(selection.start.line, selection.start.character + 1)
+        )
+      }
+    })
   }
-
-  editor.edit(function (edit) {
-    edit.insert(selection.start, '{')
-  });
-
-  toUpper(editor, document, selections);
 }
 
 const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
@@ -127,9 +128,45 @@ const initStsCompileCommand = (context: ExtensionContext) => {
   context.subscriptions.push(disposable);
 }
 
-const initAddCurlyBracketCommand = (context: ExtensionContext) => {
-  var disposable = vscode.commands.registerCommand('extension.addCurlyBracket', addCurlyBracket);
-  context.subscriptions.push(disposable);
+const initInsertTextCommands = (context: ExtensionContext) => {
+  let insertCommands: {command: string, text: string, isMoveCursor?: boolean}[] = [
+    {
+      command: 'extension.sts_insert_{',
+      text: '{}',
+      isMoveCursor: true,
+    },
+    {
+      command: 'extension.sts_insert_}',
+      text: '}'
+    },
+    {
+      command: 'extension.sts_insert_[',
+      isMoveCursor: true,
+      text: '[]'
+    },
+    {
+      command: 'extension.sts_insert_]',
+      text: ']'
+    },
+    {
+      command: 'extension.sts_insert_>>',
+      text: '>>'
+    },
+    {
+      command: 'extension.sts_insert_<<',
+      text: '<<'
+    },
+  ]
+
+  insertCommands.map((command) => {
+    const cmd: string = command.command;
+    const txt: string = command.text;
+    const isMoveCursor: boolean = command.isMoveCursor === true;
+
+    const disposable = vscode.commands.registerCommand(cmd, () => insertText(txt, isMoveCursor));
+    context.subscriptions.push(disposable);
+  })
+
 }
 
 const initLanguageServer = (context: ExtensionContext) => {
@@ -166,7 +203,7 @@ const initLanguageServer = (context: ExtensionContext) => {
 }
 
 export function activate(context: ExtensionContext) {
-  initAddCurlyBracketCommand(context);
+  initInsertTextCommands(context);
 	initLanguageServer(context);
 	initStsCompileCommand(context);
 	initShowHtmlPreviewCommand(context);

@@ -1,11 +1,21 @@
 *(
-  Utils = (
-    Unnamed = "Unnamed"
+  StoryName = "New Story"
+  Year = 2059
 
-    item: (subitem: number) = (
-      subitem = 22 > 16
-    )
+  Sum = (a: number = 100500/99, b: number) >> (
+    << a + b
   )
-) and some text
 
-and *mention.funccall(param, param);
+  Mul = (a, b) => a * b
+
+  Object = (
+    Name = "Hello"
+    Age = 25
+  )
+
+  Concat = (prefix, separator, postfix) >> {
+    << "*prefix*separator*postfix"
+  }
+
+  "Literal Name" = "Literal Value"
+)

@@ -1,0 +1,43 @@
+{
+  "Print to console": {
+    "prefix": "log",
+    "body": [
+      "console.log('$1');",
+      "$2"
+    ],
+    "description": "Log output to console"
+  },
+  "Insert braces": {
+    "prefix": "{",
+    "body": [
+      "{$1}"
+    ],
+    "description": "Insert braces"
+  },
+  "Insert brackets": {
+    "prefix": "[",
+    "body": [
+      "[$1]"
+    ],
+    "description": "Insert brackets"
+  },
+  "Insert tuples": {
+    "prefix": "<",
+    "body": [
+      "<$1>"
+    ],
+    "description": "Insert tuples"
+  },
+  "Function": {
+    "prefix": "() =>",
+    "body": [
+      "${1:${TM_SELECTED_TEXT:function name}} = (${2:params}) => ${3:{${4}\\}}"
+    ]
+  },
+  "Object": {
+    "prefix": " = {",
+    "body": [
+      "${1:${TM_SELECTED_TEXT:object name}}${2:: ${3:{$4\\}}} = ${5:{${6}\\}}"
+    ]
+  }
+}
