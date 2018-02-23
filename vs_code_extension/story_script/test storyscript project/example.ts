@@ -1,1 +1,0 @@
-const a = (name: string = "expression") => name + (45 + 99);
