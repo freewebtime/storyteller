@@ -1,2 +1,2 @@
 console.log('prepublish task running!!!');
-console.log('test line');
+// console.log('test line');
