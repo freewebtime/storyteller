@@ -35,7 +35,8 @@ connection.onInitialize((/*params*/): InitializeResult => {
 			textDocumentSync: documents.syncKind,
 			// Tell the client that the server support code complete
 			completionProvider: {
-				resolveProvider: true
+        resolveProvider: true,
+        triggerCharacters: ["*"]
 			}
 		}
 	}
@@ -70,30 +71,30 @@ connection.onDidChangeConfiguration((change) => {
 });
 
 function validateTextDocument(textDocument: TextDocument): void {
-	const documentText = textDocument.getText();
-	let lines = documentText.split(/\r?\n/g);
-	// tokenizeCode(documentText);
+	// const documentText = textDocument.getText();
+	// let lines = documentText.split(/\r?\n/g);
+	// // tokenizeCode(documentText);
 
-	let diagnostics: Diagnostic[] = [];
-	let problems = 0;
-	for (var i = 0; i < lines.length && problems < maxNumberOfProblems; i++) {
-		let line = lines[i];
-		let index = line.indexOf('typescript');
-		if (index >= 0) {
-			problems++;
-			diagnostics.push({
-				severity: DiagnosticSeverity.Warning,
-				range: {
-					start: { line: i, character: index },
-					end: { line: i, character: index + 10 }
-				},
-				message: `${line.substr(index, 10)} should be spelled TypeScript`,
-				source: 'ex'
-			}); 
-		}
-	}
-	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+	// let diagnostics: Diagnostic[] = [];
+	// let problems = 0;
+	// for (var i = 0; i < lines.length && problems < maxNumberOfProblems; i++) {
+	// 	let line = lines[i];
+	// 	let index = line.indexOf('typescript');
+	// 	if (index >= 0) {
+	// 		problems++;
+	// 		diagnostics.push({
+	// 			severity: DiagnosticSeverity.Warning,
+	// 			range: {
+	// 				start: { line: i, character: index },
+	// 				end: { line: i, character: index + 10 }
+	// 			},
+	// 			message: `${line.substr(index, 10)} should be spelled TypeScript`,
+	// 			source: 'ex'
+	// 		}); 
+	// 	}
+	// }
+	// // Send the computed diagnostics to VSCode.
+	// connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
 connection.onDidChangeWatchedFiles((_change) => {
@@ -110,7 +111,7 @@ connection.onExecuteCommand((params: ExecuteCommandParams): any => {
 connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
 	// The pass parameter contains the position of the text document in 
 	// which code complete got requested. For the example we ignore this
-	// info and always provide the same completion items.
+  // info and always provide the same completion items.
 	const result = [
 		{
 			label: 'TypeScript',
