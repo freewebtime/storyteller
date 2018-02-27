@@ -1,0 +1,22 @@
+{
+  "name": "storyscript-babel-plugin",
+  "displayName": "storyscript plugin for babel",
+  "author": "Jack Storytailor",
+  "license": "MIT",
+  "version": "0.0.1",
+  "publisher": "Jack Storytailor",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/freewebtime/storyteller.git"
+  },
+  "scripts": {
+    "compile": "tsc -p client/tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^6.0.88",
+    "typescript": "^2.5.2"
+  },
+  "dependencies": {
+  } 
+}

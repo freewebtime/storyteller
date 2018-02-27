@@ -10,10 +10,12 @@
 		"rootDir": ".",
 		"outDir": "out",
 		"lib": [ "es2016" ],
-		"sourceMap": true
+    "sourceMap": true,
+    "allowJs": false
 	},
 	"exclude": [
 		"node_modules",
-		"server"
+    "server",
+    "out"
 	]
 }

@@ -81,37 +81,37 @@
 				"title": "Compile Story Script",
 				"category": "Compile"
 			},
-      {
-        "command": "extension.sts_insert_{",
-        "title": "Insert '{' ",
-        "category": "Edit"
-      },
-      {
-        "command": "extension.sts_insert_}",
-        "title": "Insert '}' ",
-        "category": "Edit"
-      },
-      {
-        "command": "extension.sts_insert_>>",
-        "title": "Insert '>>' ",
-        "category": "Edit"
-      },
-      {
-        "command": "extension.sts_insert_<<",
-        "title": "Insert '<<' ",
-        "category": "Edit"
-      },
-      {
-        "command": "extension.sts_insert_[",
-        "title": "Insert '[' ",
-        "category": "Edit"
-      },
-      {
-        "command": "extension.sts_insert_]",
-        "title": "Insert ']' ",
-        "category": "Edit"
-      },
-      {
+			{
+				"command": "extension.sts_insert_{",
+				"title": "Insert '{' ",
+				"category": "Edit"
+			},
+			{
+				"command": "extension.sts_insert_}",
+				"title": "Insert '}' ",
+				"category": "Edit"
+			},
+			{
+				"command": "extension.sts_insert_>>",
+				"title": "Insert '>>' ",
+				"category": "Edit"
+			},
+			{
+				"command": "extension.sts_insert_<<",
+				"title": "Insert '<<' ",
+				"category": "Edit"
+			},
+			{
+				"command": "extension.sts_insert_[",
+				"title": "Insert '[' ",
+				"category": "Edit"
+			},
+			{
+				"command": "extension.sts_insert_]",
+				"title": "Insert ']' ",
+				"category": "Edit"
+			},
+			{
 				"command": "extension.showHtmlPreview",
 				"title": "Show Html Preview",
 				"category": "Compile"
@@ -127,48 +127,48 @@
 			]
 		},
 		"keybindings": [
-      {
-        "command": "extension.showHtmlPreview",
-        "when": "resourceLangId == storyscript",
-        "key": "Ctrl+Shift+B"
-      },
-      {
-        "command": "extension.sts_insert_{",
-        "when": "resourceLangId == storyscript",
-        "key": "Ctrl+Shift+["
-      },
-      {
-        "command": "extension.sts_insert_}",
-        "when": "resourceLangId == storyscript",
-        "key": "Ctrl+Shift+]"
-      },
-      {
-        "command": "extension.sts_insert_[",
-        "when": "resourceLangId == storyscript",
-        "key": "Ctrl+Alt+["
-      },
-      {
-        "command": "extension.sts_insert_]",
-        "when": "resourceLangId == storyscript",
-        "key": "Ctrl+Alt+]"
-      },
-      {
-        "command": "extension.sts_insert_>>",
-        "when": "resourceLangId == storyscript",
-        "key": "Ctrl+Shift+."
-      },
-      {
-        "command": "extension.sts_insert_<<",
-        "when": "resourceLangId == storyscript",
-        "key": "Ctrl+Shift+,"
-      }
-    ],
-    "snippets": [
-      {
-        "language": "storyscript",
-        "path": "./src/snippets/storyscript.json"
-      }
-    ]
+			{
+				"command": "extension.showHtmlPreview",
+				"when": "resourceLangId == storyscript",
+				"key": "Ctrl+Shift+B"
+			},
+			{
+				"command": "extension.sts_insert_{",
+				"when": "resourceLangId == storyscript",
+				"key": "Ctrl+Shift+["
+			},
+			{
+				"command": "extension.sts_insert_}",
+				"when": "resourceLangId == storyscript",
+				"key": "Ctrl+Shift+]"
+			},
+			{
+				"command": "extension.sts_insert_[",
+				"when": "resourceLangId == storyscript",
+				"key": "Ctrl+Alt+["
+			},
+			{
+				"command": "extension.sts_insert_]",
+				"when": "resourceLangId == storyscript",
+				"key": "Ctrl+Alt+]"
+			},
+			{
+				"command": "extension.sts_insert_>>",
+				"when": "resourceLangId == storyscript",
+				"key": "Ctrl+Shift+."
+			},
+			{
+				"command": "extension.sts_insert_<<",
+				"when": "resourceLangId == storyscript",
+				"key": "Ctrl+Shift+,"
+			}
+		],
+		"snippets": [
+			{
+				"language": "storyscript",
+				"path": "./src/snippets/storyscript.json"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "tsc -p ./",
