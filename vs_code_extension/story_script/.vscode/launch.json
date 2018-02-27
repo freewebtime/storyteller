@@ -2,7 +2,14 @@
 	"version": "0.2.0",
 	// List of configurations. Add new configurations or edit existing ones.
 	"configurations": [
-		{
+    {
+      "name": "Debug babel plugin",
+      "preLaunchTask": "debug-babel",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/test_story/.compiled/index.js" 
+    },
+    {
 			"name": "Launch Client",
 			"type": "extensionHost",
 			"request": "launch",

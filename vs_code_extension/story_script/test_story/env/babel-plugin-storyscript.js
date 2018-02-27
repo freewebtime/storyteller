@@ -1,4 +1,3 @@
-console.log('babel plugin starts');
-module.exports = function (babel) {
-  console.log('module exports called!');
-}
+console.log('index.ts is calling!!!');
+// here will be the babel plugin
+//# sourceMappingURL=babel-plugin-storyscript.js.map

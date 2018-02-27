@@ -10,7 +10,7 @@
     "url": "https://github.com/freewebtime/storyteller.git"
   },
   "scripts": {
-    "compile": "tsc -p client/tsconfig.json"
+    "compile": "tsc -p ./tsconfig.json"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.42",

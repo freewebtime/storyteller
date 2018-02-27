@@ -1,7 +1,19 @@
 {
 	"version": "2.0.0",
 	"tasks": [
-		{
+    {
+      "label": "debug-babel",
+      "type": "npm",
+      "script": "debug-babel",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
 			"label": "compile",
 			"dependsOn": [
 				"compile:client",

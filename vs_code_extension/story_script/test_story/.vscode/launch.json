@@ -15,7 +15,6 @@
       ],
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "debug",
-      "runtimeExecutable": null,
       "runtimeArgs": [
         "--nolazy"
       ],
