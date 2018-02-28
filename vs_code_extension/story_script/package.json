@@ -11,6 +11,7 @@
     "url": "https://github.com/freewebtime/storyteller.git"
   },
   "scripts": {
+    "debug-babel-tutorial": "tsc -p ./babel_tutorial/tsconfig.json",
     "compile-babel": "tsc -p babel_plugin",
     "debug-babel": "tsc -p babel_plugin && babel test_story/src --out-dir test_story/.compiled --source-maps",
     "postinstall": "cd server && npm install && cd ../client && npm install && cd ..",

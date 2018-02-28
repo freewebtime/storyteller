@@ -2,6 +2,18 @@
 	"version": "2.0.0",
 	"tasks": [
     {
+      "label": "debug-babel-tutorial",
+      "type": "npm",
+      "script": "debug-babel-tutorial",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
       "label": "debug-babel",
       "type": "npm",
       "script": "debug-babel",
