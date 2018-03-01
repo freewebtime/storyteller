@@ -1,17 +1,18 @@
-import * as babylon from "babylon";
+const babel = require("babel-core");
+const babylon = require("babylon");
+const fs = require('fs');
 
-const code = `function square(n) {
-  return n * n;
-}`;
+var options = {
+  plugins: [],
+  sourceMaps: true,
+};
 
-const parseResult = babylon.parse(code);
-console.log(parseResult);
-// Node {
-//   type: "File",
-//   start: 0,
-//   end: 38,
-//   loc: SourceLocation {...},
-//   program: Node {...},
-//   comments: [],
-//   tokens: [...]
-// }
+let files = fs.readdirSync('.');
+
+let fileContent = fs.readFile('/');
+
+let sourceCode = "if (true) return;";
+let sourceAst = babylon.parse(sourceCode, { allowReturnOutsideFunction: true });
+let { code, map, ast } = babel.transformFromAst(sourceAst, sourceCode, options);
+
+console.log(sourceCode, sourceAst, ast, code, map);

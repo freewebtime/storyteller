@@ -1,5 +1,7 @@
+import * as babel from 'babel-core';
+
 export default function (api, options) {
-  console.log('api, options are', ' end of options');
+  console.log('>>> api >>>', api, '>>> options >>>', options);
 
   const result = {
   };

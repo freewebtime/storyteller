@@ -1,18 +1,14 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+const babel = require("babel-core");
 const babylon = require("babylon");
-const code = `function square(n) {
-  return n * n;
-}`;
-const parseResult = babylon.parse(code);
-console.log(parseResult);
-// Node {
-//   type: "File",
-//   start: 0,
-//   end: 38,
-//   loc: SourceLocation {...},
-//   program: Node {...},
-//   comments: [],
-//   tokens: [...]
-// }
+const fs = require('fs');
+var options = {
+    plugins: [],
+    sourceMaps: true,
+};
+let files = fs.readdirSync('.');
+let fileContent = fs.readFile('/');
+let sourceCode = "if (true) return;";
+let sourceAst = babylon.parse(sourceCode, { allowReturnOutsideFunction: true });
+let { code, map, ast } = babel.transformFromAst(sourceAst, sourceCode, options);
+console.log(sourceCode, sourceAst, ast, code, map);
 //# sourceMappingURL=index.js.map
