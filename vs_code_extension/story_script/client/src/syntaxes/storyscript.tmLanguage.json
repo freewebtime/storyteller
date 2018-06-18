@@ -52,27 +52,6 @@
         }
       ]
     },
-    "template-comment-line": {
-      "patterns": [{
-        "match": "(?<!\\\\)(\\*\\/\\/.*)",
-        "name": "comment.line"
-      }]
-    },
-    "template-comment-block": {
-      "patterns": [{
-        "begin": "\\*\\/\\*",
-        "end": "\\*\\/",
-        "name": "comment.block",
-        "patterns": [
-          {
-            "include": "#comment-line"
-          },
-          {
-            "include": "#comment-block"
-          }
-        ]
-      }]
-    },
     "comment-block": {
       "patterns": [{
         "begin": "\\/\\*",
@@ -273,7 +252,7 @@
     "templ-item-declaration":{
       "patterns": [
         {
-          "match": "\\s*(\\*)\\s(\\w.*)",
+          "match": "\\s*(\\*)\\s(.*)(\\s*[\\:|\\=]\\s*.*)",
           "captures": {
             "1": {
               "patterns": [{
@@ -282,15 +261,73 @@
               }]
             },
             "2": {
+              "patterns": [{
+                "include": "#template"
+              }]
+            },
+            "3": {
               "patterns": [
                 {
-                  "include": "#template"
+                  "match": "(\\:)\\s*(.*)",
+                  "captures": {
+                    "1":{
+                      "patterns": [
+                        {
+                          "match": ".*",
+                          "name": "constant.character.escape"
+                        }
+                      ]
+                    },
+                    "2": {
+                      "patterns": [{
+                        "match": ".*",
+                        "name": "support.type"
+                      }]
+                    }
+                  }
+                },
+                {
+                  "match": "(\\=)\\s*(.*)",
+                  "captures": {
+                    "1": {
+                      "patterns": [{
+                        "match": ".*",
+                        "name": "constant.character.escape"
+                      }]
+                    },
+                    "2": {
+                      "patterns": [{
+                        "include": "#expression"
+                      }]
+                    }
+                  }
                 }
               ]
             }
           }
-        }
-      ]
+        },
+        {
+          "match": "\\s*(\\*\\-?)\\s(.*)",
+          "captures": {
+            "1": {
+              "patterns": [
+                {
+                  "match": "\\*\\-",
+                  "name": "invalid.illegal"
+                },
+                {
+                  "match": "\\*",
+                  "name": "constant.character.escape"
+                }
+              ]
+            },
+            "2": {
+              "patterns": [{
+                "include": "#template"
+              }]
+            }
+          }
+        }]
     },
 
     "templ-submention": {

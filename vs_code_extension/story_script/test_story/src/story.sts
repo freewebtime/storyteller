@@ -6,7 +6,19 @@
   * год
     *(1990)
 
-*(к = контекст)
+* к: контекст
+  sdlfjs ldkjf lskdjf
+* r2 = asdasd + 100
+
+* state 1
+  * counter = 1
+* state 2: state 1
+  * counter = 2
+* state 3: state 2
+  * counter = 3 
+* state 4: state 2
+  * cnt = *"state 3".counter
+  *- counter
 
 * Эпоха разработки
   
