@@ -34,6 +34,12 @@
     "template": {
       "patterns": [
         {
+          "include": "#comment-line"
+        },
+        {
+          "include": "#comment-block"
+        },
+        {
           "include": "#templ-mention"
         }
       ]
@@ -46,13 +52,33 @@
         }
       ]
     },
+    "template-comment-line": {
+      "patterns": [{
+        "match": "(?<!\\\\)(\\*\\/\\/.*)",
+        "name": "comment.line"
+      }]
+    },
+    "template-comment-block": {
+      "patterns": [{
+        "begin": "\\*\\/\\*",
+        "end": "\\*\\/",
+        "name": "comment.block",
+        "patterns": [
+          {
+            "include": "#comment-line"
+          },
+          {
+            "include": "#comment-block"
+          }
+        ]
+      }]
+    },
     "comment-block": {
       "patterns": [{
         "begin": "\\/\\*",
         "end": "\\*\\/",
         "name": "comment.block",
-        "patterns": [
-          {
+        "patterns": [{
             "include": "#comment-line"
           },
           {
@@ -256,10 +282,11 @@
               }]
             },
             "2": {
-              "patterns": [{
-                "match": ".*",
-                "name": "variable"
-              }]
+              "patterns": [
+                {
+                  "include": "#template"
+                }
+              ]
             }
           }
         }
