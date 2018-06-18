@@ -7,17 +7,13 @@
     *(1990)
 
 * к: контекст
-  sdlfjs ldkjf lskdjf
-* r2 = asdasd + 100
 
 * state 1
   * counter = 1
 * state 2: state 1
-  * counter = 2
+  * counter = *"state 1".counter + 1
 * state 3: state 2
-  * counter = 3 
-* state 4: state 2
-  * cnt = *"state 3".counter
+  * cnt = *"state 2".counter
   *- counter
 
 * Эпоха разработки
@@ -27,7 +23,10 @@
   
   * Глава 1
     Жил да был *к.гг и все у него было хорошо.
-  
+
+    * статус
+      все хорошо
+
   * Глава 2
     Как-то наведался к нему в гости его старый друг *к.сд и говорит: "иди в жопу." 
     *к.гг обиделся, взял в руки блокнот и ручку и говорит: "чо это?" 
