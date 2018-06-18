@@ -1,0 +1,25 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+    {
+			"label": "compile:all",
+			"dependsOn": [
+				"compile:project"
+			],
+			"problemMatcher": []
+		},
+    {
+      "label": "compile:project",
+      "type": "npm",
+      "script": "compile",
+      "group": "build",
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "never"
+      },
+      "problemMatcher": [
+        "$tsc"
+      ]
+    }
+	]
+}

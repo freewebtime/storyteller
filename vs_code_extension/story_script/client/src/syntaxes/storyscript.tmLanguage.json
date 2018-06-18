@@ -17,7 +17,17 @@
           "include": "#comment-block"
         },
         {
-          "include": "#template"
+          "include": "#template-outer"
+        }
+      ]
+    },
+    "template-outer": {
+      "patterns": [
+        {
+          "include": "#templ-item-declaration"
+        },
+        {
+          "include": "#templ-mention"
         }
       ]
     },
@@ -230,6 +240,28 @@
               "include": "#templ-submention"
             }
           ]
+        }
+      ]
+    },
+
+    "templ-item-declaration":{
+      "patterns": [
+        {
+          "match": "\\s*(\\*)\\s(\\w.*)",
+          "captures": {
+            "1": {
+              "patterns": [{
+                "match": ".*",
+                "name": "constant.character.escape"
+              }]
+            },
+            "2": {
+              "patterns": [{
+                "match": ".*",
+                "name": "variable"
+              }]
+            }
+          }
         }
       ]
     },

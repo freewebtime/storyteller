@@ -1,2 +1,5 @@
-var some = 12 + 22;
-console.log('some', some);
+var content = {
+  Header: "Some story",
+  Body: "The story begins here"
+}
+
