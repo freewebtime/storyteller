@@ -24,6 +24,9 @@
     "template-outer": {
       "patterns": [
         {
+          "include": "#templ-import-declaration"
+        },
+        {
           "include": "#templ-item-declaration"
         },
         {
@@ -328,6 +331,79 @@
             }
           }
         }]
+    },
+
+    "templ-import-declaration": {
+      "patterns": [{
+          "match": "\\s*(\\*\\+)\\s(.*)(\\s*[\\=]\\s*.*)",
+          "captures": {
+            "1": {
+              "patterns": [{
+                "match": ".*",
+                "name": "constant.character.escape"
+              }]
+            },
+            "2": {
+              "patterns": [{
+                "include": "#expression"
+              }]
+            },
+            "3": {
+              "patterns": [{
+                  "match": "(\\:)\\s*(.*)",
+                  "captures": {
+                    "1": {
+                      "patterns": [{
+                        "match": ".*",
+                        "name": "constant.character.escape"
+                      }]
+                    },
+                    "2": {
+                      "patterns": [{
+                        "match": ".*",
+                        "name": "support.type"
+                      }]
+                    }
+                  }
+                },
+                {
+                  "match": "(\\=)\\s*(.*)",
+                  "captures": {
+                    "1": {
+                      "patterns": [{
+                        "match": ".*",
+                        "name": "constant.character.escape"
+                      }]
+                    },
+                    "2": {
+                      "patterns": [{
+                        "include": "#expression"
+                      }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }, 
+        {
+          "match": "\\s*(\\*\\+)\\s(.*)",
+          "captures": {
+            "1": {
+              "patterns": [{
+                  "match": "\\*\\+",
+                  "name": "constant.character.escape"
+                }
+              ]
+            },
+            "2": {
+              "patterns": [{
+                "include": "#expression"
+              }]
+            }
+          }
+        }
+      ]
     },
 
     "templ-submention": {
