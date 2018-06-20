@@ -2,6 +2,23 @@ import { ICodeToken } from "../api/ICodeToken";
 
 export enum AstNodeType {
   Text = 'Text',
+  CommentLine = 'Comment line',
+  CommentBlock = 'Comment block',
+
+  Collection = 'Collection',
+
+  Program = 'Program',
+  Module = 'Module',
+
+  ImportDeclaration = 'Import declaration',
+  ImportPath = 'Import path',
+  ImportPathSeparator = 'Import path separator',
+  ImportPathItem = 'Import path item',
+  ImportAlias = 'Import alias',
+
+  ItemDeclaration = 'Item declaration',
+  ItemName = 'Item name',
+  ItemValue = 'Item value',
 
   Template = 'Template',
   Mention = 'Mention',
@@ -72,6 +89,27 @@ export interface IAstNode<TValue = any> {
   codeToken?: ICodeToken;
   value: TValue;
 }
+
+export interface IAstNodeCollection<TNode extends IAstNode> extends IAstNode<TNode[]> {}
+
+export interface IAstNodeModule extends IAstNode<IAstNode[]> {
+  moduleName: string,
+  modulePath: string
+}
+export interface IAstModuleContent extends IAstNode<IAstNode[]>{}
+
+export interface IAstNodeImportDeclaration extends IAstNode<{
+  importAlias: IAstNodeImportAlias,
+  importPath: IAstNodeImportPath
+}> {}
+export interface IAstNodeImportPath extends IAstNode<IAstNode[]> { }
+export interface IAstNodeImportAlias extends IAstNode<IAstNode> { }
+
+export interface IAstNodeItemDeclaration extends IAstNode<{
+  itemName: IAstNode,
+  itemType: IAstNode,
+  itemValue: IAstNode,
+}>{}
 
 export interface IAstNodeText extends IAstNode<string> {}
 

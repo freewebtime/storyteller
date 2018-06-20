@@ -283,8 +283,7 @@
                     },
                     "2": {
                       "patterns": [{
-                        "match": ".*",
-                        "name": "support.type"
+                        "include": "#template"
                       }]
                     }
                   }
@@ -300,7 +299,7 @@
                     },
                     "2": {
                       "patterns": [{
-                        "include": "#expression"
+                        "include": "#template"
                       }]
                     }
                   }

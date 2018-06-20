@@ -6,3 +6,8 @@ export const compileStoryScript = (sourceCode: string) => {
   const parsed = stsParser.parse(tokenized);
   return parsed;
 }
+
+export const compileStoryscriptModule = (sourceCode: string, filePath: string, fileName: string) => {
+  const parsed = stsParser.parseModule(sourceCode, fileName, filePath);
+  return parsed;
+}
