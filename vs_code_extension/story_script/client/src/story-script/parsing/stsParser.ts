@@ -1,5 +1,5 @@
 import { ICodeToken } from "../api/ICodeToken";
-import { IAstNode, IAstNodeText, IAstNodeTemplate, AstNodeType, IAstNodeMention, IAstNodeOperation, OperationType, IAstNodeOperator, IAstNodeScope, IAstNodeModule, IAstNodeImportDeclaration, IAstNodeImportPath, IAstNodeImportAlias, IAstNodeCollection, IAstNodeItemDeclaration } from "../api/IAstNode";
+import { IAstNode, IAstNodeText, IAstNodeTemplate, AstNodeType, IAstNodeMention, IAstNodeOperation, OperationType, IAstNodeOperator, IAstNodeScope, IAstNodeModule, IAstNodeImportDeclaration, IAstNodeImportPath, IAstNodeImportAlias, IAstNodeCollection, IAstNodeItemDeclaration, IAstNodeComment } from "../api/IAstNode";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { stsConfig } from "./stsConfig";
 import { stsTokenizer } from "./stsTokenizer";
@@ -74,7 +74,378 @@ export const stsParser = {
     return moduleNode;
   },
 
+  parseModuleContent: (state: IParserState): { state: IParserState, result: IAstNode[] } => {
+    if (stsParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    let moduleContent: IAstNode[] = [];
+    let textBuffer: IAstNodeText;
+
+    while (!stsParser.isEndOfFile(state)) {
+      //can be import declaration, item declaration, mention or text
+
+      let commentLine = stsParser.parseCommentLine(state);
+      if (commentLine) {
+        // check if we have something collected in a text buffer
+        // and if so, add text buffer to the ast
+        if (textBuffer) {
+          moduleContent = [
+            ...moduleContent,
+            textBuffer
+          ];
+
+          textBuffer = undefined;
+        }
+
+        state = commentLine.state;
+
+        moduleContent = [
+          ...moduleContent,
+          commentLine.astNode
+        ];
+
+        continue;
+      }
+
+      let commentBlock = stsParser.parseCommentBlock(state);
+      if (commentBlock) {
+        // check if we have something collected in a text buffer
+        // and if so, add text buffer to the ast
+        if (textBuffer) {
+          moduleContent = [
+            ...moduleContent,
+            textBuffer
+          ];
+
+          textBuffer = undefined;
+        }
+
+        state = commentBlock.state;
+        
+        moduleContent = [
+          ...moduleContent,
+          commentBlock.astNode
+        ];
+
+        continue;
+      }
+
+      // module declaration
+      let importDeclaration = stsParser.parseImportDeclaration(state);
+      if (importDeclaration) {
+        // check if we have something collected in a text buffer
+        // and if so, add text buffer to the ast
+        if (textBuffer) {
+          moduleContent = [
+            ...moduleContent,
+            textBuffer
+          ];
+
+          textBuffer = undefined;
+        }
+
+        state = importDeclaration.state;
+
+        // add declaration to the result array
+        moduleContent = [
+          ...moduleContent,
+          importDeclaration.astNode
+        ];
+
+        continue;
+      }
+
+      // item declaration
+      let itemDeclaration = stsParser.parseItemDeclaration(state);
+      if (itemDeclaration) {
+        // check if we have something collected in a text buffer
+        // and if so, add text buffer to the ast
+        if (textBuffer) {
+          moduleContent = [
+            ...moduleContent,
+            textBuffer
+          ];
+
+          textBuffer = undefined;
+        }
+
+        state = itemDeclaration.state;
+
+        // add declaration to the result array
+        moduleContent = [
+          ...moduleContent,
+          itemDeclaration.astNode
+        ];
+
+        continue;
+      }
+
+      //mention
+      let mention = stsParser.parseMention(state);
+      if (mention) {
+
+        // check if we have something collected in a text buffer
+        // and if so, add text buffer to the ast
+        if (textBuffer) {
+          moduleContent = [
+            ...moduleContent,
+            textBuffer
+          ];
+
+          textBuffer = undefined;
+        }
+
+        state = mention.state;
+
+        // and finally add mention node to the result
+        moduleContent = [
+          ...moduleContent,
+          mention.astNode
+        ];
+
+        continue;
+      }
+
+      // if we here, that means we haven't found any mention and next token will be read as text
+      let nextToken = stsParser.getToken(state);
+      if (!nextToken) {
+        break;
+      }
+
+      // skip tokens 
+      state = stsParser.skipTokens(state, 1);
+
+      // end line tokens should be added separately
+      if (nextToken.type === CodeTokenType.Endline) {
+
+        if (textBuffer) {
+          moduleContent = [
+            ...moduleContent,
+            textBuffer
+          ];
+
+          textBuffer = undefined;
+        }
+
+        let endlineToken: IAstNodeText = {
+          type: AstNodeType.Text,
+          value: nextToken.value
+        };
+
+        moduleContent = [
+          ...moduleContent,
+          endlineToken
+        ];
+
+        continue;
+      }
+
+      // add token value to the text buffer
+      textBuffer = textBuffer || {
+        type: AstNodeType.Text,
+        value: '',
+      };
+
+      textBuffer = {
+        ...textBuffer,
+        value: `${textBuffer.value}${nextToken.value || ''}`
+      };
+    }
+
+    if (textBuffer) {
+      moduleContent = [
+        ...moduleContent,
+        textBuffer
+      ];
+
+      textBuffer = undefined;
+    }
+
+    if (moduleContent.length > 0) {
+      return {
+        state,
+        result: moduleContent
+      }
+    }
+
+    return undefined;
+  },
+
+  parseCommentBlock: (state: IParserState): IParseResult => {
+    if (stsParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    let nextToken = stsParser.getToken(state);
+    if (nextToken.type !== CodeTokenType.CommentBlockOpen) {
+      return undefined;
+    }
+
+    state = stsParser.skipTokens(state, 1);
+
+    let result: IAstNode[] = [];
+    let textBuffer: IAstNodeText;
+
+    while (!stsParser.isEndOfFile(state)) {
+      nextToken = stsParser.getToken(state);
+      if (!nextToken
+        || nextToken.type === CodeTokenType.CommentBlockClose
+      ) {
+        state = stsParser.skipTokens(state, 1);
+        break;
+      }
+
+      // end line tokens should be added separately
+      if (nextToken.type === CodeTokenType.Endline) {
+
+        if (textBuffer) {
+          result = [
+            ...result,
+            textBuffer
+          ];
+
+          textBuffer = undefined;
+        }
+
+        let endlineToken: IAstNodeText = {
+          type: AstNodeType.Text,
+          value: nextToken.value
+        };
+
+        result = [
+          ...result,
+          endlineToken
+        ];
+
+        state = stsParser.skipTokens(state, 1);
+
+        continue;
+      }
+
+      // add token value to the text buffer
+      textBuffer = textBuffer || {
+        type: AstNodeType.Text,
+        value: '',
+      };
+
+      textBuffer = {
+        ...textBuffer,
+        value: `${textBuffer.value}${nextToken.value || ''}`
+      };
+
+      state = stsParser.skipTokens(state, 1);
+    }
+
+    if (textBuffer) {
+      result = [
+        ...result,
+        textBuffer
+      ];
+
+      textBuffer = undefined;
+    }
+
+    if (result.length > 0) {
+      let resultNode: IAstNodeComment = {
+        type: AstNodeType.CommentBlock,
+        value: result
+      }
+
+      return {
+        state,
+        astNode: resultNode
+      };
+    }
+
+    return undefined;
+  },
+  parseCommentLine: (state: IParserState): IParseResult => {
+    if (stsParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    let nextToken = stsParser.getToken(state);
+    if (nextToken.type !== CodeTokenType.CommentLine) {
+      return undefined;
+    }
+
+    state = stsParser.skipTokens(state, 1);
+
+    let result: IAstNode[] = [];
+    let textBuffer: IAstNodeText;
+
+    while (!stsParser.isEndOfFile(state)) {
+      nextToken = stsParser.getToken(state);
+      if (!nextToken
+        || nextToken.type === CodeTokenType.Endline
+      ) {
+        if (textBuffer) {
+          result = [
+            ...result,
+            textBuffer
+          ];
+
+          textBuffer = undefined;
+        }
+
+        let endlineToken: IAstNodeText = {
+          type: AstNodeType.Text,
+          value: nextToken.value
+        };
+
+        result = [
+          ...result,
+          endlineToken
+        ];
+
+        state = stsParser.skipTokens(state, 1);
+        break;
+      }
+
+      // add token value to the text buffer
+      textBuffer = textBuffer || {
+        type: AstNodeType.Text,
+        value: '',
+      };
+
+      textBuffer = {
+        ...textBuffer,
+        value: `${textBuffer.value}${nextToken.value || ''}`
+      };
+
+      state = stsParser.skipTokens(state, 1);
+    }
+
+    if (textBuffer) {
+      result = [
+        ...result,
+        textBuffer
+      ];
+
+      textBuffer = undefined;
+    }
+
+    if (result.length > 0) {
+      let resultNode: IAstNodeComment = {
+        type: AstNodeType.CommentLine,
+        value: result
+      }
+
+      return {
+        state,
+        astNode: resultNode
+      };
+    }
+
+    return undefined;
+  },
+
   parseItemDeclaration: (state: IParserState): IParseResult => {
+    if (stsParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
     state = stsParser.skipWhitespaceSingleLine(state);
 
     // starts with * operator
@@ -238,6 +609,10 @@ export const stsParser = {
   },
 
   parseImportDeclaration: (state: IParserState): IParseResult => {
+    if (stsParser.isEndOfFile(state)) {
+      return undefined;
+    }
+    
     state = stsParser.skipWhitespaceSingleLine(state);
     
     // starts with *+ operator
@@ -378,158 +753,6 @@ export const stsParser = {
       astNode,
       state
     }
-  },
-
-  parseModuleContent: (state: IParserState): {state: IParserState, result: IAstNode[]} => {
-    if (stsParser.isEndOfFile(state)) {
-      return undefined;
-    }
-
-    let moduleContent: IAstNode[] = [];
-    let textBuffer: IAstNodeText;
-
-    while (!stsParser.isEndOfFile(state)) {
-      //can be import declaration, item declaration, mention or text
-
-      // module declaration
-      let importDeclaration = stsParser.parseImportDeclaration(state);
-      if (importDeclaration) {
-        // check if we have something collected in a text buffer
-        // and if so, add text buffer to the ast
-        if (textBuffer) {
-          moduleContent = [
-            ...moduleContent,
-            textBuffer
-          ];
-
-          textBuffer = undefined;
-        }
-
-        state = importDeclaration.state;
-
-        // add declaration to the result array
-        moduleContent = [
-          ...moduleContent,
-          importDeclaration.astNode
-        ];
-
-        continue;
-      }
-
-      // item declaration
-      let itemDeclaration = stsParser.parseItemDeclaration(state);
-      if (itemDeclaration) {
-        // check if we have something collected in a text buffer
-        // and if so, add text buffer to the ast
-        if (textBuffer) {
-          moduleContent = [
-            ...moduleContent,
-            textBuffer
-          ];
-
-          textBuffer = undefined;
-        }
-
-        state = itemDeclaration.state;
-
-        // add declaration to the result array
-        moduleContent = [
-          ...moduleContent,
-          itemDeclaration.astNode
-        ];
-
-        continue;
-      }
-
-      //mention
-      let mention = stsParser.parseMention(state);
-      if (mention) {
-
-        // check if we have something collected in a text buffer
-        // and if so, add text buffer to the ast
-        if (textBuffer) {
-          moduleContent = [
-            ...moduleContent,
-            textBuffer
-          ];
-
-          textBuffer = undefined;
-        }
-
-        state = mention.state;
-
-        // and finally add mention node to the result
-        moduleContent = [
-          ...moduleContent,
-          mention.astNode
-        ];
-
-        continue;
-      }
-
-      // if we here, that means we haven't found any mention and next token will be read as text
-      let nextToken = stsParser.getToken(state);
-      if (!nextToken) {
-        break;
-      }
-
-      // skip tokens 
-      state = stsParser.skipTokens(state, 1);
-
-      // end line tokens should be added separately
-      if (nextToken.type === CodeTokenType.Endline) {
-
-        if (textBuffer) {
-          moduleContent = [
-            ...moduleContent,
-            textBuffer
-          ];
-
-          textBuffer = undefined;
-        }
-
-        let endlineToken: IAstNodeText = {
-          type: AstNodeType.Text,
-          value: nextToken.value
-        };
-
-        moduleContent = [
-          ...moduleContent,
-          endlineToken
-        ];
-
-        continue;
-      }
-
-      // add token value to the text buffer
-      textBuffer = textBuffer || {
-        type: AstNodeType.Text,
-        value: '',
-      };
-
-      textBuffer = {
-        ...textBuffer,
-        value: `${textBuffer.value}${nextToken.value || ''}`
-      };
-    }
-
-    if (textBuffer) {
-      moduleContent = [
-        ...moduleContent,
-        textBuffer
-      ];
-
-      textBuffer = undefined;
-    }
-
-    if (moduleContent.length > 0) {
-      return {
-        state,
-        result: moduleContent
-      }
-    }
-
-    return undefined;
   },
 
   parseTemplate: (state: IParserState): IParseResult => {

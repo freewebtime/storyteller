@@ -113,6 +113,8 @@ export interface IAstNodeItemDeclaration extends IAstNode<{
 
 export interface IAstNodeText extends IAstNode<string> {}
 
+export interface IAstNodeComment extends IAstNode<IAstNode[]> {}
+
 export interface IAstNodeTemplate extends IAstNode<IAstNode[]>{}
 export interface IAstNodeMention extends IAstNode<IAstNodeOperation>{}
 

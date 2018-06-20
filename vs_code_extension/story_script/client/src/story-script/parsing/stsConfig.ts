@@ -17,7 +17,17 @@ const separators: ITokenConfig[] = [
     type: CodeTokenType.Endline,
     pattern: '\\r?\\n',
   },
-	{
+
+  {
+    type: CodeTokenType.CommentBlockOpen,
+    pattern: '\\/\\*',
+  },
+  {
+    type: CodeTokenType.CommentBlockClose,
+    pattern: '\\*\\/',
+  },
+  
+  {
 		type: CodeTokenType.Whitespace,
 		pattern: '\\s\\s+',
 	},
@@ -147,14 +157,6 @@ const separators: ITokenConfig[] = [
 	{
 		type: CodeTokenType.CommentLine,
 		pattern: '\\/\\/',
-	},
-	{
-		type: CodeTokenType.CommentBlockOpen,
-		pattern: '\\/\\*',
-	},
-	{
-		type: CodeTokenType.CommentBlockClose,
-		pattern: '\\*\\/',
 	},
 
 	{
