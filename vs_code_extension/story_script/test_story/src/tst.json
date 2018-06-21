@@ -1,0 +1,111 @@
+{
+  "type": "sequence",
+  "prog": [{
+    "type": "sequence",
+    "prog": [{
+        "type": "operation",
+        "operator": "=",
+        "left": {
+          "type": "identifier",
+          "name": "Эпоха разработки",
+          "start": {
+            "line": 0,
+            "symbol": 2
+          },
+          "end": {
+            "line": 0,
+            "symbol": 18
+          }
+        },
+        "start": {
+          "line": 0,
+          "symbol": 2
+        },
+        "end": {
+          "line": 0,
+          "symbol": 18
+        }
+      },
+      {
+        "type": "operation",
+        "operator": "=",
+        "left": {
+          "type": "sequence",
+          "prog": [{
+              "type": "identifier",
+              "name": "Эпоха разработки",
+              "start": {
+                "line": 0,
+                "symbol": 2
+              },
+              "end": {
+                "line": 0,
+                "symbol": 18
+              }
+            },
+            {
+              "type": "identifier",
+              "name": "Глава 1",
+              "start": {
+                "line": 1,
+                "symbol": 4
+              },
+              "end": {
+                "line": 1,
+                "symbol": 11
+              }
+            }
+          ]
+        },
+        "start": {
+          "line": 1,
+          "symbol": 4
+        },
+        "end": {
+          "line": 1,
+          "symbol": 11
+        }
+      },
+      {
+        "type": "operation",
+        "operator": "=",
+        "left": {
+          "type": "sequence",
+          "prog": [{
+              "type": "identifier",
+              "name": "Эпоха разработки",
+              "start": {
+                "line": 0,
+                "symbol": 2
+              },
+              "end": {
+                "line": 0,
+                "symbol": 18
+              }
+            },
+            {
+              "type": "identifier",
+              "name": "Глава 2",
+              "start": {
+                "line": 2,
+                "symbol": 4
+              },
+              "end": {
+                "line": 2,
+                "symbol": 11
+              }
+            }
+          ]
+        },
+        "start": {
+          "line": 2,
+          "symbol": 4
+        },
+        "end": {
+          "line": 2,
+          "symbol": 11
+        }
+      }
+    ]
+  }]
+}

@@ -130,7 +130,7 @@ export const stsTokenizer = {
         continue;
       }
 
-      if (nextToken.type === CodeTokenType.Space || nextToken.type === CodeTokenType.Whitespace) {
+      if (nextToken.type === CodeTokenType.Space) {
         state = stsTokenizer.addToken(state, nextToken);
         continue;
       }

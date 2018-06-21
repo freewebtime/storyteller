@@ -27,10 +27,6 @@ const separators: ITokenConfig[] = [
     pattern: '\\*\\/',
   },
   
-  {
-		type: CodeTokenType.Whitespace,
-		pattern: '\\s\\s+',
-	},
 	{
 		type: CodeTokenType.Space,
 		pattern: '\\s',

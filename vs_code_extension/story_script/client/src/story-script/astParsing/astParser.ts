@@ -1,5 +1,5 @@
 import { ICodeToken } from "../api/ICodeToken";
-import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators } from "./parsingApi";
+import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence } from "./parsingApi";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { ISymbolPosition } from "../api/ISymbolPosition";
 import { OperationTypes } from "../program/programApi";
@@ -36,7 +36,7 @@ export const astParser = {
         continue;
       }
 
-      let itemResult = astParser.parseItemDeclaration(state);
+      let itemResult = astParser.parseItem(state, 0);
       if (itemResult) {
         state = itemResult.state;
         content = [
@@ -110,8 +110,21 @@ export const astParser = {
     }
   },
 
-  parseItemDeclaration: (state: IParserState): IParseResult<IAstNode> => {
+  parseItem: (state: IParserState, targetIndent: number = 0, parent?: IAstNode[]): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    let whitespace: IAstNodeString;
+    let indent = 0;
+    const whitespaceResult = astParser.readWhitespace(state);
+    if (whitespaceResult) {
+      state = whitespaceResult.state;
+      whitespace = whitespaceResult.result;
+      indent = whitespace.value.length / 2;
+    }
+
+    if (indent != targetIndent) {
       return undefined;
     }
 
@@ -123,33 +136,111 @@ export const astParser = {
 
     state = astParser.skipTokens(state, markSequence.length);
 
+    let start: ISymbolPosition;
+    let end: ISymbolPosition;
+
     // read item name name until '=' sign or end of line
     let name: IAstNode;
     let nameResult = astParser.readString(state, [CodeTokenType.Endline, CodeTokenType.Equals, CodeTokenType.Colon], true);
     if (nameResult) {
       state = nameResult.state;
       name = astFactory.createIdentifier(nameResult.result.value, nameResult.result.start, nameResult.result.end);
+    
+      start = name.start;
+      end = name.end;
     }
 
     // if found '=' sign, then parse everything as expression until end of line
     let value: IAstNode;
-    let nextToken = astParser.getTokenOfType(state, [CodeTokenType.Equals]);
-    if (nextToken) {
+    let equalsToken = astParser.getTokenOfType(state, [CodeTokenType.Equals]);
+    if (equalsToken) {
       state = astParser.skipTokens(state, 1);
       
       const expressionResult = astParser.readExpression(state, false)
       if (expressionResult) {
         state = expressionResult.state;
         value = expressionResult.result;
+      
+        end = value.end;
       }
     }
 
-    const result = astFactory.createOperation(Operators.equals, name, value, name.start, value.end);
+    let nameNode: IAstNode = name;
+    if (parent) {
+      nameNode = astFactory.createSequence([...parent, name]);
+    }
+    let construct = astFactory.createOperation(Operators.equals, nameNode, value, start, end);
+
+    // find all subitems
+    let subitems: IAstNode[];
+    let subitemResult: IParseResult<IAstNode>;
+    let subitemParent: IAstNode[];
+    if (parent) {
+      subitemParent = [name, ...parent]
+    }
+    else {
+      subitemParent = [name]
+    }
+
+    while (subitemResult = astParser.parseSubitem(state, indent + 1, subitemParent)) {
+      if (!subitems) {
+        subitems = [];
+      }
+
+      state = subitemResult.state;
+
+      subitems = [
+        ...subitems,
+        subitemResult.result
+      ]
+    }
+
+    let result: IAstNode = construct;
+
+    // create constructor
+    if (subitems) {
+      // we have subitems
+      const prog = [construct, ...subitems];
+      result = astFactory.createSequence(prog);
+    }
+    
     return {
       state,
       result,
     }
   },
+  parseSubitem: (state: IParserState, targetIndent: number, parentIdentifier: IAstNode[]): IParseResult<IAstNode> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    state = astParser.skipWhitespace(state);
+    let endlineToken: ICodeToken;
+    while (endlineToken = astParser.getTokenOfType(state, [CodeTokenType.Endline])) {
+      state = astParser.skipTokens(state, 1);
+      let sState = astParser.skipWhitespace(state, false);
+      const nextToken = astParser.getTokenOfType(sState, [CodeTokenType.Endline]);
+      if (!nextToken) {
+        break;
+      }
+
+      state = sState;
+    }
+
+    const subitemResult = astParser.parseItem(state, targetIndent, parentIdentifier);
+    if (subitemResult) {
+      state = subitemResult.state;
+      let result = subitemResult.result;
+
+      return {
+        state: state,
+        result: result,
+      };      
+    }
+
+    return undefined;
+  },
+  
 
   readString: (state: IParserState, breakTokens: CodeTokenType[], trimString: boolean = false): IParseResult<IAstNodeString> => {
     if (astParser.isEndOfFile(state)) {
@@ -323,11 +414,54 @@ export const astParser = {
     return state;
   },
 
+  // single line!
+  readWhitespace: (state: IParserState) => {
+    return astParser.readTokensAsString(state, [CodeTokenType.Space]);
+  },
+
+  readTokensAsString: (state: IParserState, tokenTypes: CodeTokenType[]): IParseResult<IAstNodeString> => {
+    let start: ISymbolPosition;
+    let end: ISymbolPosition;
+    let value: string;    
+    let nextToken: ICodeToken;
+
+    while (nextToken = astParser.getTokenOfType(state, tokenTypes)) {
+      if (!value) {
+        start = nextToken.start;
+        end = nextToken.end;
+        value = nextToken.value;
+      } 
+      else {
+        end = nextToken.end;
+        value = value + nextToken.value;
+      }
+
+      state = astParser.skipTokens(state, 1);
+    }
+
+    if (value) {
+      const result = astFactory.createString(value, start, end);
+      return {
+        state,
+        result,
+      }
+    }
+
+    return undefined;
+  },
   skipWhitespace: (state: IParserState, multiline: boolean = false): IParserState => {
     const tokenTypes = multiline 
-      ? [CodeTokenType.Space, CodeTokenType.Whitespace, CodeTokenType.Endline] 
-      : [CodeTokenType.Space, CodeTokenType.Whitespace];
+      ? [CodeTokenType.Space, CodeTokenType.Endline] 
+      : [CodeTokenType.Space];
     return astParser.skipTokensOfType(state, tokenTypes);
+  },
+  skipTokenOfType: (state: IParserState, tokenTypes: CodeTokenType[]): IParserState => {
+    let nextToken = astParser.getTokenOfType(state, tokenTypes);
+    if (nextToken) {
+      state = astParser.skipTokens(state, 1);
+    }
+
+    return state;
   },
   skipTokensOfType: (state: IParserState, tokenTypes: CodeTokenType[]): IParserState => {
     if (astParser.isEndOfFile(state)) {
@@ -341,6 +475,26 @@ export const astParser = {
     let nextToken: ICodeToken;
     while (nextToken = astParser.getToken(state)) {
       if (tokenTypes.indexOf(nextToken.type) < 0) {
+        return state;
+      }
+
+      state = astParser.skipTokens(state, 1);
+    }
+
+    return state;
+  },
+  skipUntil: (state: IParserState, tokenTypes: CodeTokenType[]): IParserState => {
+    if (astParser.isEndOfFile(state)) {
+      return state;
+    }
+
+    if (!tokenTypes || tokenTypes.length <= 0) {
+      return state;
+    }
+
+    let nextToken: ICodeToken;
+    while (nextToken = astParser.getToken(state)) {
+      if (tokenTypes.indexOf(nextToken.type) >= 0) {
         return state;
       }
 
