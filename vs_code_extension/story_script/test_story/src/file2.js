@@ -1,5 +1,5 @@
-var content = {
-  Header: "Some story",
-  Body: "The story begins here"
-}
+import * as foo from "./foo";
 
+export const bar = {
+  foo = 'foo',
+}

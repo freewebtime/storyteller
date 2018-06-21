@@ -5,8 +5,6 @@ export enum AstNodeType {
   CommentLine = 'Comment line',
   CommentBlock = 'Comment block',
 
-  Collection = 'Collection',
-
   Program = 'Program',
   Module = 'Module',
 
@@ -19,6 +17,9 @@ export enum AstNodeType {
   ItemDeclaration = 'Item declaration',
   ItemName = 'Item name',
   ItemValue = 'Item value',
+
+  Endline = 'Endline',
+  Whitespace = 'Whitespace',
 
   Template = 'Template',
   Mention = 'Mention',
@@ -106,6 +107,7 @@ export interface IAstNodeImportPath extends IAstNode<IAstNode[]> { }
 export interface IAstNodeImportAlias extends IAstNode<IAstNode> { }
 
 export interface IAstNodeItemDeclaration extends IAstNode<{
+  whitespace?: IAstNode[],
   itemName: IAstNode,
   itemType: IAstNode,
   itemValue: IAstNode,
