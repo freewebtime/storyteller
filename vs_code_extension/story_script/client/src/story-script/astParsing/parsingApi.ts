@@ -1,3 +1,5 @@
+import { ISymbolPosition } from "../api/ISymbolPosition";
+
 export enum AstNodeTypes {
   string = "string",
   number = "number",
@@ -25,10 +27,12 @@ export enum Operators {
 
 export interface IAstNode {
   type: AstNodeTypes;
+  start?: ISymbolPosition;
+  end?: ISymbolPosition;
 }
 
 export interface IAstNodeImport extends IAstNode {
-  alias: string;
+  alias: IAstNodeString;
   path: IAstNode[];
 }
 
@@ -70,76 +74,96 @@ export interface IAstNodeSequence extends IAstNode {
 
 export const astFactory = {
   
-  createImport: (alias: string, path: IAstNode[]): IAstNodeImport => {
+  createImport: (alias: IAstNodeString, path: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeImport => {
     return {
       type: AstNodeTypes.import,
       alias: alias,
       path: path,
+      start: start,
+      end: end,
     }
   },
 
-  createSet: (left?: IAstNode, right?: IAstNode): IAstNodeSet => {
+  createSet: (left?: IAstNode, right?: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeSet => {
     return {
       type: AstNodeTypes.set,
       operator: Operators.equals,
       left: left,
       right: right,
+      start: start,
+      end: end,
     }
   },
-  createBinary: (operator: Operators, left?: IAstNode, right?: IAstNode): IAstNodeBinary => {
+  createBinary: (operator: Operators, left?: IAstNode, right?: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeBinary => {
     return {
       type: AstNodeTypes.binary,
       operator: operator,
       left: left,
       right: right,
+      start: start,
+      end: end,
     }
   },
-  createCall: (func: IAstNode, args: IAstNode[]): IAstNodeCall => {
+  createCall: (func: IAstNode, args: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeCall => {
     return {
       type: AstNodeTypes.call,
       func: func,
       args: args,
+      start: start,
+      end: end,
     }
   },
 
-  createIf: (cond: IAstNode, then?: IAstNode, otherwise?: IAstNode): IAstNodeIf => {
+  createIf: (cond: IAstNode, then?: IAstNode, otherwise?: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIf => {
     return {
       type: AstNodeTypes.if,
       cond: cond,
       otherwise: otherwise,
       then: then,
+      start: start,
+      end: end,
     }
   },
 
-  createSequence: (prog: IAstNode[]): IAstNodeSequence => {
+  createSequence: (prog: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeSequence => {
     return {
       type: AstNodeTypes.sequence,
       prog: prog,
+      start: start,
+      end: end,
     }
   },
 
-  createString: (value: string): IAstNodeString => {
+  createString: (value: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeString => {
     return {
       type: AstNodeTypes.string,
-      value: value
+      value: value,
+      start: start,
+      end: end,
     }
   },
-  createNumber: (value: number): IAstNodeNumber => {
+  createNumber: (value: number, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeNumber => {
     return {
       type: AstNodeTypes.number,
-      value: value
+      value: value,
+      start: start,
+      end: end,
     }
   },
-  createBoolean: (value: boolean): IAstNodeBoolean => {
+  createBoolean: (value: boolean, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeBoolean => {
     return {
       type: AstNodeTypes.boolean,
-      value: value
+      value: value,
+      start: start,
+      end: end,
     }
   },
-  createIdentifier: (name: string): IAstNodeIdentifier => {
+  createIdentifier: (name: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIdentifier => {
     return {
       type: AstNodeTypes.identifier,
-      name: name
+      name: name,
+      start: start,
+      end: end,
     }
   },
 

@@ -1,7 +1,7 @@
 import { ICodeToken } from "../api/ICodeToken";
 import { IAstNode, IAstNodeString, astFactory } from "./parsingApi";
 import { CodeTokenType } from "../api/CodeTokenType";
-import { IAstNodeText } from "../api/IAstNode";
+import { ISymbolPosition } from "../api/ISymbolPosition";
 
 interface IParserState {
   tokens: ICodeToken[];
@@ -56,54 +56,35 @@ export const astParser = {
     state = astParser.skipTokens(state, markSequence.length);
 
     // read import name until '=' sign or end of line
-    let alias = '';
-    let nextToken: ICodeToken;
-
-    while (nextToken = astParser.getToken(state)) {
-      state = astParser.skipTokens(state, 1);
-      if (nextToken.type === CodeTokenType.Endline
-        || nextToken.type === CodeTokenType.Equals
-        || nextToken.type === CodeTokenType.Colon
-      ) {
-        break;
-      }
-
-      alias = alias + nextToken.value;
+    let alias: IAstNodeString;
+    let aliasResult = astParser.readStringUntil(state, [CodeTokenType.Endline, CodeTokenType.Equals, CodeTokenType.Colon], true);
+    if (aliasResult) {
+      state = aliasResult.state;
+      alias = aliasResult.result;
     }
-
-    alias = alias.trim();
 
     // if found '=' sign, then parse everything as path until end of line
     let path: IAstNode[] = [];
+    let nextToken = astParser.getToken(state);
     if (nextToken && nextToken.type === CodeTokenType.Equals) {
+      state = astParser.skipTokens(state, 1);
 
-      let pathBuffer: string;
+      let pathItemResult: IParseResult<IAstNodeString>;
+      while (pathItemResult = astParser.readStringUntil(state, [CodeTokenType.Endline, CodeTokenType.Slash], true)) {
+        state = pathItemResult.state;
+        path = [
+          ...path,
+            pathItemResult.result
+        ]
 
-      while (nextToken = astParser.getToken(state)) {
-        state = astParser.skipTokens(state, 1);
-
-        if (nextToken.type === CodeTokenType.Slash) {
-          if (pathBuffer) {
-            const pathItem = astFactory.createString(pathBuffer);
-
-            path = [
-              ...path,
-              pathItem
-            ]
-          }
-
-          pathBuffer = undefined;
-
-          continue;
-        }
-
+        nextToken = astParser.getToken(state);
         if (nextToken.type === CodeTokenType.Endline) {
           break;
         }
 
-        pathBuffer = (pathBuffer || '') + nextToken.value;
-        continue;
+        state = astParser.skipTokens(state, 1);
       }
+
     }
 
     const result = astFactory.createImport(alias, path);
@@ -111,7 +92,62 @@ export const astParser = {
       state, 
       result,
     }
+  },
 
+  readStringUntil: (state: IParserState, breakTokens: CodeTokenType[], trimString: boolean = false): IParseResult<IAstNodeString> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    let result: string;
+    let startPos: ISymbolPosition;
+    let endPos: ISymbolPosition;
+    let nextToken: ICodeToken;
+    let offset = 0;
+    
+    while (nextToken = astParser.getToken(state, offset)) {
+      if (!nextToken) {
+        break;
+      }
+
+      if (breakTokens.indexOf(nextToken.type) >= 0) {
+        break;
+      }
+
+      if (!result) {
+        // first token
+        startPos = nextToken.start;
+        endPos = nextToken.end;
+        result = nextToken.value;
+      }
+      else {
+        result = result + nextToken.value;
+        endPos = nextToken.end;
+      }
+
+      offset++;
+    }
+
+    if (!result) {
+      return undefined;
+    }
+
+    state = astParser.skipTokens(state, offset);
+
+    if (trimString) {
+      result = result.trim();
+    }
+
+    if (!result) {
+      return undefined;
+    }
+
+    const resultNode = astFactory.createString(result, startPos, endPos);
+
+    return {
+      result: resultNode,
+      state
+    }
   },
 
   skipTokens: (state: IParserState, tokensCount: number): IParserState => {
