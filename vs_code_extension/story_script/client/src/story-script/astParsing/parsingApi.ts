@@ -5,8 +5,7 @@ export enum AstNodeTypes {
   number = "number",
   boolean = "boolean",
   identifier = "identifier",
-  set = "set",
-  binary = "binary",
+  operation = 'operation',
   call = "call",
   if = "if",
   sequence = "sequence",
@@ -23,6 +22,7 @@ export enum Operators {
   divide = '/',
   more = '>',
   less = '<',
+  get = '.'
 }
 
 export interface IAstNode {
@@ -55,10 +55,7 @@ export interface IAstNodeOperation extends IAstNode {
   left?: IAstNode;
   right?: IAstNode;
 }
-export interface IAstNodeSet extends IAstNodeOperation {
-}
-export interface IAstNodeBinary extends IAstNodeOperation {
-}
+
 export interface IAstNodeCall extends IAstNode {
   func: IAstNode;
   args: IAstNode[];
@@ -84,19 +81,9 @@ export const astFactory = {
     }
   },
 
-  createSet: (left?: IAstNode, right?: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeSet => {
+  createOperation: (operator: Operators, left?: IAstNode, right?: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeOperation => {
     return {
-      type: AstNodeTypes.set,
-      operator: Operators.equals,
-      left: left,
-      right: right,
-      start: start,
-      end: end,
-    }
-  },
-  createBinary: (operator: Operators, left?: IAstNode, right?: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeBinary => {
-    return {
-      type: AstNodeTypes.binary,
+      type: AstNodeTypes.operation,
       operator: operator,
       left: left,
       right: right,
@@ -104,6 +91,7 @@ export const astFactory = {
       end: end,
     }
   },
+
   createCall: (func: IAstNode, args: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeCall => {
     return {
       type: AstNodeTypes.call,

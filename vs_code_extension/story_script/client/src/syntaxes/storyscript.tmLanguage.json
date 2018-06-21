@@ -283,7 +283,7 @@
                     },
                     "2": {
                       "patterns": [{
-                        "include": "#template"
+                        "include": "#expression"
                       }]
                     }
                   }
@@ -299,7 +299,7 @@
                     },
                     "2": {
                       "patterns": [{
-                        "include": "#template"
+                        "include": "#expression"
                       }]
                     }
                   }
