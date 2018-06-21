@@ -28,6 +28,7 @@ export enum ClassTypes {
 
 export enum ValueTypes {
   void = 'void',
+  any = 'any',
   string = 'string',
   number = 'number',
   boolean = 'boolean'
@@ -54,7 +55,8 @@ export interface IClassValue extends IClass {
 }
 
 export interface IClassObject extends IClass {
-  fields: IHash<IIdentifier>;
+  items: IHash<IIdentifier>;
+  construct: IClassFunction; 
 }
 
 export interface IClassArray extends IClass {
@@ -64,7 +66,7 @@ export interface IClassArray extends IClass {
 export interface IClassFunction extends IClass {
   params: IHash<IIdentifier>;
   returns: IClass;
-  body: IProgram;
+  program: IProgram;
 }
 
 export interface IIdentifier {
@@ -77,7 +79,7 @@ export interface IProgram {
   operations: IOperation[];
 }
 
-export interface IModule extends IClassFunction {
+export interface IModule extends IClassObject {
   name: string;
   fullName: string;
   filePath: string;
