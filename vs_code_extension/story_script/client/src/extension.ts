@@ -9,12 +9,14 @@ import * as vscode from 'vscode';
 
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
-import { compileStoryScript, compileStoryscriptModule } from './story-script/StoryScript';
+import { compileStoryscriptModule } from './story-script/StoryScript';
 
 const stsCompile = () => {
-	const editor = vscode.window.activeTextEditor;
-	const fileContent = editor.document.getText();
-	const compiled = compileStoryScript(fileContent);
+  const editor = vscode.window.activeTextEditor;
+  const fileContent = editor.document.getText();
+  const filePath = editor.document.fileName;
+  const fileName = path.basename(filePath);
+  const compiled = compileStoryscriptModule(fileContent, filePath, fileName);
 }
 
 const toUpper = (e: vscode.TextEditor, d: vscode.TextDocument, sel: vscode.Selection[]) => {

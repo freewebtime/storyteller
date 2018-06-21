@@ -22,7 +22,9 @@ export enum Operators {
   divide = '/',
   more = '>',
   less = '<',
-  get = '.'
+  get = '.',
+  add = 'add',
+  remove = '*-',
 }
 
 export interface IAstNode {

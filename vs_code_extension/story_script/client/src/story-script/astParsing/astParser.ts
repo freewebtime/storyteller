@@ -110,23 +110,18 @@ export const astParser = {
     }
   },
 
-  parseItem: (state: IParserState, targetIndent: number = 0, parent?: IAstNode[]): IParseResult<IAstNode> => {
+  parseItem: (state: IParserState, indent: number, parent?: IAstNode[]): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
 
-    let whitespace: IAstNodeString;
-    let indent = 0;
-    const whitespaceResult = astParser.readWhitespace(state);
-    if (whitespaceResult) {
-      state = whitespaceResult.state;
-      whitespace = whitespaceResult.result;
-      indent = whitespace.value.length / 2;
-    }
-
-    if (indent != targetIndent) {
+    // check indent
+    let checkIndent = astParser.checkIndent(state, indent);
+    if (!checkIndent) {
       return undefined;
     }
+
+    state = checkIndent.state;
 
     // read item mark *+
     const markSequence = [CodeTokenType.Star, CodeTokenType.Space];
@@ -169,6 +164,7 @@ export const astParser = {
     if (parent) {
       nameNode = astFactory.createSequence([...parent, name]);
     }
+
     let construct = astFactory.createOperation(Operators.equals, nameNode, value, start, end);
 
     // find all subitems
@@ -176,7 +172,7 @@ export const astParser = {
     let subitemResult: IParseResult<IAstNode>;
     let subitemParent: IAstNode[];
     if (parent) {
-      subitemParent = [name, ...parent]
+      subitemParent = [...parent, name]
     }
     else {
       subitemParent = [name]
@@ -199,7 +195,7 @@ export const astParser = {
 
     // create constructor
     if (subitems) {
-      // we have subitems
+      // we have subitems, so result will be a sequence (program)
       const prog = [construct, ...subitems];
       result = astFactory.createSequence(prog);
     }
@@ -209,7 +205,7 @@ export const astParser = {
       result,
     }
   },
-  parseSubitem: (state: IParserState, targetIndent: number, parentIdentifier: IAstNode[]): IParseResult<IAstNode> => {
+  parseSubitem: (state: IParserState, targetIndent: number, parent: IAstNode[]): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
@@ -227,7 +223,7 @@ export const astParser = {
       state = sState;
     }
 
-    const subitemResult = astParser.parseItem(state, targetIndent, parentIdentifier);
+    const subitemResult = astParser.parseItem(state, targetIndent, parent);
     if (subitemResult) {
       state = subitemResult.state;
       let result = subitemResult.result;
@@ -235,12 +231,119 @@ export const astParser = {
       return {
         state: state,
         result: result,
-      };      
+      };
+    }
+
+    const templateItemResult = astParser.parseTemplateItem(state, targetIndent, parent);
+    if (templateItemResult) {
+      state = templateItemResult.state;
+      let result = templateItemResult.result;
+
+      return {
+        state: state,
+        result: result,
+      };
     }
 
     return undefined;
   },
   
+  parseTemplateItem: (state: IParserState, targetIndent: number = 0, parent?: IAstNode[]): IParseResult<IAstNode> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    // check indent
+    let checkIndent = astParser.checkIndent(state, targetIndent);
+    if (!checkIndent) {
+      return undefined;
+    }
+    state = checkIndent.state;
+
+    let items: IAstNode[];
+    // read everything as string until mention mark or endline
+    let breakToken: ICodeToken;
+    breakToken = astParser.getTokenOfType(state, [CodeTokenType.Star, CodeTokenType.Endline])
+    let stringResult: IParseResult<IAstNodeString>; 
+    let start: ISymbolPosition;
+    let end: ISymbolPosition;
+    while (stringResult = astParser.readString(state, [CodeTokenType.Star, CodeTokenType.Endline])) {
+      if (!items) {
+        items = [];
+        start = stringResult.result.start;
+        end = stringResult.result.end;
+      }
+
+      items = [
+        ...items,
+        stringResult.result
+      ]
+      end = stringResult.result.end;
+
+      state = stringResult.state;
+
+      // if we stopped at mention mark, parse mention
+      if (astParser.getTokenOfType(state, [CodeTokenType.Star])) {
+
+        state = astParser.skipTokens(state, 1);
+
+        continue;
+      }
+
+      // otherwise it's endline
+      break;
+    }
+
+    if (items.length === 0) {
+      return undefined;
+    }
+
+    let nameNode: IAstNode;
+    if (parent) {
+      if (parent.length === 1){
+        nameNode = parent[0];
+      } 
+      else {
+        nameNode = astFactory.createSequence(parent);
+      }
+    }
+
+    let value: IAstNode;
+    if (items.length === 1) {
+      value = items[0];
+    } 
+    else {
+      value = astFactory.createSequence(items);
+    }
+
+    let addOperation = astFactory.createOperation(Operators.add, nameNode, value, start, end);
+
+    return {
+      state, 
+      result: addOperation
+    }
+  },
+
+  checkIndent: (state: IParserState, targetIndent: number): IParseResult<IAstNodeString> => {
+    // check indent
+    let whitespace: IAstNodeString;
+    let indent = 0;
+    const whitespaceResult = astParser.readWhitespace(state);
+    if (whitespaceResult) {
+      state = whitespaceResult.state;
+      whitespace = whitespaceResult.result;
+      indent = whitespace.value.length / 2;
+    }
+
+    if (indent < targetIndent) {
+      return undefined;
+    }
+
+    return {
+      state,
+      result: whitespace
+    };
+  },
 
   readString: (state: IParserState, breakTokens: CodeTokenType[], trimString: boolean = false): IParseResult<IAstNodeString> => {
     if (astParser.isEndOfFile(state)) {
