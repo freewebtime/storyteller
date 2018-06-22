@@ -122,25 +122,6 @@ export const stsTokenizer = {
 		return state;
   },
   
-  skipWhitespace: (state: ITokenizerState, skipEndline: boolean = true): ITokenizerState => {
-    let nextToken: ICodeToken;
-    while (nextToken = stsTokenizer.getNextToken(state, CodeTokenType.Word)) {
-      if (nextToken.type === CodeTokenType.Endline && skipEndline) {
-        state = stsTokenizer.addToken(state, nextToken);
-        continue;
-      }
-
-      if (nextToken.type === CodeTokenType.Space) {
-        state = stsTokenizer.addToken(state, nextToken);
-        continue;
-      }
-      
-      break;
-    }
-
-    return state;
-  },
-
   isEndOfFile: (state: ITokenizerState): boolean => {
     return !state.sourceCode || state.globalCursor >= state.sourceCode.length;
   }

@@ -1,8 +1,7 @@
 import { ICodeToken } from "../api/ICodeToken";
-import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence } from "./parsingApi";
+import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence, IAstNodeOperation } from "./parsingApi";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { ISymbolPosition } from "../api/ISymbolPosition";
-import { OperationTypes } from "../program/programApi";
 
 interface IParserState {
   tokens: ICodeToken[];
@@ -42,6 +41,17 @@ export const astParser = {
         content = [
           ...content,
           itemResult.result
+        ]
+
+        continue;
+      }
+
+      let templResult = astParser.parseTemplateItem(state, 0);
+      if (templResult) {
+        state = templResult.state;
+        content = [
+          ...content,
+          templResult.result
         ]
 
         continue;
@@ -139,7 +149,7 @@ export const astParser = {
     let nameResult = astParser.readString(state, [CodeTokenType.Endline, CodeTokenType.Equals, CodeTokenType.Colon], true);
     if (nameResult) {
       state = nameResult.state;
-      name = astFactory.createIdentifier(nameResult.result.value, nameResult.result.start, nameResult.result.end);
+      name = astFactory.createIdentifier(nameResult.result, nameResult.result.start, nameResult.result.end);
     
       start = name.start;
       end = name.end;
@@ -151,7 +161,7 @@ export const astParser = {
     if (equalsToken) {
       state = astParser.skipTokens(state, 1);
       
-      const expressionResult = astParser.readExpression(state, false)
+      const expressionResult = astParser.parseExpression(state, false)
       if (expressionResult) {
         state = expressionResult.state;
         value = expressionResult.result;
@@ -260,32 +270,39 @@ export const astParser = {
     }
     state = checkIndent.state;
 
-    let items: IAstNode[];
+    let items: IAstNode[] = [];
     // read everything as string until mention mark or endline
-    let breakToken: ICodeToken;
-    breakToken = astParser.getTokenOfType(state, [CodeTokenType.Star, CodeTokenType.Endline])
     let stringResult: IParseResult<IAstNodeString>; 
     let start: ISymbolPosition;
     let end: ISymbolPosition;
-    while (stringResult = astParser.readString(state, [CodeTokenType.Star, CodeTokenType.Endline])) {
-      if (!items) {
-        items = [];
-        start = stringResult.result.start;
+    while (!astParser.getTokenOfType(state, [CodeTokenType.Endline]))
+    {
+      stringResult = astParser.readString(state, [CodeTokenType.Star, CodeTokenType.Endline])
+      if (stringResult) {
+        if (items.length === 0) {
+          start = stringResult.result.start;
+        }
+
+        items = [
+          ...items,
+          stringResult.result
+        ]
         end = stringResult.result.end;
+        state = stringResult.state;
       }
-
-      items = [
-        ...items,
-        stringResult.result
-      ]
-      end = stringResult.result.end;
-
-      state = stringResult.state;
 
       // if we stopped at mention mark, parse mention
       if (astParser.getTokenOfType(state, [CodeTokenType.Star])) {
 
-        state = astParser.skipTokens(state, 1);
+        let mentionResult: IParseResult<IAstNode> = astParser.parseMention(state, false);
+        if (mentionResult) {
+          state = mentionResult.state;
+          // add mention
+          items = [
+            ...items,
+            mentionResult.result
+          ]
+        }
 
         continue;
       }
@@ -322,6 +339,41 @@ export const astParser = {
       state, 
       result: addOperation
     }
+  },
+
+  parseMention: (state: IParserState, multiline: boolean): IParseResult<IAstNodeOperation> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    // check star symbol
+    let starToken = astParser.getTokenOfType(state, [CodeTokenType.Star]);
+    if (!starToken) {
+      return undefined;
+    }
+    state = astParser.skipTokens(state, 1);
+
+    let expressionResult = astParser.parseExpression(state, multiline);
+    if (expressionResult) {
+      state = expressionResult.state;
+
+      // mention is a get operation
+      let expression = expressionResult.result;
+
+      let start = starToken.start;
+      let end = expression.end;
+
+      let left: IAstNode = expression;
+      let right: IAstNode;
+
+      let operation = astFactory.createOperation(Operators.get, left, right, start, end);
+      return {
+        state,
+        result: operation
+      }
+    }
+    
+    return undefined;
   },
 
   checkIndent: (state: IParserState, targetIndent: number): IParseResult<IAstNodeString> => {
@@ -401,7 +453,7 @@ export const astParser = {
     }
   },
 
-  readExpression: (state: IParserState, multiline: boolean = false): IParseResult<IAstNode> => {
+  parseExpression: (state: IParserState, multiline: boolean = false): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
@@ -416,18 +468,18 @@ export const astParser = {
 
     let leftSide = identifier;
 
-    // read operand. if so, we have an operation
-    state = astParser.skipWhitespace(state, multiline);
+    // search for operator and right side
+    let state1 = astParser.skipWhitespace(state, multiline);
 
     // read operation type
-    const opTypeResult = astParser.readOperationType(state, multiline);
+    const opTypeResult = astParser.readOperationType(state1, multiline);
     if (opTypeResult) {
       // we have an operation
       state = opTypeResult.state;
       const opType = opTypeResult.result;
 
       // read right side as exression
-      const rightSideResult = astParser.readExpression(state, multiline);
+      const rightSideResult = astParser.parseExpression(state, multiline);
       let rightSide: IAstNode;
       if (rightSideResult) {
         state = rightSideResult.state;
@@ -447,6 +499,8 @@ export const astParser = {
         result: leftSide
       }
     }
+
+    return undefined;
   },
 
   readIdentifier: (state: IParserState): IParseResult<IAstNodeIdentifier> => {
@@ -463,7 +517,8 @@ export const astParser = {
 
     state = astParser.skipTokens(state, 1);
 
-    const result = astFactory.createIdentifier(token.value, token.start, token.end);
+    const name: IAstNode = astFactory.createString(token.value, token.start, token.end);
+    const result = astFactory.createIdentifier(name, name.start, name.end);
     return {
       state, 
       result

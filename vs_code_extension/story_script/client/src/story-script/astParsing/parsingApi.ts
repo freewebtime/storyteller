@@ -49,7 +49,7 @@ export interface IAstNodeBoolean extends IAstNode {
 }
 
 export interface IAstNodeIdentifier extends IAstNode {
-  name: string;
+  name: IAstNode;
 }
 
 export interface IAstNodeOperation extends IAstNode {
@@ -148,7 +148,7 @@ export const astFactory = {
       end: end,
     }
   },
-  createIdentifier: (name: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIdentifier => {
+  createIdentifier: (name: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIdentifier => {
     return {
       type: AstNodeTypes.identifier,
       name: name,
