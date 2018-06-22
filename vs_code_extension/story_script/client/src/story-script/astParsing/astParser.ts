@@ -434,6 +434,7 @@ export const astParser = {
 
       if (astParser.getTokenOfType(state, [CodeTokenType.Quote])) {
         state = astParser.skipTokens(state, 1);
+        break;
       }
 
       let endlineToken = astParser.getTokenOfType(state, [CodeTokenType.Endline]);
@@ -446,8 +447,6 @@ export const astParser = {
         // it's not multiline scope, and we've found endline token
         break;
       }
-
-      state = astParser.skipWhitespace(state, multiline);
     }
 
     if (astParser.getTokenOfType(state, [CodeTokenType.ParenClose])) {
@@ -682,13 +681,7 @@ export const astParser = {
       return undefined;
     }
 
-    // can be scope, or identifier or literal
-
-    // literal
-    const literalResult = astParser.parseLiteral(state, multiline);
-    if (literalResult) {
-      return literalResult;
-    }
+    // can be scope, or identifier
 
     // scope
     const scopeResult = astParser.parseScope(state, multiline);
@@ -710,17 +703,26 @@ export const astParser = {
       return undefined;
     }
 
-    // identifier is a word
+    // identifier is a word or literal
     let name: IAstNode;
 
     // word
     let token = astParser.getTokenOfType(state, [CodeTokenType.Word]);
-    if (!token) {
-      return undefined;
+    if (token) {
+      name = astFactory.createString(token.value, token.start, token.end);
+      state = astParser.skipTokens(state, 1);
     }
-
-    name = astFactory.createString(token.value, token.start, token.end);
-    state = astParser.skipTokens(state, 1);
+    else {
+      // literal
+      const literalResult = astParser.parseLiteral(state, multiline);
+      if (literalResult) {
+        name = literalResult.result;
+        state = literalResult.state;
+      }
+      else {
+        return undefined;
+      }
+    }
 
     const result = astFactory.createIdentifier(name, name.start, name.end);
     return {
