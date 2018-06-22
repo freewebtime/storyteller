@@ -136,7 +136,7 @@ export interface IAstNodeFunction extends IAstNode<{
   parameters: IAstNodeObject;
   result: IAstNode;
 }> {}
-export interface IAstNodeArray extends IAstNode<IAstNode>{}
+export interface IAstNodeArray extends IAstNode{}
 
 export interface IAstNodeScope extends IAstNode<IAstNodeOperation[]>{}
 export interface IAstNodeOperation extends IAstNode<{

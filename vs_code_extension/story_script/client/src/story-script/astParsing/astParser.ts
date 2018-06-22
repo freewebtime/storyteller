@@ -1,5 +1,5 @@
 import { ICodeToken } from "../api/ICodeToken";
-import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence, IAstNodeOperation, IAstNodeCall } from "./parsingApi";
+import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence, IAstNodeOperation, IAstNodeCall, IAstNodeArray } from "./parsingApi";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { ISymbolPosition } from "../api/ISymbolPosition";
 
@@ -257,7 +257,7 @@ export const astParser = {
 
     return undefined;
   },
-  parseTemplateContent: (state: IParserState, multiline: boolean, breakOnQuote: boolean): IParseResult<IAstNode> => {
+  parseLiteralContent: (state: IParserState, multiline: boolean, breakOnQuote: boolean): IParseResult<IAstNode[]> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
@@ -268,7 +268,10 @@ export const astParser = {
     let start: ISymbolPosition;
     let end: ISymbolPosition;
     let stopTokens = breakOnQuote ? [CodeTokenType.Quote, CodeTokenType.Endline] : [CodeTokenType.Endline];
+    
     while (!astParser.getTokenOfType(state, stopTokens)) {
+      
+      // parse string
       let splitTokens = breakOnQuote ? [CodeTokenType.Star, CodeTokenType.Endline, CodeTokenType.Quote] : [CodeTokenType.Star, CodeTokenType.Endline];
       stringResult = astParser.readString(state, splitTokens)
       if (stringResult) {
@@ -303,26 +306,10 @@ export const astParser = {
       break;
     }
 
-    if (items.length === 0) {
-      return undefined;
+    return {
+      state,
+      result: items
     }
-
-    let value: IAstNode;
-    if (items.length === 1) {
-      value = items[0];
-    }
-    else {
-      value = astFactory.createSequence(items);
-    }
-
-    if (items.length > 0) {
-      return {
-        state, 
-        result: value
-      }
-    }
-
-    return undefined;
   },
   parseScope: (state: IParserState, multiline: boolean): IParseResult<IAstNodeSequence> => {
     if (astParser.isEndOfFile(state)) {
@@ -412,12 +399,12 @@ export const astParser = {
     }
   },
 
-  parseLiteral: (state: IParserState, multiline: boolean): IParseResult<IAstNode> => {
+  parseLiteral: (state: IParserState, multiline: boolean): IParseResult<IAstNodeArray> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
 
-    // starts with ( and ends with )
+    // starts with " and ends with "
     let openToken = astParser.getTokenOfType(state, [CodeTokenType.Quote]);
     if (!openToken) {
       return undefined;
@@ -428,35 +415,42 @@ export const astParser = {
     let end = openToken.end;
 
     let items: IAstNode[] = [];
-    // read everything as exressions until )
+    // read everything as exressions until "
     while (!astParser.getTokenOfType(state, [CodeTokenType.Quote])) {
       if (astParser.isEndOfFile(state)) {
         break;
       }
       
-      let contentResult: IParseResult<IAstNode>;
-      while (contentResult = astParser.parseTemplateContent(state, multiline, true)) {
+      let contentResult: IParseResult<IAstNode[]>;
+      while (contentResult = astParser.parseLiteralContent(state, multiline, true)) {
         state = contentResult.state;
+        let contentItems = contentResult.result;
 
-        if (items.length === 0) {
-          start = contentResult.result.start;
+        if (contentItems.length <= 0) {
+          continue;
         }
 
-        end = contentResult.result.end;
+        if (items.length === 0) {
+          start = contentItems[0].start;
+        }
+
+        end = contentItems[contentItems.length - 1].end;
 
         items = [
           ...items,
-          contentResult.result
+          ...contentItems
         ]
 
         continue;
       }
 
+      // break on quote
       if (astParser.getTokenOfType(state, [CodeTokenType.Quote])) {
         state = astParser.skipTokens(state, 1);
         break;
       }
 
+      // check is multiline
       let endlineToken = astParser.getTokenOfType(state, [CodeTokenType.Endline]);
       if (endlineToken) {
         if (multiline) {
@@ -469,19 +463,12 @@ export const astParser = {
       }
     }
 
-    if (astParser.getTokenOfType(state, [CodeTokenType.ParenClose])) {
+    // if we stopped on quote, skip it
+    if (astParser.getTokenOfType(state, [CodeTokenType.Quote])) {
       state = astParser.skipTokens(state, 1);
     }
 
-    if (items.length === 0) {
-      return undefined;
-    }
-
-    let result: IAstNode = items[0];
-    if (items.length > 1) {
-      result = astFactory.createSequence(items, start, end);
-    }
-
+    let result = astFactory.createArray(items, start, end);
     return {
       state,
       result
@@ -516,23 +503,30 @@ export const astParser = {
       end = nameNode.end;
     }
 
-    let content: IAstNode;
-    let contentResult = astParser.parseTemplateContent(state, true, false);
+    let content: IAstNode[];
+    let contentResult = astParser.parseLiteralContent(state, true, false);
     if (contentResult) {
       state = contentResult.state;
       content = contentResult.result;
-      end = content.end;
+      
+      if (content.length > 0) {
+        if (!start) {
+          start = content[0].start;
+        }
 
-      if (!nameNode) {
-        start = content.start;
+        end = content[content.length - 1].end;
       }
     }
 
-    if (!nameNode && !content) {
+    if (!nameNode && content.length <= 0) {
       return undefined;
     }
 
-    let addOperation = astFactory.createOperation(Operators.add, nameNode, content, start, end);
+    let contentStart = content[0].start;
+    let contentEnd = content[0].end;
+
+    let contentNode = astFactory.createArray(content, contentStart, contentEnd);
+    let addOperation = astFactory.createOperation(Operators.add, nameNode, contentNode, start, end);
 
     return {
       state, 

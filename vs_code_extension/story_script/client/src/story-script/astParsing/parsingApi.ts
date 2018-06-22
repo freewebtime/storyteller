@@ -1,9 +1,12 @@
 import { ISymbolPosition } from "../api/ISymbolPosition";
+import { IHash } from "../../shared/IHash";
 
 export enum AstNodeTypes {
   string = "string",
   number = "number",
   boolean = "boolean",
+  array = "array",
+  object = "object",
   identifier = "identifier",
   operation = 'operation',
   call = "call",
@@ -46,6 +49,12 @@ export interface IAstNodeNumber extends IAstNode {
 }
 export interface IAstNodeBoolean extends IAstNode {
   value: boolean;
+}
+export interface IAstNodeArray extends IAstNode {
+  items: IAstNode[];
+}
+export interface IAstNodeObject extends IAstNode {
+  fields: IHash<IAstNode>;
 }
 
 export interface IAstNodeIdentifier extends IAstNode {
@@ -146,6 +155,22 @@ export const astFactory = {
       value: value,
       start: start,
       end: end,
+    }
+  },
+  createArray: (items: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeArray => {
+    return {
+      type: AstNodeTypes.array,
+      items,
+      start,
+      end
+    }
+  },
+  createObject: (fields: IHash<IAstNode>, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeObject => {
+    return {
+      type: AstNodeTypes.array,
+      fields,
+      start,
+      end
     }
   },
   createIdentifier: (name: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIdentifier => {
