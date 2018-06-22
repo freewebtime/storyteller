@@ -1,5 +1,5 @@
 import { ICodeToken } from "../api/ICodeToken";
-import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence, IAstNodeOperation } from "./parsingApi";
+import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence, IAstNodeOperation, IAstNodeCall } from "./parsingApi";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { ISymbolPosition } from "../api/ISymbolPosition";
 
@@ -339,24 +339,47 @@ export const astParser = {
     let start = openToken.start;
     let end = openToken.end;
 
+    let itemsResult = astParser.parseScopeContent(state, multiline);
+    if (!itemsResult) {
+      return undefined;
+    }
+
+    let items = itemsResult.result;
+    state = itemsResult.state;
+    if (items.length === 0) {
+      return undefined;
+    }
+
+    end = items[items.length - 1].end;
+
+    let result: IAstNode = items[0];
+    if (items.length > 1) {
+      result = astFactory.createSequence(items, start, end);
+    }
+
+    return {
+      state, 
+      result
+    }
+  },
+
+  parseScopeContent: (state: IParserState, multiline: boolean): IParseResult<IAstNode[]> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
     let items: IAstNode[] = [];
     // read everything as exressions until )
     while (!astParser.getTokenOfType(state, [CodeTokenType.ParenClose])) {
       let expressionResult = astParser.parseExpression(state, multiline, true);
       if (expressionResult) {
-        if (items.length === 0) {
-          start = expressionResult.result.start;
-        }
-
-        end = expressionResult.result.end;
-        
         items = [
           ...items,
           expressionResult.result
         ]
 
         state = expressionResult.state;
-        
+
         continue;
       }
 
@@ -371,27 +394,24 @@ export const astParser = {
         break;
       }
 
-      state = astParser.skipWhitespace(state, multiline);
+      if (astParser.getTokenOfType(state, [CodeTokenType.Space])) {
+        state = astParser.skipWhitespace(state, multiline);
+        continue;
+      }
+
+      state = astParser.skipTokens(state, 1);
     }
 
     if (astParser.getTokenOfType(state, [CodeTokenType.ParenClose])) {
       state = astParser.skipTokens(state, 1);
     }
 
-    if (items.length === 0) {
-      return undefined;
-    }
-
-    let result: IAstNode = items[0];
-    if (items.length > 1) {
-      result = astFactory.createSequence(items, start, end);
-    }
-
     return {
       state, 
-      result
+      result: items
     }
   },
+
   parseLiteral: (state: IParserState, multiline: boolean): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
@@ -531,6 +551,9 @@ export const astParser = {
     let expressionResult = astParser.parseExpression(state, multiline, false);
     if (expressionResult) {
       state = expressionResult.state;
+      if (astParser.getTokenOfType(state, [CodeTokenType.Semicolon])) {
+        state = astParser.skipTokens(state, 1);
+      }
 
       // mention is a get operation
       let expression = expressionResult.result;
@@ -634,7 +657,7 @@ export const astParser = {
     }
 
     // left operand
-    let leftOperandResult = astParser.parseOperand(state, multiline);
+    let leftOperandResult = astParser.parseOperand(state, multiline, skipSpace);
     let leftOperand: IAstNode;
     if (leftOperandResult) {
       leftOperand = leftOperandResult.result;
@@ -676,12 +699,18 @@ export const astParser = {
     return undefined;
   },
 
-  parseOperand: (state: IParserState, multiline): IParseResult<IAstNode> => {
+  parseOperand: (state: IParserState, multiline: boolean, skipSpace: boolean): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
 
-    // can be scope, or identifier
+    // can be call, scope, or identifier
+
+    // call
+    const callResult = astParser.parseCall(state, multiline, skipSpace);
+    if (callResult) {
+      return callResult;
+    }
 
     // scope
     const scopeResult = astParser.parseScope(state, multiline);
@@ -698,7 +727,68 @@ export const astParser = {
     return undefined;
   },
 
-  parseIdentifier: (state: IParserState, multiline): IParseResult<IAstNodeIdentifier> => {
+  parseCall: (state: IParserState, multiline: boolean, skipSpace: boolean): IParseResult<IAstNodeCall> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    // identifier
+    let identifier: IAstNodeIdentifier;
+    const identifierResult = astParser.parseIdentifier(state, multiline);
+    if (!identifierResult) {
+      return undefined;
+    }
+
+    state = identifierResult.state;
+    identifier = identifierResult.result;
+    let start = identifier.start;
+    let end = identifier.end;
+
+    if (skipSpace) {
+      state = astParser.skipWhitespace(state, multiline);
+    }
+
+    // arguments scope
+    // starts with ( and ends with )
+    let openToken = astParser.getTokenOfType(state, [CodeTokenType.ParenOpen]);
+    if (!openToken) {
+      return undefined;
+    }
+    state = astParser.skipTokens(state, 1);
+
+    end = openToken.end;
+
+    let itemsResult = astParser.parseScopeContent(state, multiline);
+    let args: IAstNode[] = [];
+    if (itemsResult) {
+      args = itemsResult.result;
+      state = itemsResult.state;
+    }
+
+    if (args.length > 0) {
+      end = args[args.length - 1].end;
+    }
+
+    if (skipSpace) {
+      state = astParser.skipWhitespace(state, multiline);
+    }
+
+    // find closing symbol )
+    let closeToken = astParser.getTokenOfType(state, [CodeTokenType.ParenClose]);
+    if (closeToken) {
+      end = closeToken.end;
+      state = astParser.skipTokens(state, 1);
+    }
+
+    // create call node
+    let result = astFactory.createCall(identifier, args)
+    return {
+      state, 
+      result
+    }
+  },
+
+  parseIdentifier: (state: IParserState, multiline: boolean): IParseResult<IAstNodeIdentifier> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
