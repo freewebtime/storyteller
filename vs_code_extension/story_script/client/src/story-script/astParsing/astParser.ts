@@ -324,7 +324,7 @@ export const astParser = {
 
     return undefined;
   },
-  parseScope: (state: IParserState, multiline: boolean): IParseResult<IAstNode> => {
+  parseScope: (state: IParserState, multiline: boolean): IParseResult<IAstNodeSequence> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
@@ -340,22 +340,22 @@ export const astParser = {
     let end = openToken.end;
 
     let itemsResult = astParser.parseScopeContent(state, multiline);
-    if (!itemsResult) {
-      return undefined;
+    let items: IAstNode[] = [];
+    if (itemsResult) {
+      items = itemsResult.result;
+      state = itemsResult.state;
     }
 
-    let items = itemsResult.result;
-    state = itemsResult.state;
-    if (items.length === 0) {
-      return undefined;
+    if (items.length > 0) {
+      end = items[items.length - 1].end;
     }
 
-    end = items[items.length - 1].end;
-
-    let result: IAstNode = items[0];
-    if (items.length > 1) {
-      result = astFactory.createSequence(items, start, end);
+    // skip closing paren
+    if (astParser.getTokenOfType(state, [CodeTokenType.ParenClose])) {
+      state = astParser.skipTokens(state, 1);
     }
+
+    let result = astFactory.createSequence(items, start, end);
 
     return {
       state, 
@@ -526,6 +526,10 @@ export const astParser = {
       if (!nameNode) {
         start = content.start;
       }
+    }
+
+    if (!nameNode && !content) {
+      return undefined;
     }
 
     let addOperation = astFactory.createOperation(Operators.add, nameNode, content, start, end);

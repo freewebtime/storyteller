@@ -11,12 +11,66 @@ import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
 import { compileStoryscriptModule } from './story-script/StoryScript';
 
+let provider: TextDocumentContentProvider;
+
+class TextDocumentContentProvider implements vscode.TextDocumentContentProvider {
+  private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
+
+  public provideTextDocumentContent(uri: vscode.Uri): string {
+    return this.createCssSnippet();
+  }
+
+  get onDidChange(): vscode.Event<vscode.Uri> {
+    return this._onDidChange.event;
+  }
+
+  public update(uri: vscode.Uri) {
+    this._onDidChange.fire(uri);
+  }
+
+  private createCssSnippet() {
+    let editor = vscode.window.activeTextEditor;
+    if (!(editor.document.languageId === 'storyscript')) {
+      return this.errorSnippet("Active editor doesn't show a CSS document - no properties to preview.")
+    }
+    return this.extractSnippet();
+  }
+
+  private extractSnippet(): string {
+    const editor = vscode.window.activeTextEditor;
+    const fileContent = editor.document.getText();
+    const filePath = editor.document.fileName;
+    const fileName = path.basename(filePath);
+    const compiled = compileStoryscriptModule(fileContent, filePath, fileName);
+
+    return `
+        <body>
+          <pre>${JSON.stringify(compiled, null, '  ')}</pre>
+				</body>`;
+
+    // return `
+    // 	<body>
+    // 		${compiled.map((token) => { return JSON.stringify(token); }).join('<br/><br/>')}
+    // 	</body>`;
+  }
+
+  private errorSnippet(error: string): string {
+    return `
+				<body>
+					${error}
+				</body>`;
+  }
+}
+
+const previewUri = vscode.Uri.parse('sts-preview://authority/sts-preview');
+
 const stsCompile = () => {
-  const editor = vscode.window.activeTextEditor;
-  const fileContent = editor.document.getText();
-  const filePath = editor.document.fileName;
-  const fileName = path.basename(filePath);
-  const compiled = compileStoryscriptModule(fileContent, filePath, fileName);
+  if (!vscode.window.activeTextEditor) {
+    vscode.window.showInformationMessage('Open a file first');
+    return;
+  }  
+
+	provider.update(previewUri);
 }
 
 const toUpper = (e: vscode.TextEditor, d: vscode.TextDocument, sel: vscode.Selection[]) => {
@@ -54,74 +108,24 @@ const insertText = (text: string, isMoveCursor: boolean) => {
 }
 
 const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
-	let previewUri = vscode.Uri.parse('sts-preview://authority/sts-preview');
-	
-	class TextDocumentContentProvider implements vscode.TextDocumentContentProvider {
-		private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
-
-		public provideTextDocumentContent(uri: vscode.Uri): string {
-			return this.createCssSnippet();
-		}
-
-		get onDidChange(): vscode.Event<vscode.Uri> {
-			return this._onDidChange.event;
-		}
-
-		public update(uri: vscode.Uri) {
-			this._onDidChange.fire(uri);
-		}
-
-		private createCssSnippet() {
-			let editor = vscode.window.activeTextEditor;
-			if (!(editor.document.languageId === 'storyscript')) {
-				return this.errorSnippet("Active editor doesn't show a CSS document - no properties to preview.")
-			}
-			return this.extractSnippet();
-		}
-
-		private extractSnippet(): string {
-			const editor = vscode.window.activeTextEditor;
-      const fileContent = editor.document.getText();
-      const filePath = editor.document.fileName;
-      const fileName = path.basename(filePath);
-			const compiled = compileStoryscriptModule(fileContent, filePath, fileName);
-
-      return `
-        <body>
-          <pre>${JSON.stringify(compiled, null, '  ')}</pre>
-				</body>`;
-
-      // return `
-			// 	<body>
-			// 		${compiled.map((token) => { return JSON.stringify(token); }).join('<br/><br/>')}
-			// 	</body>`;
-		}
-
-		private errorSnippet(error: string): string {
-			return `
-				<body>
-					${error}
-				</body>`;
-		}
-	}
-
-	let provider = new TextDocumentContentProvider();
+	provider = new TextDocumentContentProvider();
 	let registration = vscode.workspace.registerTextDocumentContentProvider('sts-preview', provider);
 
-	vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
-		if (e.document === vscode.window.activeTextEditor.document) {
-			provider.update(previewUri);
-		}
-	});
-
-	// vscode.window.onDidChangeTextEditorSelection((e: vscode.TextEditorSelectionChangeEvent) => {
-	// 	if (e.textEditor === vscode.window.activeTextEditor) {
+	// vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
+	// 	if (e.document === vscode.window.activeTextEditor.document) {
 	// 		provider.update(previewUri);
 	// 	}
 	// });
 
 	let disposable = vscode.commands.registerCommand('extension.showHtmlPreview', () => {
-		return vscode.commands.executeCommand('vscode.previewHtml', previewUri, vscode.ViewColumn.Two, vscode.window.activeTextEditor.document.fileName).then((success) => {
+    
+    return vscode.commands.executeCommand(
+      'vscode.previewHtml', 
+      previewUri, 
+      vscode.ViewColumn.Two, 
+      vscode.window.activeTextEditor.document.fileName
+    ).then((success) => {
+      provider.update(previewUri);
 		}, (reason) => {
 			vscode.window.showErrorMessage(reason);
 		});
