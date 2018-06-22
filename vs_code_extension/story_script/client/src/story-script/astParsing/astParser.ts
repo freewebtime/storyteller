@@ -46,7 +46,7 @@ export const astParser = {
         continue;
       }
 
-      let templResult = astParser.parseTemplateItem(state, 0);
+      let templResult = astParser.parseOuterTemplate(state, 0);
       if (templResult) {
         state = templResult.state;
         content = [
@@ -244,7 +244,7 @@ export const astParser = {
       };
     }
 
-    const templateItemResult = astParser.parseTemplateItem(state, targetIndent, parent);
+    const templateItemResult = astParser.parseOuterTemplate(state, targetIndent, parent);
     if (templateItemResult) {
       state = templateItemResult.state;
       let result = templateItemResult.result;
@@ -257,7 +257,7 @@ export const astParser = {
 
     return undefined;
   },
-  parseTemplateContent: (state: IParserState, multiline: boolean): IParseResult<IAstNode> => {
+  parseTemplateContent: (state: IParserState, multiline: boolean, breakOnQuote: boolean): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
@@ -267,8 +267,10 @@ export const astParser = {
     let stringResult: IParseResult<IAstNodeString>;
     let start: ISymbolPosition;
     let end: ISymbolPosition;
-    while (!astParser.getTokenOfType(state, [CodeTokenType.Endline])) {
-      stringResult = astParser.readString(state, [CodeTokenType.Star, CodeTokenType.Endline])
+    let stopTokens = breakOnQuote ? [CodeTokenType.Quote, CodeTokenType.Endline] : [CodeTokenType.Endline];
+    while (!astParser.getTokenOfType(state, stopTokens)) {
+      let splitTokens = breakOnQuote ? [CodeTokenType.Star, CodeTokenType.Endline, CodeTokenType.Quote] : [CodeTokenType.Star, CodeTokenType.Endline];
+      stringResult = astParser.readString(state, splitTokens)
       if (stringResult) {
         if (items.length === 0) {
           start = stringResult.result.start;
@@ -390,8 +392,84 @@ export const astParser = {
       result
     }
   },
+  parseLiteral: (state: IParserState, multiline: boolean): IParseResult<IAstNode> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    // starts with ( and ends with )
+    let openToken = astParser.getTokenOfType(state, [CodeTokenType.Quote]);
+    if (!openToken) {
+      return undefined;
+    }
+    state = astParser.skipTokens(state, 1);
+
+    let start = openToken.start;
+    let end = openToken.end;
+
+    let items: IAstNode[] = [];
+    // read everything as exressions until )
+    while (!astParser.getTokenOfType(state, [CodeTokenType.Quote])) {
+      if (astParser.isEndOfFile(state)) {
+        break;
+      }
+      
+      let contentResult: IParseResult<IAstNode>;
+      while (contentResult = astParser.parseTemplateContent(state, multiline, true)) {
+        state = contentResult.state;
+
+        if (items.length === 0) {
+          start = contentResult.result.start;
+        }
+
+        end = contentResult.result.end;
+
+        items = [
+          ...items,
+          contentResult.result
+        ]
+
+        continue;
+      }
+
+      if (astParser.getTokenOfType(state, [CodeTokenType.Quote])) {
+        state = astParser.skipTokens(state, 1);
+      }
+
+      let endlineToken = astParser.getTokenOfType(state, [CodeTokenType.Endline]);
+      if (endlineToken) {
+        if (multiline) {
+          state = astParser.skipTokens(state, 1);
+          continue;
+        }
+
+        // it's not multiline scope, and we've found endline token
+        break;
+      }
+
+      state = astParser.skipWhitespace(state, multiline);
+    }
+
+    if (astParser.getTokenOfType(state, [CodeTokenType.ParenClose])) {
+      state = astParser.skipTokens(state, 1);
+    }
+
+    if (items.length === 0) {
+      return undefined;
+    }
+
+    let result: IAstNode = items[0];
+    if (items.length > 1) {
+      result = astFactory.createSequence(items, start, end);
+    }
+
+    return {
+      state,
+      result
+    }
+  },
   
-  parseTemplateItem: (state: IParserState, targetIndent: number = 0, parent?: IAstNode[]): IParseResult<IAstNode> => {
+  parseOuterTemplate: (state: IParserState, targetIndent: number = 0, parent?: IAstNode[]): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
@@ -420,7 +498,7 @@ export const astParser = {
     }
 
     let content: IAstNode;
-    let contentResult = astParser.parseTemplateContent(state, true);
+    let contentResult = astParser.parseTemplateContent(state, true, false);
     if (contentResult) {
       state = contentResult.state;
       content = contentResult.result;
@@ -604,7 +682,13 @@ export const astParser = {
       return undefined;
     }
 
-    // can be scope, or identifier
+    // can be scope, or identifier or literal
+
+    // literal
+    const literalResult = astParser.parseLiteral(state, multiline);
+    if (literalResult) {
+      return literalResult;
+    }
 
     // scope
     const scopeResult = astParser.parseScope(state, multiline);
@@ -613,7 +697,7 @@ export const astParser = {
     }
 
     // identifier
-    const identifierResult = astParser.parseIdentifier(state);
+    const identifierResult = astParser.parseIdentifier(state, multiline);
     if (identifierResult) {
       return identifierResult;
     }
@@ -621,20 +705,23 @@ export const astParser = {
     return undefined;
   },
 
-  parseIdentifier: (state: IParserState): IParseResult<IAstNodeIdentifier> => {
+  parseIdentifier: (state: IParserState, multiline): IParseResult<IAstNodeIdentifier> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
 
     // identifier is a word
+    let name: IAstNode;
+
+    // word
     let token = astParser.getTokenOfType(state, [CodeTokenType.Word]);
     if (!token) {
       return undefined;
     }
 
+    name = astFactory.createString(token.value, token.start, token.end);
     state = astParser.skipTokens(state, 1);
 
-    const name: IAstNode = astFactory.createString(token.value, token.start, token.end);
     const result = astFactory.createIdentifier(name, name.start, name.end);
     return {
       state, 
@@ -680,7 +767,7 @@ export const astParser = {
     }
 
     const cursor = state.cursor + tokensCount;
-    if (state.tokens.length <= cursor) {
+    if (state.tokens.length < cursor) {
       return undefined;
     }
 
