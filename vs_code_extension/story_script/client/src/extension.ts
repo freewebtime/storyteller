@@ -8,8 +8,8 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { workspace, ExtensionContext } from 'vscode';
-import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
-import { compileStoryscriptModule } from './story-script/StoryScript';
+import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/lib/main';
+import * as StoryScript from './story-script/StoryScript';
 
 let provider: TextDocumentContentProvider;
 
@@ -41,7 +41,7 @@ class TextDocumentContentProvider implements vscode.TextDocumentContentProvider 
     const fileContent = editor.document.getText();
     const filePath = editor.document.fileName;
     const fileName = path.basename(filePath);
-    const compiled = compileStoryscriptModule(fileContent, filePath, fileName);
+    const compiled = StoryScript.compileStoryscriptModule(fileContent, filePath, fileName);
 
     return `
         <body>
@@ -70,7 +70,9 @@ const stsCompile = () => {
     return;
   }  
 
-	provider.update(previewUri);
+  const compileResult = StoryScript.compileProject();
+
+	//provider.update(previewUri);
 }
 
 const toUpper = (e: vscode.TextEditor, d: vscode.TextDocument, sel: vscode.Selection[]) => {
@@ -217,5 +219,5 @@ export function activate(context: ExtensionContext) {
 	initStsCompileCommand(context);
 	initShowHtmlPreviewCommand(context);
   
-	// stsCompile();
+  // stsCompile();
 }

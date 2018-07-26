@@ -21,6 +21,7 @@
         }
       ]
     },
+
     "template-outer": {
       "patterns": [
         {

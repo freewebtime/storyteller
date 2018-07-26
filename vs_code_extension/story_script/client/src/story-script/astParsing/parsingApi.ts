@@ -56,6 +56,9 @@ export interface IAstNodeArray extends IAstNode {
 export interface IAstNodeObject extends IAstNode {
   fields: IHash<IAstNode>;
 }
+export interface IAstNodeModule extends IAstNodeObject {
+  name: string;
+}
 
 export interface IAstNodeIdentifier extends IAstNode {
   name: IAstNode;
@@ -80,8 +83,20 @@ export interface IAstNodeSequence extends IAstNode {
   prog: IAstNode[];
 }
 
+export interface IParsingError {
+  position: ISymbolPosition;
+  message: string;
+}
+
 export const astFactory = {
   
+  createParsingError: (position: ISymbolPosition, message: string): IParsingError => {
+    return {
+      message,
+      position
+    }
+  },
+
   createImport: (alias: IAstNodeString, path: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeImport => {
     return {
       type: AstNodeTypes.import,
@@ -170,6 +185,15 @@ export const astFactory = {
       type: AstNodeTypes.array,
       fields,
       start,
+      end
+    }
+  },
+  createModule: (fields: IHash<IAstNode>, name: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeModule => {
+    return {
+      type: AstNodeTypes.array,
+      fields,
+      start,
+      name: name,
       end
     }
   },

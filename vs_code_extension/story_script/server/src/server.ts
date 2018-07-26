@@ -5,12 +5,17 @@
 'use strict';
 
 import {
-	IPCMessageReader, IPCMessageWriter, createConnection, IConnection, TextDocuments, TextDocument, 
-	Diagnostic, DiagnosticSeverity, InitializeResult, TextDocumentPositionParams, CompletionItem, 
+  // Diagnostic, DiagnosticSeverity, 
+	IPCMessageReader, IPCMessageWriter, createConnection, IConnection, TextDocuments, TextDocument,
+  InitializeResult, TextDocumentPositionParams, CompletionItem, 
 	CompletionItemKind,
 	TextDocumentChangeEvent,
-	ExecuteCommandParams
+	ExecuteCommandParams,
+  TextDocumentSyncKind
 } from 'vscode-languageserver';
+// import { WorkspaceFoldersFeature } from 'vscode-languageserver/lib/workspaceFolders.proposed';
+
+let strings: string[] = [];
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -32,15 +37,51 @@ connection.onInitialize((/*params*/): InitializeResult => {
 	return {
 		capabilities: {
 			// Tell the client that the server works in FULL text document sync mode
-			textDocumentSync: documents.syncKind,
+			textDocumentSync: TextDocumentSyncKind.Full,
 			// Tell the client that the server support code complete
 			completionProvider: {
         resolveProvider: true,
         triggerCharacters: ["*"]
-			}
+      },
+      
 		}
 	}
 });
+
+function updateStrings() {
+  return;
+  
+  let docs = documents.all();
+  let result: string[] = [];
+  docs.forEach(doc => {
+    result = collectStrings(result, doc);
+  });
+
+  result = result.filter(onlyUnique);
+  strings = result;
+}
+
+function onlyUnique(value: any, index: number, self: string[]) {
+  return self.indexOf(value) === index;
+}
+
+function collectStrings(state: string[], doc: TextDocument) {
+  let text = doc.getText();
+  let words = text.split(/(?:\\r\\n)|(?:\\n)|(\\s)/);
+  words.forEach(word => {
+    word = word.trim();
+    if (!word || word.length === 0) {
+      return;
+    }
+
+    state = [
+      ...state,
+      word
+    ]
+  });
+
+  return state;
+}
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
@@ -109,65 +150,83 @@ connection.onExecuteCommand((params: ExecuteCommandParams): any => {
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion((_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-	// The pass parameter contains the position of the text document in 
+
+  const uri = _textDocumentPosition.textDocument.uri;
+
+  let result: CompletionItem[] = [];
+  strings.forEach(word => {
+    result = [
+      ...result,
+      {
+        label: word,
+        kind: CompletionItemKind.Text,
+        data: word
+      }
+    ]
+  });
+  
+  return result;
+
+  // The pass parameter contains the position of the text document in 
 	// which code complete got requested. For the example we ignore this
   // info and always provide the same completion items.
-	const result = [
-		{
-			label: 'TypeScript',
-			kind: CompletionItemKind.Text,
-			data: 1
-		},
-		{
-			label: 'JavaScript',
-			kind: CompletionItemKind.Text,
-			data: 2
-		},
-		{
-			label: 'StoryScript',
-			kind: CompletionItemKind.Text,
-			data: 3
-		},
-	];
+	// const result = [
+	// 	{
+	// 		label: 'TypeScript',
+	// 		kind: CompletionItemKind.Text,
+	// 		data: 1
+	// 	},
+	// 	{
+	// 		label: 'JavaScript',
+	// 		kind: CompletionItemKind.Text,
+	// 		data: 2
+	// 	},
+	// 	{
+	// 		label: 'StoryScript',
+	// 		kind: CompletionItemKind.Text,
+	// 		data: 3
+	// 	},
+	// ];
 
-	return result;
+  // return result;
 });
 
 // This handler resolve additional information for the item selected in
 // the completion list.
-connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-	if (item.data === 1) {
-		item.detail = 'TypeScript details',
-		item.documentation = 'TypeScript documentation'
-	} else if (item.data === 2) {
-		item.detail = 'JavaScript details',
-		item.documentation = 'JavaScript documentation'
-	} else if (item.data === 3) {
-		item.detail = 'StoryScript details',
-		item.documentation = 'StoryScript documentation'
-	}
-	return item;
-});
+// connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+//   if (item.data === 1) {
+// 		item.detail = 'TypeScript details',
+// 		item.documentation = 'TypeScript documentation'
+// 	} else if (item.data === 2) {
+// 		item.detail = 'JavaScript details',
+// 		item.documentation = 'JavaScript documentation'
+// 	} else if (item.data === 3) {
+// 		item.detail = 'StoryScript details',
+// 		item.documentation = 'StoryScript documentation'
+// 	}
+// 	return item;
+// });
 
-/*
 connection.onDidOpenTextDocument((params) => {
 	// A text document got opened in VSCode.
 	// params.uri uniquely identifies the document. For documents store on disk this is a file URI.
 	// params.text the initial full content of the document.
-	connection.console.log(`${params.textDocument.uri} opened.`);
+  // connection.console.log(`${params.textDocument.uri} opened.`);
+  updateStrings();
 });
 connection.onDidChangeTextDocument((params) => {
 	// The content of a text document did change in VSCode.
 	// params.uri uniquely identifies the document.
 	// params.contentChanges describe the content changes to the document.
-	connection.console.log(`${params.textDocument.uri} changed: ${JSON.stringify(params.contentChanges)}`);
+	// connection.console.log(`${params.textDocument.uri} changed: ${JSON.stringify(params.contentChanges)}`);
+  updateStrings();
 });
 connection.onDidCloseTextDocument((params) => {
 	// A text document got closed in VSCode.
 	// params.uri uniquely identifies the document.
-	connection.console.log(`${params.textDocument.uri} closed.`);
+	// connection.console.log(`${params.textDocument.uri} closed.`);
+  updateStrings();
 });
-*/
 
 // Listen on the connection
 connection.listen();

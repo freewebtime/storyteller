@@ -1,4 +1,4 @@
-import { ISymbolPosition } from "../api/ISymbolPosition";
+import { ISymbolPosition } from "./ISymbolPosition";
 import { CodeTokenType } from "./CodeTokenType";
 
 export interface ICodeToken {

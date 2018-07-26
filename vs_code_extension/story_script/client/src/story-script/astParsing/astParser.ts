@@ -1,7 +1,8 @@
 import { ICodeToken } from "../api/ICodeToken";
-import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence, IAstNodeOperation, IAstNodeCall, IAstNodeArray } from "./parsingApi";
+import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeSequence, IAstNodeOperation, IAstNodeCall, IAstNodeArray, IAstNodeImport, IParsingError, IAstNodeObject, IAstNodeModule } from "./parsingApi";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { ISymbolPosition } from "../api/ISymbolPosition";
+import { IHash } from "../../shared/IHash";
 
 interface IParserState {
   tokens: ICodeToken[];
@@ -35,7 +36,7 @@ export const astParser = {
         continue;
       }
 
-      let itemResult = astParser.parseItem(state, 0);
+      let itemResult = astParser.parseObject(state, 0);
       if (itemResult) {
         state = itemResult.state;
         content = [
@@ -64,7 +65,70 @@ export const astParser = {
     return result;
   },
 
-  parseImport: (state: IParserState): IParseResult<IAstNode> => {
+  parseModule: (tokens: ICodeToken[], moduleName: string): { result: IAstNodeModule, errors: IParsingError[] } => {
+    let state: IParserState = {
+      tokens: tokens,
+      cursor: 0,
+    };
+
+    let sortedFields: IHash<IAstNode> = {};
+    let errors: IParsingError[] = [];
+    let allFields: IAstNode[] = [];
+
+    while (!astParser.isEndOfFile(state)) {
+      let importResult = astParser.parseImport(state);
+      if (importResult) {
+        state = importResult.state;
+        let importItem = importResult.result;
+        let importName: string;
+
+        if (!importItem.alias) {
+          astParser.addParsingError(errors, importItem.start, "import should have a name!");
+        }
+        else {
+          importName = importItem.alias.value;
+        }
+
+        sortedFields = astParser.addItemToHash(sortedFields, importName, importItem);
+        allFields = astParser.addItemToArray(allFields, importItem);
+        continue;
+      }
+
+      let objectResult = astParser.parseObject(state, 0);
+      if (objectResult) {
+        state = objectResult.state;
+        continue;
+      }
+
+      let templResult = astParser.parseOuterTemplate(state, 0);
+      if (templResult) {
+        state = templResult.state;
+        allFields = [
+          ...allFields,
+          templResult.result
+        ]
+
+        continue;
+      }
+
+      state = astParser.skipTokens(state, 1);
+    }
+
+    let start: ISymbolPosition = { line: 0, symbol: 0 }
+    let end: ISymbolPosition = { line: 0, symbol: 0 }
+
+    if (allFields.length > 0) {
+      end = allFields[allFields.length - 1].end;
+    }
+
+    const result = astFactory.createModule(sortedFields, moduleName, start, end);
+    return {
+      errors,
+      result
+    }
+  },
+
+  parseImport: (state: IParserState): IParseResult<IAstNodeImport> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
@@ -120,7 +184,7 @@ export const astParser = {
     }
   },
 
-  parseItem: (state: IParserState, indent: number, parent?: IAstNode[]): IParseResult<IAstNode> => {
+  parseObject: (state: IParserState, indent: number, parent?: IAstNode[]): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
@@ -233,7 +297,7 @@ export const astParser = {
       state = sState;
     }
 
-    const subitemResult = astParser.parseItem(state, targetIndent, parent);
+    const subitemResult = astParser.parseObject(state, targetIndent, parent);
     if (subitemResult) {
       state = subitemResult.state;
       let result = subitemResult.result;
@@ -1021,5 +1085,23 @@ export const astParser = {
 
     const cursor = state.cursor + offset;
     return state.tokens.length <= cursor;
+  },
+
+  addParsingError: (errors: IParsingError[], position: ISymbolPosition, message: string): IParsingError[] => {
+    return astParser.addItemToArray(errors, astFactory.createParsingError(position, message));
+  },
+  addItemToArray: <T = any>(source: T[], item: T): T[] => {
+    source = source || [];
+    return [
+      ...source,
+      item
+    ]
+  },
+  addItemToHash: <T = any>(source: IHash<T>, key: string, item: T): IHash<T> => {
+    source = source || {};
+    return {
+      ...source,
+      [key]: item
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { ICodeToken } from "../api/ICodeToken";
+import { ICodeToken } from "./ICodeToken";
 
 export enum AstNodeType {
   Text = 'Text',
