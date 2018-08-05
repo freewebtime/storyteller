@@ -4,5 +4,6 @@ export interface IStsConfig {
   rootDir: string;
   outDir: string;
   sourceMap: boolean;
-  exclude: string[];
+  exclude: string;
+  entrypoint: string;
 }

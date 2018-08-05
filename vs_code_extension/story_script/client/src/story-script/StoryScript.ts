@@ -13,13 +13,97 @@ import {
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+import { IHash } from "../shared/IHash";
+import { IStsFile, IStsProject, StsFileType } from "./project/IStsProject";
+import { testApi } from "./fileSystem/fileSystemUtils";
 
 export const compileProject = () => {
+  testApi();
+  
+  return undefined;
+
+  let project = readProject();
+  return project;
+}
+
+export const readProject = (): IStsProject => {
   // get config
   const config = readStsConfig();
-  return config;
 
-  // compile
+  vscode.workspace.findFiles('**/*.sts', config.exclude).then(
+    (filesUri: vscode.Uri[]) => {
+      let fileNames: string[];
+      filesUri.forEach((value: vscode.Uri) => {
+        fileNames = [
+          ...fileNames,
+          value.path
+        ];
+      });
+
+      let filesResult = readProjectFiles(fileNames);
+
+      let project: IStsProject = {
+        author: config.author,
+        name: config.name,
+        rootDir: config.rootDir,
+        entrypoint: config.entrypoint,
+        files: filesResult.files,
+        filesSorted: filesResult.filesSorted,
+      };
+
+      return project;
+    },
+
+    (reason: any) => {
+      console.error('error during searching files to compile', reason);
+    }
+
+  );
+
+  return undefined;
+}
+
+export const readProjectFiles = (fileNames: string[]): {files: IStsFile[], filesSorted: IHash<IStsFile>} => {
+  let files: IStsFile[];
+  let filesSorted: IHash<IStsFile>;
+
+  fileNames.forEach((fileName: string) => {
+    try {
+      const fileBuffer = fs.readFileSync(fileName, 'utf8');
+      const fileContent = fileBuffer.toString();
+      
+      let fileType: StsFileType = StsFileType.content;
+      const extension = path.extname(fileName);
+      if (extension === 'sts' || extension === 'стс') {
+        fileType = StsFileType.storyscript;
+      }
+
+      const stsFile: IStsFile = {
+        content: fileContent,
+        fullName: fileName,
+        name: path.basename(fileName),
+        path: path.dirname(fileName),
+        type: fileType,
+      }
+
+      files = [
+        ...files,
+        stsFile
+      ];
+      filesSorted = {
+        ...filesSorted,
+        [fileName]: stsFile
+      };
+
+    } catch (error) {
+      console.error(`error during reading file ${fileName}`, error);
+    }
+  });
+
+  return {
+    files, 
+    filesSorted
+  }
 }
 
 export const readStsConfig = (): IStsConfig => {
