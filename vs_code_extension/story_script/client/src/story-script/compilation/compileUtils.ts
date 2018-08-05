@@ -8,6 +8,7 @@ import { IStsConfig } from '../configuration/IStsConfig';
 import { projectUtils } from '../project/projectUtils';
 import { IFileSystemItem, FileSystemItemType } from '../fileSystem/IFileSystemItem';
 import { stsTokenizer } from '../parsing/stsTokenizer';
+import { astParser } from '../astParsing/astParser';
 
 const compileProject = (project: IStsProject, config: IStsConfig) => {
   compileFsItem(project, project.rootDir, config);
@@ -42,14 +43,15 @@ const compileFile = (project: IStsProject, sourceFile: IFileSystemItem, config: 
     const fileContent = fs.readFileSync(filePath, 'utf8').toString();
 
     // tokenize file
-    const tokenized = stsTokenizer.tokenizeCode(fileContent);
+    const tokens = stsTokenizer.tokenizeCode(fileContent);
 
     // save tokenized json file
-    const tokensJson = JSON.stringify(tokenized);
+    const tokensJson = JSON.stringify(tokens);
     const tokensJsonFileName = filePath + '.json';
     fs.writeFileSync(tokensJsonFileName, tokensJson);
 
     // parse tokenized code to ast
+    astParser.parse(tokens);
 
     // generate javascript
 
