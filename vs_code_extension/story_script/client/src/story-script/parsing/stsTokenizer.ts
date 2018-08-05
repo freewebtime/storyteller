@@ -1,8 +1,7 @@
 import { ISymbolPosition } from "../api/ISymbolPosition";
 import { ICodeToken } from "../api/ICodeToken";
-import { stsConfig, ITokenConfig, IOperationConfig } from "./stsConfig";
+import { stsConfig } from "./stsConfig";
 import { CodeTokenType } from "../api/CodeTokenType";
-import { IAstNode, AstNodeType, IAstNodeText, IAstNodeOperation, IAstNodeVariable, IAstNodeReference, OperationType } from "../api/IAstNode";
 
 export interface ITokenizerState {
 	sourceCode: string;
@@ -40,7 +39,6 @@ export const stsTokenizer = {
     pattern = stsConfig.wrapPatternWithCursorPos(pattern, state.globalCursor);
 		const regexp = new RegExp(pattern);
 
-    const ln = state.sourceCode.length;
 
 		let match = regexp.exec(state.sourceCode);
     let searchIndex: number = match ? match.index : 0;

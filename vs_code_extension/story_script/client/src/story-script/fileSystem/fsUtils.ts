@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { IHash } from "../../shared/IHash";
 
-export const readDirectory = (dirPath: string, excludePattern?: RegExp, includePattern?: RegExp): IFileSystemItem => {
+const readDirectory = (dirPath: string, excludePattern?: RegExp, includePattern?: RegExp): IFileSystemItem => {
   
   if (!fs.existsSync(dirPath)) {
     return undefined;
@@ -70,17 +70,19 @@ export const readDirectory = (dirPath: string, excludePattern?: RegExp, includeP
   return result;
 }
 
-export const testApi = () => {
+const getSourceFiles = (): IFileSystemItem => {
   let rootPath = vscode.workspace.rootPath;
-  let dirResult = fs.readdirSync(rootPath, 'utf8').toString();
 
   try {
-
-    let stsFiles = readDirectory(rootPath, /\.git|\.vscode/, /.*\.sts|.*\.стс/);
-    console.log(rootPath, dirResult, stsFiles);
-
+    return readDirectory(rootPath, /\.git|\.vscode/, /.*\.sts|.*\.стс/);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 
+  return undefined;
+}
+
+export const fsUtils = {
+  readDirectory,
+  getSourceFiles,
 }
