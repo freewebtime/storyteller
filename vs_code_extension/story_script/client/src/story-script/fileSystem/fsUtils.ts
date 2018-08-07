@@ -74,7 +74,7 @@ const getSourceFiles = (): IFileSystemItem => {
   let rootPath = vscode.workspace.rootPath;
 
   try {
-    return readDirectory(rootPath, /\.git|\.vscode/, /.*\.sts|.*\.стс/);
+    return readDirectory(rootPath, /\.git|\.vscode/, /.*\.sts$|.*\.стс$/);
   } catch (error) {
     console.error(error);
   }

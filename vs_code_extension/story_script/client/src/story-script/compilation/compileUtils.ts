@@ -47,11 +47,16 @@ const compileFile = (project: IStsProject, sourceFile: IFileSystemItem, config: 
 
     // save tokenized json file
     const tokensJson = JSON.stringify(tokens);
-    const tokensJsonFileName = filePath + '.json';
+    const tokensJsonFileName = filePath + '.tokens.json';
     fs.writeFileSync(tokensJsonFileName, tokensJson);
 
     // parse tokenized code to ast
-    astParser.parse(tokens);
+    const ast = astParser.parseModule(tokens, sourceFile.name);
+    
+    // save parsed json filed
+    const astJson = JSON.stringify(ast);
+    const astJsonFileName = filePath + '.ast.json';
+    fs.writeFileSync(astJsonFileName, astJson);
 
     // generate javascript
 

@@ -41,7 +41,7 @@ class TextDocumentContentProvider implements vscode.TextDocumentContentProvider 
     const fileContent = editor.document.getText();
     const filePath = editor.document.fileName;
     const fileName = path.basename(filePath);
-    const compiled = StoryScript.compileStoryscriptModule(fileContent, filePath, fileName);
+    const compiled = {}; //StoryScript.compileStoryscriptModule(fileContent, filePath, fileName);
 
     return `
         <body>
@@ -110,8 +110,8 @@ const insertText = (text: string, isMoveCursor: boolean) => {
 }
 
 const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
-	provider = new TextDocumentContentProvider();
-	let registration = vscode.workspace.registerTextDocumentContentProvider('sts-preview', provider);
+	// provider = new TextDocumentContentProvider();
+	// let registration = vscode.workspace.registerTextDocumentContentProvider('sts-preview', provider);
 
 	// vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
 	// 	if (e.document === vscode.window.activeTextEditor.document) {
@@ -217,7 +217,7 @@ export function activate(context: ExtensionContext) {
   initInsertTextCommands(context);
 	initLanguageServer(context);
 	initStsCompileCommand(context);
-	initShowHtmlPreviewCommand(context);
+	// initShowHtmlPreviewCommand(context);
   
   // stsCompile();
 }

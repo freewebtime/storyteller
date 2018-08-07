@@ -11,8 +11,11 @@ export enum AstNodeTypes {
   operation = 'operation',
   call = "call",
   if = "if",
-  sequence = "sequence",
+  program = "program",
   import = "import",
+  mention = "mention",
+  variable = "variable",
+  module = "module",
 }
 
 export enum Operators {
@@ -36,10 +39,37 @@ export interface IAstNode {
   end?: ISymbolPosition;
 }
 
-export interface IAstNodeImport extends IAstNode {
-  alias: IAstNodeString;
-  path: IAstNode[];
+export interface IAstNodeModule extends IAstNode {
+  name: string;
+  program: IAstNodeProgram;
 }
+
+export interface IAstNodeProgram extends IAstNode {
+  body: IAstNode[];
+}
+
+export interface IAstNodeImport extends IAstNode {
+  indent: number;
+  name: IAstNodeString;
+  path: IAstNodeString;
+}
+
+export interface IAstNodeVariable extends IAstNode {
+  name: IAstNodeString;
+  indent: number;
+  varType: IAstNodeString;
+  value?: IAstNode;
+}
+
+export interface IAstNodeObject extends IAstNode {
+  fields: IHash<IAstNode>;
+}
+
+
+export interface IAstNodeMention extends IAstNode {
+  target: IAstNode;
+}
+
 
 export interface IAstNodeString extends IAstNode {
   value: string;
@@ -53,12 +83,7 @@ export interface IAstNodeBoolean extends IAstNode {
 export interface IAstNodeArray extends IAstNode {
   items: IAstNode[];
 }
-export interface IAstNodeObject extends IAstNode {
-  fields: IHash<IAstNode>;
-}
-export interface IAstNodeModule extends IAstNodeObject {
-  name: string;
-}
+
 
 export interface IAstNodeIdentifier extends IAstNode {
   name: IAstNode;
@@ -79,9 +104,6 @@ export interface IAstNodeIf extends IAstNode {
   then?: IAstNode;
   otherwise?: IAstNode;
 }
-export interface IAstNodeSequence extends IAstNode {
-  prog: IAstNode[];
-}
 
 export interface IParsingError {
   position: ISymbolPosition;
@@ -97,11 +119,43 @@ export const astFactory = {
     }
   },
 
-  createImport: (alias: IAstNodeString, path: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeImport => {
+  createModule: (program: IAstNodeProgram, name: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeModule => {
+    return {
+      type: AstNodeTypes.module,
+      name: name,
+      program: program,
+      start,
+      end
+    }
+  },
+
+  createImport: (name: IAstNodeString, path: IAstNodeString, indent: number, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeImport => {
     return {
       type: AstNodeTypes.import,
-      alias: alias,
+      name: name,
       path: path,
+      indent: indent,
+      start: start,
+      end: end,
+    }
+  },
+
+  createProgram: (body: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeProgram => {
+    return {
+      type: AstNodeTypes.program,
+      body: body,
+      start: start,
+      end: end,
+    }
+  },
+
+  createVariable: (name: IAstNodeString, varType: IAstNodeString, value: IAstNode, indent: number, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeVariable => {
+    return {
+      type: AstNodeTypes.variable,
+      name:name,
+      value: value,
+      varType: varType,
+      indent: indent,
       start: start,
       end: end,
     }
@@ -113,6 +167,15 @@ export const astFactory = {
       operator: operator,
       left: left,
       right: right,
+      start: start,
+      end: end,
+    }
+  },
+
+  createMention: (target: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeMention => {
+    return {
+      type: AstNodeTypes.mention,
+      target: target,
       start: start,
       end: end,
     }
@@ -139,15 +202,7 @@ export const astFactory = {
     }
   },
 
-  createSequence: (prog: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeSequence => {
-    return {
-      type: AstNodeTypes.sequence,
-      prog: prog,
-      start: start,
-      end: end,
-    }
-  },
-
+  
   createString: (value: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeString => {
     return {
       type: AstNodeTypes.string,
@@ -185,15 +240,6 @@ export const astFactory = {
       type: AstNodeTypes.array,
       fields,
       start,
-      end
-    }
-  },
-  createModule: (fields: IHash<IAstNode>, name: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeModule => {
-    return {
-      type: AstNodeTypes.array,
-      fields,
-      start,
-      name: name,
       end
     }
   },
