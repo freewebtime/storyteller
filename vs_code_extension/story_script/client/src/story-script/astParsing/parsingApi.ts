@@ -3,19 +3,15 @@ import { IHash } from "../../shared/IHash";
 
 export enum AstNodeTypes {
   string = "string",
-  number = "number",
-  boolean = "boolean",
   array = "array",
-  object = "object",
   identifier = "identifier",
   operation = 'operation',
-  call = "call",
-  if = "if",
   program = "program",
   import = "import",
   mention = "mention",
   variable = "variable",
   module = "module",
+  template = "template"
 }
 
 export enum Operators {
@@ -61,48 +57,20 @@ export interface IAstNodeVariable extends IAstNode {
   value?: IAstNode;
 }
 
-export interface IAstNodeObject extends IAstNode {
-  fields: IHash<IAstNode>;
+export interface IAstNodeTemplate extends IAstNodeArray {
 }
-
 
 export interface IAstNodeMention extends IAstNode {
   target: IAstNode;
 }
-
-
 export interface IAstNodeString extends IAstNode {
   value: string;
-}
-export interface IAstNodeNumber extends IAstNode {
-  value: number;
-}
-export interface IAstNodeBoolean extends IAstNode {
-  value: boolean;
 }
 export interface IAstNodeArray extends IAstNode {
   items: IAstNode[];
 }
-
-
 export interface IAstNodeIdentifier extends IAstNode {
   name: IAstNode;
-}
-
-export interface IAstNodeOperation extends IAstNode {
-  operator: Operators;
-  left?: IAstNode;
-  right?: IAstNode;
-}
-
-export interface IAstNodeCall extends IAstNode {
-  func: IAstNode;
-  args: IAstNode[];
-}
-export interface IAstNodeIf extends IAstNode {
-  cond: IAstNode;
-  then?: IAstNode;
-  otherwise?: IAstNode;
 }
 
 export interface IParsingError {
@@ -161,17 +129,6 @@ export const astFactory = {
     }
   },
 
-  createOperation: (operator: Operators, left?: IAstNode, right?: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeOperation => {
-    return {
-      type: AstNodeTypes.operation,
-      operator: operator,
-      left: left,
-      right: right,
-      start: start,
-      end: end,
-    }
-  },
-
   createMention: (target: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeMention => {
     return {
       type: AstNodeTypes.mention,
@@ -181,47 +138,9 @@ export const astFactory = {
     }
   },
 
-  createCall: (func: IAstNode, args: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeCall => {
-    return {
-      type: AstNodeTypes.call,
-      func: func,
-      args: args,
-      start: start,
-      end: end,
-    }
-  },
-
-  createIf: (cond: IAstNode, then?: IAstNode, otherwise?: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIf => {
-    return {
-      type: AstNodeTypes.if,
-      cond: cond,
-      otherwise: otherwise,
-      then: then,
-      start: start,
-      end: end,
-    }
-  },
-
-  
   createString: (value: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeString => {
     return {
       type: AstNodeTypes.string,
-      value: value,
-      start: start,
-      end: end,
-    }
-  },
-  createNumber: (value: number, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeNumber => {
-    return {
-      type: AstNodeTypes.number,
-      value: value,
-      start: start,
-      end: end,
-    }
-  },
-  createBoolean: (value: boolean, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeBoolean => {
-    return {
-      type: AstNodeTypes.boolean,
       value: value,
       start: start,
       end: end,
@@ -235,14 +154,15 @@ export const astFactory = {
       end
     }
   },
-  createObject: (fields: IHash<IAstNode>, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeObject => {
+  createTemplate: (items: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeTemplate => {
     return {
-      type: AstNodeTypes.array,
-      fields,
+      type: AstNodeTypes.template,
+      items,
       start,
       end
     }
   },
+
   createIdentifier: (name: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIdentifier => {
     return {
       type: AstNodeTypes.identifier,
