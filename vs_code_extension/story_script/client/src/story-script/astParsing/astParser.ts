@@ -191,7 +191,7 @@ export const astParser = {
         varValueLines = astParser.addItemToArray(varValueLines, subitem);
 
         if (astParser.getTokenOfType(state, [CodeTokenType.Endline])) {
-          astParser.skipTokens(state, 1);
+          state = astParser.skipTokens(state, 1);
         }
       }
 
