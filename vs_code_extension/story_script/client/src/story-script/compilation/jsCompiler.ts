@@ -119,8 +119,9 @@ export const jsCompiler = {
   compileModule: (astNode: IAstNodeModule) : string => {
     const header = jsCompilerTemplates.moduleHeader;
     const body = jsCompiler.compileAstNode(astNode.program, []);
+    const footer = jsCompilerTemplates.moduleFooter;
 
-    return `${header}\r${body}`;
+    return `${header}\r${body}\r${footer}`;
   },
 
   compileMention: (ast: IAstNodeMention, parent: IAstNode[]): string => {
@@ -173,7 +174,7 @@ export const jsCompiler = {
 
     let textValue = jsCompiler.compileAstNode(ast.value, parent);
     let contextName = jsCompiler.createIdentifierFromAst(parent, parent);
-    let result = jsCompilerTemplates.addTextTemplate(contextName, textValue) + '\r';
+    let result = jsCompilerTemplates.addTextTemplate(contextName, textValue) + '\n';
 
     return result;
   },

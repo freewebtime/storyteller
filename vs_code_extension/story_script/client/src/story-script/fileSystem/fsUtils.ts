@@ -3,8 +3,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { IHash } from "../../shared/IHash";
+import { IStsConfig } from "../configuration/IStsConfig";
 
-const readDirectory = (dirPath: string, excludePattern?: RegExp, includePattern?: RegExp): IFileSystemItem => {
+const readDirectory = (dirPath: string, config: IStsConfig, excludePattern?: RegExp, includePattern?: RegExp): IFileSystemItem => {
   
   if (!fs.existsSync(dirPath)) {
     return undefined;
@@ -33,7 +34,7 @@ const readDirectory = (dirPath: string, excludePattern?: RegExp, includePattern?
     // check is directory
     if (fs.statSync(fullPath).isDirectory()) {
       // read dir with it's subitems
-      subitem = readDirectory(fullPath, excludePattern, includePattern);
+      subitem = readDirectory(fullPath, config, excludePattern, includePattern);
       if (!subitem) {
         return;
       }
@@ -46,8 +47,14 @@ const readDirectory = (dirPath: string, excludePattern?: RegExp, includePattern?
         }
       }
 
+      let relativePath = path.relative(config.rootDirAbsolute, fullPath);
+      let compilePath = config.outDirAbsolute + '/' + relativePath;
+      compilePath = path.dirname(compilePath) + '/' + path.basename(compilePath, path.extname(compilePath)) + '.js';
+
       subitem = {
         fullPath: fullPath,
+        relativePath: relativePath,
+        compilePath: compilePath,
         name: subitemName,
         type: FileSystemItemType.file,
       }
@@ -60,9 +67,14 @@ const readDirectory = (dirPath: string, excludePattern?: RegExp, includePattern?
     }
   });
 
+  let relativePath = path.relative(config.rootDirAbsolute, dirPath);
+  let compilePath = config.outDirAbsolute + '/' + relativePath;
+
   let result: IFileSystemItem = {
     name: dirName,
     fullPath: dirPath,
+    relativePath: relativePath,
+    compilePath: compilePath,
     type: FileSystemItemType.folder,
     subitems: subitems
   }
@@ -70,11 +82,10 @@ const readDirectory = (dirPath: string, excludePattern?: RegExp, includePattern?
   return result;
 }
 
-const getSourceFiles = (): IFileSystemItem => {
-  let rootPath = vscode.workspace.rootPath;
-
+const getSourceFiles = (config: IStsConfig): IFileSystemItem => {
   try {
-    return readDirectory(rootPath, /\.git|\.vscode/, /.*\.sts$|.*\.стс$/);
+    let result = readDirectory(config.rootDirAbsolute, config, /\.git|\.vscode/, /.*\.sts$|.*\.стс$/);
+    return result;
   } catch (error) {
     console.error(error);
   }

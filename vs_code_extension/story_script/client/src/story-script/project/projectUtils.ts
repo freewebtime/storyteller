@@ -4,7 +4,7 @@ import { configUtils } from "../configuration/configUtils";
 import { IStsConfig } from "../configuration/IStsConfig";
 
 const readProject = (config: IStsConfig): IStsProject => {
-  const rootDir = fsUtils.getSourceFiles();
+  const rootDir = fsUtils.getSourceFiles(config);
 
   if (!rootDir) {
     console.error("can't read file hierarhy");

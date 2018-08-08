@@ -15,6 +15,10 @@ const readStsConfig = (): IStsConfig => {
     const configContentBuffer = fs.readFileSync(configFileName, 'utf8');
     const configContent = configContentBuffer.toString();
     const result = JSON.parse(configContent) as IStsConfig;
+
+    result.rootDirAbsolute = vscode.workspace.rootPath + '/' + result.rootDir;
+    result.outDirAbsolute = vscode.workspace.rootPath + '/' + result.outDir;
+
     return result;
   } catch (error) {
     console.error(`can't read config file ${configFileName}`, error);

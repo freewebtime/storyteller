@@ -9,7 +9,7 @@ export const compileProject = () => {
     return undefined;
   }
 
-  const project = projectUtils.readProject(config);
+  let project = projectUtils.readProject(config);
   if (!project) {
     return undefined;
   }

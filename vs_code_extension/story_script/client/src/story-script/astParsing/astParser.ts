@@ -110,6 +110,9 @@ export const astParser = {
     if (astParser.getTokenOfType(state, [CodeTokenType.Endline])) {
       state = astParser.skipTokens(state, 1);
     }
+    if (astParser.getTokenOfType(state, [CodeTokenType.Endline])) {
+      state = astParser.skipTokens(state, 1);
+    }
 
     const result = astFactory.createImport(name, path, targetIndent, start, end);
     return {
@@ -175,7 +178,7 @@ export const astParser = {
     let varValue: IAstNodeProgram;
 
     // skip endline
-    if (astParser.checkTokenSequence(state, [CodeTokenType.Endline])) {
+    if (astParser.getTokenOfType(state, [CodeTokenType.Endline])) {
       state = astParser.skipTokens(state, 1);
 
       // find all subitems
@@ -226,20 +229,33 @@ export const astParser = {
 
     let template: IAstNodeTemplate;
     let templateResult = astParser.parseTemplate(state);
-    if (!templateResult) {
-      return undefined;
+    if (templateResult) {
+      template = templateResult.result;
+      state = templateResult.state;
+      end = astParser.getCursorPosition(state);
+
+      let result = astFactory.createAddText(template, targetIndent, start, end);
+
+      return {
+        result,
+        state
+      }
     }
 
-    template = templateResult.result;
-    state = templateResult.state;
+    if (astParser.getTokenOfType(state, [CodeTokenType.Endline])) {
+      end = {...start, symbol: start.symbol + 1};
+      let templateString = astFactory.createString('\\n', start, end);
+      let template = astFactory.createTemplate([templateString], start, end);
+      let result = astFactory.createAddText(template, targetIndent, start, end);
+      state = astParser.skipTokens(state, 1);
 
-    end = astParser.getCursorPosition(state);
-
-    let result = astFactory.createAddText(template, targetIndent, start, end);
-    return {
-      result,
-      state
+      return {
+        result,
+        state
+      }
     }
+
+    return undefined;
   },
 
   parseSubitem: (state: IParserState, targetIndent: number): IParseResult<IAstNode> => {
