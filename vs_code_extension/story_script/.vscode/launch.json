@@ -4,21 +4,6 @@
 	"configurations": [
 
     {
-      "name": "Run babel tutorial",
-      "preLaunchTask": "debug-babel-tutorial",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceRoot}/babel_tutorial/.compiled/index.js",
-      "sourceMaps": true
-    },
-    {
-      "name": "Debug babel plugin",
-      "preLaunchTask": "debug-babel",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceRoot}/test_story/.compiled/index.js" 
-    },
-    {
 			"name": "Launch Client",
 			"type": "extensionHost",
 			"request": "launch",
@@ -43,6 +28,6 @@
 				"${workspaceRoot}/client/server/**/*.js"
 			],
 			"preLaunchTask": "watch:server"
-		}
+    }
 	]
 }

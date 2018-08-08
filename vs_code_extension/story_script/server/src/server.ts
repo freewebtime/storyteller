@@ -6,16 +6,9 @@
 
 import {
   // Diagnostic, DiagnosticSeverity, 
-	IPCMessageReader, IPCMessageWriter, createConnection, IConnection, TextDocuments, TextDocument,
-  InitializeResult, TextDocumentPositionParams, CompletionItem, 
-	CompletionItemKind,
-	TextDocumentChangeEvent,
-	ExecuteCommandParams,
+	IPCMessageReader, IPCMessageWriter, createConnection, IConnection, TextDocuments, InitializeResult, ExecuteCommandParams,
   TextDocumentSyncKind
 } from 'vscode-languageserver';
-// import { WorkspaceFoldersFeature } from 'vscode-languageserver/lib/workspaceFolders.proposed';
-
-let strings: string[] = [];
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -43,7 +36,6 @@ connection.onInitialize((/*params*/): InitializeResult => {
       //   resolveProvider: false,
       //   triggerCharacters: ["*"]
       // },
-      
 		}
 	}
 });

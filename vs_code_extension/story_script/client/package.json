@@ -14,14 +14,19 @@
 		"vscode": "^1.16.0"
 	},
 	"categories": [
-		"Programming Languages"
+    "Programming Languages"
 	],
 	"activationEvents": [
 		"onLanguage:storyscript",
-		"onCommand:extension.stsCompile"
-	],
+    "onCommand:extension.stsCompile"
+  ],
 	"main": "./out/src/extension",
 	"contributes": {
+    "breakpoints": [
+      {
+        "language": "storyscript"
+      }
+    ],
 		"configuration": {
 			"type": "object",
 			"title": "Example configuration",

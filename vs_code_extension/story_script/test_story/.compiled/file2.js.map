@@ -1,1 +1,0 @@
-{"version":3,"sources":["../src/file2.js"],"names":["some","console","log"],"mappings":";;AAAA,IAAIA,OAAO,KAAK,EAAhB;AACAC,QAAQC,GAAR,CAAY,MAAZ,EAAoBF,IAApB","file":"file2.js","sourcesContent":["var some = 12 + 22;\r\nconsole.log('some', some);"]}

@@ -10,6 +10,8 @@ import * as vscode from 'vscode';
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/lib/main';
 import * as StoryScript from './story-script/StoryScript';
+import { configUtils } from './story-script/configuration/configUtils';
+import { vlq } from './story-script/compilation/vlq';
 
 let provider: TextDocumentContentProvider;
 
@@ -107,6 +109,15 @@ const insertText = (text: string, isMoveCursor: boolean) => {
       }
     })
   }
+}
+
+const initCommands = (context: ExtensionContext) => {
+  vscode.commands.registerCommand('extension.storyscript.getProgramName', config => {
+    return vscode.window.showInputBox({
+      placeHolder: "Please enter the name of a markdown file in the workspace folder",
+      value: "readme.md"
+    });
+  });
 }
 
 const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
@@ -214,10 +225,22 @@ const initLanguageServer = (context: ExtensionContext) => {
 }
 
 export function activate(context: ExtensionContext) {
+  initCommands(context);
   initInsertTextCommands(context);
 	initLanguageServer(context);
 	initStsCompileCommand(context);
 	// initShowHtmlPreviewCommand(context);
   
   // stsCompile();
+
+
+  let str = 
+    vlq.encode([0, 0, 0]) + ';' 
+    + vlq.encode([1, 0, 0]) + ';'
+    + vlq.encode([2, 0, 0]) + ';'
+    + vlq.encode([3, 0, 0]) + ';'
+    + vlq.encode([4, 0, 0]) + ';'
+  ;
+
+  console.log(str);
 }
