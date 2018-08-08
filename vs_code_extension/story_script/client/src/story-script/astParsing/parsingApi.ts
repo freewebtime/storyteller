@@ -5,13 +5,13 @@ export enum AstNodeTypes {
   string = "string",
   array = "array",
   identifier = "identifier",
-  operation = 'operation',
   program = "program",
   import = "import",
   mention = "mention",
   variable = "variable",
   module = "module",
-  template = "template"
+  template = "template",
+  addText = 'addText',
 }
 
 export enum Operators {
@@ -57,6 +57,11 @@ export interface IAstNodeVariable extends IAstNode {
   value?: IAstNode;
 }
 
+export interface IAstNodeAddText extends IAstNode {
+  indent: number;
+  value: IAstNodeTemplate;
+}
+
 export interface IAstNodeTemplate extends IAstNodeArray {
 }
 
@@ -70,7 +75,7 @@ export interface IAstNodeArray extends IAstNode {
   items: IAstNode[];
 }
 export interface IAstNodeIdentifier extends IAstNode {
-  name: IAstNode;
+  name: IAstNodeArray;
 }
 
 export interface IParsingError {
@@ -129,6 +134,16 @@ export const astFactory = {
     }
   },
 
+  createAddText: (value: IAstNodeTemplate, indent: number, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeAddText => {
+    return {
+      type: AstNodeTypes.addText,
+      value: value,
+      indent: indent,
+      start: start,
+      end: end,
+    }
+  },
+
   createMention: (target: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeMention => {
     return {
       type: AstNodeTypes.mention,
@@ -163,7 +178,7 @@ export const astFactory = {
     }
   },
 
-  createIdentifier: (name: IAstNode, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIdentifier => {
+  createIdentifier: (name: IAstNodeArray, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeIdentifier => {
     return {
       type: AstNodeTypes.identifier,
       name: name,

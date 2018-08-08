@@ -9,6 +9,7 @@ import { projectUtils } from '../project/projectUtils';
 import { IFileSystemItem, FileSystemItemType } from '../fileSystem/IFileSystemItem';
 import { stsTokenizer } from '../parsing/stsTokenizer';
 import { astParser } from '../astParsing/astParser';
+import { jsCompiler } from './jsCompiler';
 
 const compileProject = (project: IStsProject, config: IStsConfig) => {
   compileFsItem(project, project.rootDir, config);
@@ -59,6 +60,11 @@ const compileFile = (project: IStsProject, sourceFile: IFileSystemItem, config: 
     fs.writeFileSync(astJsonFileName, astJson);
 
     // generate javascript
+    const compiledJs = jsCompiler.compile(ast.result);
+
+    // save generated javascript
+    const compiledJsFileName = filePath + '.compiled.js';
+    fs.writeFileSync(compiledJsFileName, compiledJs, { encoding: 'utf8' });
 
     // generate codemaps
 

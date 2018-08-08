@@ -1,5 +1,5 @@
 import { ICodeToken } from "../api/ICodeToken";
-import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeArray, IAstNodeImport, IParsingError, IAstNodeModule, IAstNodeMention, IAstNodeTemplate, IAstNodeProgram } from "./parsingApi";
+import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeArray, IAstNodeImport, IParsingError, IAstNodeModule, IAstNodeMention, IAstNodeTemplate, IAstNodeProgram, IAstNodeAddText } from "./parsingApi";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { ISymbolPosition } from "../api/ISymbolPosition";
 import { IHash } from "../../shared/IHash";
@@ -60,9 +60,11 @@ export const astParser = {
     }
 
     // check whitespace
-    if (!astParser.checkIndent(state, targetIndent)) {
+    let checkIndent = astParser.checkIndent(state, targetIndent);
+    if (!checkIndent) {
       return undefined;
     }
+    state = checkIndent.state;
 
     // read import mark *+
     const markSequence = [CodeTokenType.Star, CodeTokenType.Plus, CodeTokenType.Space];
@@ -126,7 +128,6 @@ export const astParser = {
     if (!checkIndent) {
       return undefined;
     }
-
     state = checkIndent.state;
 
     // read item mark * 
@@ -208,6 +209,39 @@ export const astParser = {
     }
   },
 
+  parseAddText: (state: IParserState, targetIndent: number): IParseResult<IAstNodeAddText> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    // check indent
+    let checkIndent = astParser.checkIndent(state, targetIndent);
+    if (!checkIndent) {
+      return undefined;
+    }
+    state = checkIndent.state;
+
+    let start: ISymbolPosition = astParser.getCursorPosition(state);
+    let end: ISymbolPosition = { ...start };
+
+    let template: IAstNodeTemplate;
+    let templateResult = astParser.parseTemplate(state);
+    if (!templateResult) {
+      return undefined;
+    }
+
+    template = templateResult.result;
+    state = templateResult.state;
+
+    end = astParser.getCursorPosition(state);
+
+    let result = astFactory.createAddText(template, targetIndent, start, end);
+    return {
+      result,
+      state
+    }
+  },
+
   parseSubitem: (state: IParserState, targetIndent: number): IParseResult<IAstNode> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
@@ -223,25 +257,18 @@ export const astParser = {
       return variableResult;
     }
 
-    const textLineResult = astParser.parseTemplateLine(state, targetIndent);
-    if (textLineResult) {
-      return textLineResult;
+    const addTextResult = astParser.parseAddText(state, targetIndent);
+    if (addTextResult) {
+      return addTextResult;
     }
 
     return undefined;
   },
 
-  parseTemplateLine: (state: IParserState, targetIndent: number): IParseResult<IAstNodeTemplate> => {
+  parseTemplate: (state: IParserState): IParseResult<IAstNodeTemplate> => {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
-
-    let indentResult = astParser.checkIndent(state, targetIndent);
-    if (!indentResult) {
-      return undefined;
-    }
-
-    state = indentResult.state;
 
     let items: IAstNode[];
     let start = astParser.getCursorPosition(state);
@@ -408,10 +435,13 @@ export const astParser = {
     if (astParser.isEndOfFile(state)) {
       return undefined;
     }
-
-    if (!astParser.checkIndent(state, targetIndent)) {
+    
+    let checkIndent = astParser.checkIndent(state, targetIndent);
+    if (!checkIndent) {
       return undefined;
     }
+    state = checkIndent.state;
+
 
     let lineResult = astParser.readString(state, [CodeTokenType.Endline]);
     return lineResult;
