@@ -1,6 +1,5 @@
 import { fsUtils } from "../fileSystem/fsUtils";
 import { IStsProject } from "./IStsProject";
-import { configUtils } from "../configuration/configUtils";
 import { IStsConfig } from "../configuration/IStsConfig";
 
 const readProject = (config: IStsConfig): IStsProject => {
@@ -16,9 +15,7 @@ const readProject = (config: IStsConfig): IStsProject => {
   }
 
   let result: IStsProject = {
-    name: config.name,
-    author: config.author,
-    entrypoint: config.entrypoint,
+    main: config.main,
     rootDir: rootDir,
   }
 

@@ -1,12 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as vscode from 'vscode';
-import { IStsProject } from '../project/IStsProject';
 import { IStsConfig } from '../configuration/IStsConfig';
-import { IFileSystemItem, FileSystemItemType } from '../fileSystem/IFileSystemItem';
-import { stsTokenizer } from '../parsing/stsTokenizer';
-import { astParser } from '../astParsing/astParser';
+import { IFileSystemItem, FileSystemItemType } from '../shared/IFileSystemItem';
+import { stsTokenizer } from '../tokenizing/stsTokenizer';
+import { stsParser } from '../parsing/stsParser';
 import { jsCompiler } from './jsCompiler';
+import { IStsProject } from '../project/IStsProject';
 
 const compileProject = (project: IStsProject, config: IStsConfig) => {
   compileFsItem(project, project.rootDir, config);
@@ -30,11 +29,11 @@ const compileFsItem = (project: IStsProject, sourceItem: IFileSystemItem, config
 
   // check is it file
   if (sourceItem.type === FileSystemItemType.file) {
-    compileFile(sourceItem);
+    compileFile(sourceItem, config);
   }
 }
 
-const compileFile = (sourceFile: IFileSystemItem) => {
+const compileFile = (sourceFile: IFileSystemItem, config: IStsConfig) => {
   const filePath = sourceFile.fullPath;
   if (!fs.existsSync(filePath)) {
     return;
@@ -50,17 +49,21 @@ const compileFile = (sourceFile: IFileSystemItem) => {
     const tokens = stsTokenizer.tokenizeCode(fileContent);
 
     // save tokenized json file
-    const tokensJson = JSON.stringify(tokens);
-    const tokensJsonFileName = compilePath + '.tokens.json';
-    fs.writeFileSync(tokensJsonFileName, tokensJson);
+    if (config.tokens) {
+      const tokensJson = JSON.stringify(tokens);
+      const tokensJsonFileName = compilePath + '.tokens.json';
+      fs.writeFileSync(tokensJsonFileName, tokensJson);
+    }
 
     // parse tokenized code to ast
-    const ast = astParser.parseModule(tokens, sourceFile.name);
+    const ast = stsParser.parseModule(tokens, sourceFile.name);
     
     // save parsed json filed
-    const astJson = JSON.stringify(ast);
-    const astJsonFileName = compilePath + '.ast.json';
-    fs.writeFileSync(astJsonFileName, astJson);
+    if (config.ast) {
+      const astJson = JSON.stringify(ast);
+      const astJsonFileName = compilePath + '.ast.json';
+      fs.writeFileSync(astJsonFileName, astJson);
+    }
 
     // generate javascript
     const compiledJs = jsCompiler.compile(ast.result);

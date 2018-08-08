@@ -9,82 +9,11 @@ import * as vscode from 'vscode';
 
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/lib/main';
-import * as StoryScript from './story-script/StoryScript';
-import { configUtils } from './story-script/configuration/configUtils';
-import { vlq } from './story-script/compilation/vlq';
-
-let provider: TextDocumentContentProvider;
-
-class TextDocumentContentProvider implements vscode.TextDocumentContentProvider {
-  private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
-
-  public provideTextDocumentContent(uri: vscode.Uri): string {
-    return this.createCssSnippet();
-  }
-
-  get onDidChange(): vscode.Event<vscode.Uri> {
-    return this._onDidChange.event;
-  }
-
-  public update(uri: vscode.Uri) {
-    this._onDidChange.fire(uri);
-  }
-
-  private createCssSnippet() {
-    let editor = vscode.window.activeTextEditor;
-    if (!(editor.document.languageId === 'storyscript')) {
-      return this.errorSnippet("Active editor doesn't show a CSS document - no properties to preview.")
-    }
-    return this.extractSnippet();
-  }
-
-  private extractSnippet(): string {
-    const editor = vscode.window.activeTextEditor;
-    const fileContent = editor.document.getText();
-    const filePath = editor.document.fileName;
-    const fileName = path.basename(filePath);
-    const compiled = {}; //StoryScript.compileStoryscriptModule(fileContent, filePath, fileName);
-
-    return `
-        <body>
-          <pre>${JSON.stringify(compiled, null, '  ')}</pre>
-				</body>`;
-
-    // return `
-    // 	<body>
-    // 		${compiled.map((token) => { return JSON.stringify(token); }).join('<br/><br/>')}
-    // 	</body>`;
-  }
-
-  private errorSnippet(error: string): string {
-    return `
-				<body>
-					${error}
-				</body>`;
-  }
-}
-
-const previewUri = vscode.Uri.parse('sts-preview://authority/sts-preview');
+import { storyscript } from 'storyscript';
 
 const stsCompile = () => {
-  if (!vscode.window.activeTextEditor) {
-    vscode.window.showInformationMessage('Open a file first');
-    return;
-  }  
-
-  const compileResult = StoryScript.compileProject();
-
-	//provider.update(previewUri);
-}
-
-const toUpper = (e: vscode.TextEditor, d: vscode.TextDocument, sel: vscode.Selection[]) => {
-  e.edit(function (edit) {
-    // itterate through the selections and convert all text to Upper
-    for (var x = 0; x < sel.length; x++) {
-      let txt: string = d.getText(new vscode.Range(sel[x].start, sel[x].end));
-      edit.replace(sel[x], txt.toUpperCase());
-    }
-  });
+  let sc = storyscript;
+  sc.compile(vscode.workspace.rootPath, './stsconfig.json');
 }
 
 const insertText = (text: string, isMoveCursor: boolean) => {
@@ -118,31 +47,6 @@ const initCommands = (context: ExtensionContext) => {
       value: "readme.md"
     });
   });
-}
-
-const initShowHtmlPreviewCommand = (context: ExtensionContext) => {
-	// provider = new TextDocumentContentProvider();
-	// let registration = vscode.workspace.registerTextDocumentContentProvider('sts-preview', provider);
-
-	// vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
-	// 	if (e.document === vscode.window.activeTextEditor.document) {
-	// 		provider.update(previewUri);
-	// 	}
-	// });
-
-	let disposable = vscode.commands.registerCommand('extension.showHtmlPreview', () => {
-    
-    return vscode.commands.executeCommand(
-      'vscode.previewHtml', 
-      previewUri, 
-      vscode.ViewColumn.Two, 
-      vscode.window.activeTextEditor.document.fileName
-    ).then((success) => {
-      provider.update(previewUri);
-		}, (reason) => {
-			vscode.window.showErrorMessage(reason);
-		});
-	});
 }
 
 const initStsCompileCommand = (context: ExtensionContext) => {
@@ -229,18 +133,4 @@ export function activate(context: ExtensionContext) {
   initInsertTextCommands(context);
 	initLanguageServer(context);
 	initStsCompileCommand(context);
-	// initShowHtmlPreviewCommand(context);
-  
-  // stsCompile();
-
-
-  let str = 
-    vlq.encode([0, 0, 0]) + ';' 
-    + vlq.encode([1, 0, 0]) + ';'
-    + vlq.encode([2, 0, 0]) + ';'
-    + vlq.encode([3, 0, 0]) + ';'
-    + vlq.encode([4, 0, 0]) + ';'
-  ;
-
-  console.log(str);
 }

@@ -1,6 +1,6 @@
-import { CodeTokenType } from "../api/CodeTokenType";
-import { IHash } from "../../shared/IHash";
-import { OperationType } from "../api/IAstNode";
+import { CodeTokenType } from "../shared/CodeTokenType";
+import { IHash } from "../shared/IHash";
+import { OperationType } from "../shared/OperationType";
 
 export interface ITokenConfig {
 	type: CodeTokenType;

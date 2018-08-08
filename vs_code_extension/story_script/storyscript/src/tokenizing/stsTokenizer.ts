@@ -1,7 +1,7 @@
-import { ISymbolPosition } from "../api/ISymbolPosition";
-import { ICodeToken } from "../api/ICodeToken";
-import { stsConfig } from "./stsConfig";
-import { CodeTokenType } from "../api/CodeTokenType";
+import { ISymbolPosition } from "../shared/ISymbolPosition";
+import { ICodeToken } from "../shared/ICodeToken";
+import { stsConfig } from "./tokenizerConfig";
+import { CodeTokenType } from "../shared/CodeTokenType";
 
 export interface ITokenizerState {
 	sourceCode: string;

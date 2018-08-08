@@ -1,4 +1,4 @@
-import { IHash } from "../../shared/IHash";
+import { IHash } from "./IHash";
 
 export enum FileSystemItemType {
   folder = 'folder',

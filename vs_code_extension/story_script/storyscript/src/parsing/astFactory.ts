@@ -1,95 +1,10 @@
-import { ISymbolPosition } from "../api/ISymbolPosition";
-import { IHash } from "../../shared/IHash";
-
-export enum AstNodeTypes {
-  string = "string",
-  array = "array",
-  identifier = "identifier",
-  program = "program",
-  import = "import",
-  mention = "mention",
-  variable = "variable",
-  module = "module",
-  template = "template",
-  addText = 'addText',
-  call = 'call',
-}
-
-export enum Operators {
-  equals = '=',
-  increment = '++',
-  plus = '+',
-  decrement = '--',
-  minus = '-',
-  multiply = '*',
-  divide = '/',
-  more = '>',
-  less = '<',
-  get = '.',
-  add = 'add',
-  remove = '*-',
-}
-
-export interface IAstNode {
-  type: AstNodeTypes;
-  start?: ISymbolPosition;
-  end?: ISymbolPosition;
-}
-
-export interface IAstNodeModule extends IAstNode {
-  name: string;
-  program: IAstNodeProgram;
-}
-
-export interface IAstNodeProgram extends IAstNode {
-  body: IAstNode[];
-}
-
-export interface IAstNodeImport extends IAstNode {
-  indent: number;
-  name: IAstNodeString;
-  path: IAstNodeString;
-}
-
-export interface IAstNodeVariable extends IAstNode {
-  name: IAstNodeString;
-  indent: number;
-  varType: IAstNodeString;
-  value?: IAstNode;
-}
-
-export interface IAstNodeCall extends IAstNode {
-  params: IAstNode[];
-}
-
-export interface IAstNodeAddText extends IAstNode {
-  indent: number;
-  value: IAstNodeTemplate;
-}
-
-export interface IAstNodeTemplate extends IAstNodeArray {
-}
-
-export interface IAstNodeMention extends IAstNode {
-  target: IAstNode;
-}
-export interface IAstNodeString extends IAstNode {
-  value: string;
-}
-export interface IAstNodeArray extends IAstNode {
-  items: IAstNode[];
-}
-export interface IAstNodeIdentifier extends IAstNode {
-  name: IAstNodeArray;
-}
-
-export interface IParsingError {
-  position: ISymbolPosition;
-  message: string;
-}
+import { ISymbolPosition } from "../shared/ISymbolPosition";
+import { IAstNodeMention, IAstNode, IAstNodeTemplate, IAstNodeAddText, IAstNodeString, IAstNodeArray, IAstNodeIdentifier, IAstNodeVariable, IAstNodeProgram, IAstNodeCall, IAstNodeImport, IAstNodeModule } from "../shared/IAstNode";
+import { AstNodeTypes } from "../shared/AstNodeTypes";
+import { IParsingError } from "../shared/IParsingError";
 
 export const astFactory = {
-  
+
   createParsingError: (position: ISymbolPosition, message: string): IParsingError => {
     return {
       message,
@@ -138,7 +53,7 @@ export const astFactory = {
   createVariable: (name: IAstNodeString, varType: IAstNodeString, value: IAstNode, indent: number, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeVariable => {
     return {
       type: AstNodeTypes.variable,
-      name:name,
+      name: name,
       value: value,
       varType: varType,
       indent: indent,

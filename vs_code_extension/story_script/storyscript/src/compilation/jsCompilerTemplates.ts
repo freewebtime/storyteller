@@ -1,5 +1,3 @@
-import { IAstNode } from "../astParsing/parsingApi";
-
 const moduleHeader = `const stsUtils = require('storyscript');
 context = {};`;
 

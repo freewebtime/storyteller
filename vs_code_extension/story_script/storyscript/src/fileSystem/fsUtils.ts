@@ -1,8 +1,7 @@
-import { IFileSystemItem, FileSystemItemType } from "./IFileSystemItem";
+import { IFileSystemItem, FileSystemItemType } from "../shared/IFileSystemItem";
 import * as fs from 'fs';
 import * as path from 'path';
-import * as vscode from 'vscode';
-import { IHash } from "../../shared/IHash";
+import { IHash } from "../shared/IHash";
 import { IStsConfig } from "../configuration/IStsConfig";
 
 const readDirectory = (dirPath: string, config: IStsConfig, excludePattern?: RegExp, includePattern?: RegExp): IFileSystemItem => {
@@ -47,8 +46,8 @@ const readDirectory = (dirPath: string, config: IStsConfig, excludePattern?: Reg
         }
       }
 
-      let relativePath = path.relative(config.rootDirAbsolute, fullPath);
-      let compilePath = config.outDirAbsolute + '/' + relativePath;
+      let relativePath = path.relative(config.rootDir, fullPath);
+      let compilePath = config.outDir + '/' + relativePath;
       compilePath = path.dirname(compilePath) + '/' + path.basename(compilePath, path.extname(compilePath)) + '.js';
 
       subitem = {
@@ -67,8 +66,8 @@ const readDirectory = (dirPath: string, config: IStsConfig, excludePattern?: Reg
     }
   });
 
-  let relativePath = path.relative(config.rootDirAbsolute, dirPath);
-  let compilePath = config.outDirAbsolute + '/' + relativePath;
+  let relativePath = path.relative(config.rootDir, dirPath);
+  let compilePath = config.outDir + '/' + relativePath;
 
   let result: IFileSystemItem = {
     name: dirName,
@@ -84,7 +83,7 @@ const readDirectory = (dirPath: string, config: IStsConfig, excludePattern?: Reg
 
 const getSourceFiles = (config: IStsConfig): IFileSystemItem => {
   try {
-    let result = readDirectory(config.rootDirAbsolute, config, /\.git|\.vscode/, /.*\.sts$|.*\.стс$/);
+    let result = readDirectory(config.rootDir, config, /\.git|\.vscode/, /.*\.sts$|.*\.стс$/);
     return result;
   } catch (error) {
     console.error(error);

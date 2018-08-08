@@ -1,5 +1,6 @@
-import { IAstNode, AstNodeTypes, IAstNodeString, IAstNodeModule, IAstNodeImport, IAstNodeVariable, IAstNodeArray, IAstNodeProgram, IAstNodeTemplate, IAstNodeMention, IAstNodeAddText, IAstNodeIdentifier, IAstNodeCall } from "../astParsing/parsingApi";
+import { IAstNode, IAstNodeString, IAstNodeModule, IAstNodeImport, IAstNodeVariable, IAstNodeArray, IAstNodeProgram, IAstNodeTemplate, IAstNodeMention, IAstNodeAddText, IAstNodeIdentifier, IAstNodeCall } from "../shared/IAstNode";
 import { jsCompilerTemplates } from "./jsCompilerTemplates";
+import { AstNodeTypes } from "../shared/AstNodeTypes";
 
 export const jsCompiler = {
   compile: (ast: IAstNode): string => {
