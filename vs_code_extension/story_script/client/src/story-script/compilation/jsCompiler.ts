@@ -1,4 +1,4 @@
-import { IAstNode, AstNodeTypes, IAstNodeString, IAstNodeModule, IAstNodeImport, IAstNodeVariable, IAstNodeArray, IAstNodeProgram, IAstNodeTemplate, IAstNodeMention, IAstNodeAddText, IAstNodeIdentifier } from "../astParsing/parsingApi";
+import { IAstNode, AstNodeTypes, IAstNodeString, IAstNodeModule, IAstNodeImport, IAstNodeVariable, IAstNodeArray, IAstNodeProgram, IAstNodeTemplate, IAstNodeMention, IAstNodeAddText, IAstNodeIdentifier, IAstNodeCall } from "../astParsing/parsingApi";
 import { jsCompilerTemplates } from "./jsCompilerTemplates";
 
 export const jsCompiler = {
@@ -113,6 +113,29 @@ export const jsCompiler = {
       }
     }
 
+    if (ast.type === AstNodeTypes.call) {
+      let astNode = ast as IAstNodeCall;
+      if (astNode) {
+
+        let result = '(';
+
+        astNode.params.forEach((subitem: IAstNode, index: number, array: IAstNode[]) => {
+          let itemResult = jsCompiler.compileAstNode(subitem, parent);
+          if (itemResult) {
+            result += itemResult;
+
+            if (index < array.length - 1) {
+              result += ', ';
+            }
+          }
+        });
+
+        result += ')';
+
+        return result;
+      }
+    }
+
     return ''; //ast.toString();
   },
   
@@ -184,11 +207,17 @@ export const jsCompiler = {
       return 'context';
     }
 
-    let compiledParts = nameParts.map((namePart: IAstNode) => {
-      return jsCompiler.compileAstNode(namePart, parent);
+    let compiledParts = nameParts.map((namePart: IAstNode, index: number, array: IAstNode[]) => {
+      let compiledPart = jsCompiler.compileAstNode(namePart, parent);
+
+      if (namePart.type !== AstNodeTypes.call) {
+        compiledPart = `["${compiledPart}"]`;
+      }
+
+      return compiledPart;
     });
 
-    let result = jsCompiler.createIdentifier(compiledParts);
+    let result = 'context' + compiledParts.join('');
     return result;
   },
 

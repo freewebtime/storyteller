@@ -12,6 +12,7 @@ export enum AstNodeTypes {
   module = "module",
   template = "template",
   addText = 'addText',
+  call = 'call',
 }
 
 export enum Operators {
@@ -57,6 +58,10 @@ export interface IAstNodeVariable extends IAstNode {
   value?: IAstNode;
 }
 
+export interface IAstNodeCall extends IAstNode {
+  params: IAstNode[];
+}
+
 export interface IAstNodeAddText extends IAstNode {
   indent: number;
   value: IAstNodeTemplate;
@@ -97,6 +102,14 @@ export const astFactory = {
       type: AstNodeTypes.module,
       name: name,
       program: program,
+      start,
+      end
+    }
+  },
+  createCall: (params: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeCall => {
+    return {
+      type: AstNodeTypes.call,
+      params: params,
       start,
       end
     }

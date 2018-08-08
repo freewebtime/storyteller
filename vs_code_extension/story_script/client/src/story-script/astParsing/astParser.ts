@@ -1,5 +1,5 @@
 import { ICodeToken } from "../api/ICodeToken";
-import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeArray, IAstNodeImport, IParsingError, IAstNodeModule, IAstNodeMention, IAstNodeTemplate, IAstNodeProgram, IAstNodeAddText } from "./parsingApi";
+import { IAstNode, IAstNodeString, astFactory, IAstNodeIdentifier, Operators, IAstNodeArray, IAstNodeImport, IParsingError, IAstNodeModule, IAstNodeMention, IAstNodeTemplate, IAstNodeProgram, IAstNodeAddText, IAstNodeCall } from "./parsingApi";
 import { CodeTokenType } from "../api/CodeTokenType";
 import { ISymbolPosition } from "../api/ISymbolPosition";
 import { IHash } from "../../shared/IHash";
@@ -9,9 +9,15 @@ interface IParserState {
   cursor: number;
 }
 
+interface IParseError {
+  message: string;
+  position: ISymbolPosition;
+}
+
 interface IParseResult<TResult = any> {
   state: IParserState;
   result: TResult;
+  errors?: IParseError[];
 }
 
 export const astParser = {
@@ -399,11 +405,13 @@ export const astParser = {
       items = astParser.addItemToArray(items || [], item);
       end = item.end || end;
 
-      if (!astParser.getTokenOfType(state, [CodeTokenType.Dot])) {
+      if (!astParser.getTokenOfType(state, [CodeTokenType.Dot, CodeTokenType.ParenOpen])) {
         break;
       }
 
-      state = astParser.skipTokens(state, 1);
+      if (astParser.getTokenOfType(state, [CodeTokenType.Dot])) {
+        state = astParser.skipTokens(state, 1);
+      }
     }
 
     if (!items) {
@@ -425,7 +433,60 @@ export const astParser = {
       return wordResult;
     }
 
+    var callResult = astParser.parseCall(state);
+    if (callResult) {
+      return callResult;
+    }
+
     return undefined;
+  },
+
+  parseCall: (state: IParserState): IParseResult<IAstNodeCall> => {
+    if (astParser.isEndOfFile(state)) {
+      return undefined;
+    }
+
+    // skip (
+    if (!astParser.getTokenOfType(state, [CodeTokenType.ParenOpen])) {
+      return undefined;   
+    }
+    let start = astParser.getCursorPosition(state);
+    state = astParser.skipTokens(state, 1);
+
+    state = astParser.skipWhitespace(state, true);
+
+    // read everything as identifiers until )
+    let params: IAstNode[] = [];
+    while (!astParser.getTokenOfType(state, [CodeTokenType.ParenClose])) {
+      // check identifier
+      let identifierResult = astParser.parseIdentifier(state);
+      if (identifierResult) {
+        let identifier = identifierResult.result;
+        state = identifierResult.state;
+        state = astParser.skipWhitespace(state, true);
+
+        params = [
+          ...params,
+          identifier
+        ];
+
+        continue;
+      }
+
+      // if we here, skip symbol
+      state = astParser.skipTokens(state, 1);
+    }
+
+    if (astParser.getTokenOfType(state, [CodeTokenType.ParenClose])) {
+      state = astParser.skipTokens(state, 1);
+    }
+    let end = astParser.getCursorPosition(state);
+    let result = astFactory.createCall(params, start, end);
+    
+    return {
+      state, 
+      result
+    };
   },
 
   parseWord: (state: IParserState): IParseResult<IAstNodeString> => {
