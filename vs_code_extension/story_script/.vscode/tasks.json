@@ -6,9 +6,7 @@
 			"dependsOn": [
 				"compile:client",
 				"compile:server",
-        "compile:storyscript",
-        "compile:storyscript_server",
-        "compile:storyscript_client"
+        "compile:storyscript"
 			],
 			"problemMatcher": []
     },
@@ -51,41 +49,12 @@
         "$tsc"
       ]
     }, 
-    {
-      "label": "compile:storyscript_server",
-      "type": "npm",
-      "script": "compile:storyscript_server",
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
-      },
-      "problemMatcher": [
-        "$tsc"
-      ]
-    }, 
-    {
-      "label": "compile:storyscript_client",
-      "type": "npm",
-      "script": "compile:storyscript_client",
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
-      },
-      "problemMatcher": [
-        "$tsc"
-      ]
-    },
 
 		{
 			"label": "watch",
 			"dependsOn": [
 				"watch:client",
-        "watch:server",
-        "watch:storyscript",
-        "watch:storyscript_server",
-        "watch:storyscript_client"
+        "watch:server"
 			],
 			"group": {
 				"kind": "build",
@@ -120,48 +89,6 @@
 			"problemMatcher": [
 				"$tsc-watch"
 			]
-    },
-    {
-      "label": "watch:storyscript",
-      "type": "npm",
-      "script": "watch:storyscript",
-      "isBackground": true,
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
-      },
-      "problemMatcher": [
-        "$tsc-watch"
-      ]
-    },
-    {
-      "label": "watch:storyscript_server",
-      "type": "npm",
-      "script": "watch:storyscript_server",
-      "isBackground": true,
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
-      },
-      "problemMatcher": [
-        "$tsc-watch"
-      ]
-    },
-    {
-      "label": "watch:storyscript_client",
-      "type": "npm",
-      "script": "watch:storyscript_client",
-      "isBackground": true,
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
-      },
-      "problemMatcher": [
-        "$tsc-watch"
-      ]
-    }
+    }    
 	]
 }

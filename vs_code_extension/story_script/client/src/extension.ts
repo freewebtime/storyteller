@@ -114,7 +114,7 @@ const initLanguageServer = (context: ExtensionContext) => {
 		documentSelector: [{ scheme: 'file', language: 'storyscript' }],
 		synchronize: {
 			// Synchronize the setting section 'languageServerExample' to the server
-			configurationSection: 'storyScript',
+			configurationSection: 'storyscript',
 			// Notify the server about file changes to '.clientrc files contain in the workspace
 			fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
 		}

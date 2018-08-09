@@ -14,19 +14,19 @@
 		"vscode": "^1.16.0"
 	},
 	"categories": [
-    "Programming Languages"
+		"Programming Languages"
 	],
 	"activationEvents": [
 		"onLanguage:storyscript",
-    "onCommand:extension.stsCompile"
-  ],
+		"onCommand:extension.stsCompile"
+	],
 	"main": "./out/src/extension",
 	"contributes": {
-    "breakpoints": [
-      {
-        "language": "storyscript"
-      }
-    ],
+		"breakpoints": [
+			{
+				"language": "storyscript"
+			}
+		],
 		"configuration": {
 			"type": "object",
 			"title": "Example configuration",
@@ -184,6 +184,8 @@
 	},
 	"dependencies": {
 		"vscode": "^1.1.5",
-		"vscode-languageclient": "^3.4.2"
+		"vscode-languageclient": "^3.4.2",
+		"storyscript": "file:../storyscript",
+		"sts-server": "file:../server"
 	}
 }

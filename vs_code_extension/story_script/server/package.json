@@ -12,6 +12,7 @@
 		"url": "https://github.com/Microsoft/vscode-extension-samples"
 	},
 	"dependencies": {
+		"storyscript": "file:../storyscript",
 		"vscode-languageserver": "^3.4.2"
 	},
 	"scripts": {
