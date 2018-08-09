@@ -16,7 +16,7 @@
 			"outFiles": [
 				"${workspaceRoot}/client/out/**/*.js"
 			],
-			"preLaunchTask": "watch:client"
+			"preLaunchTask": "compile:client"
 		},
 		{
 			"name": "Attach to Server",
@@ -27,7 +27,7 @@
 			"outFiles": [
 				"${workspaceRoot}/client/server/**/*.js"
 			],
-			"preLaunchTask": "watch:server"
+			"preLaunchTask": "compile:client"
     }
 	]
 }
