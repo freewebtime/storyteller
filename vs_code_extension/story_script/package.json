@@ -13,7 +13,7 @@
   "scripts": {
     "postinstall": "cd server && npm install && cd ../client && npm install && cd ..",
     
-    "compile:storyscript": "tsc -p storyscript/tsconfig.json",
+    "compile:storyscript": "tsc -p storyscript/tsconfig.json && node tasks/postcompile_storyscript.js",
     "compile:client": "tsc -p client/tsconfig.json",
     "compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
     "postcompile": "node tasks/postcompile.js",

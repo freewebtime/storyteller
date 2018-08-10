@@ -9,7 +9,7 @@ import * as vscode from 'vscode';
 
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/lib/main';
-import { storyscript } from 'storyscript';
+import { storyscript } from '../storyscript/out';
 
 const stsCompile = () => {
   storyscript.compile(vscode.workspace.rootPath, './stsconfig.json');

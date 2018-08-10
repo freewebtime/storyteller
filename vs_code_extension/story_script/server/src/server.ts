@@ -7,8 +7,11 @@
 import {
   // Diagnostic, DiagnosticSeverity, 
 	IPCMessageReader, IPCMessageWriter, createConnection, IConnection, TextDocuments, InitializeResult, ExecuteCommandParams,
-  TextDocumentSyncKind
+  TextDocumentSyncKind,
+  TextDocumentChangeEvent
 } from 'vscode-languageserver';
+
+console.log('hello world. this is an extension server');
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -77,9 +80,11 @@ connection.onInitialize((/*params*/): InitializeResult => {
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-// documents.onDidChangeContent((change: TextDocumentChangeEvent) => {
-// 	validateTextDocument(change.document);
-// });
+documents.onDidChangeContent((change: TextDocumentChangeEvent) => {
+  // validateTextDocument(change.document);
+  console.log('hello world. the document has been changed', change);
+  connection.console.log('hello world. the document has been changed');
+});
 
 // The settings interface describe the server relevant settings part
 // interface Settings {
@@ -130,11 +135,11 @@ connection.onInitialize((/*params*/): InitializeResult => {
 // 	// connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 // }
 
-// connection.onDidChangeWatchedFiles((_change) => {
-// 	// Monitored files have change in VSCode
-// 	// connection.console.log('We received an file change event');
-// 	// console.log('some test console message. Jack Sea');
-// });
+connection.onDidChangeWatchedFiles((_change) => {
+	// Monitored files have change in VSCode
+	console.log('We received an file change event', _change);
+	console.log('some test console message. Jack Sea');
+});
 
 connection.onExecuteCommand((params: ExecuteCommandParams): any => {
 	connection.window.showInformationMessage('on execute called!!!' + JSON.stringify(params));
