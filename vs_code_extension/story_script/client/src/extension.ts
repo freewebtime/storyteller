@@ -6,13 +6,24 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/lib/main';
-import { storyscript } from '../storyscript/out';
+import { storyscript } from '../../storyscript';
 
 const stsCompile = () => {
   storyscript.compile(vscode.workspace.rootPath, './stsconfig.json');
+}
+
+const updateNodeModules = () => {
+  let storyscriptPath = path.normalize(__dirname + '/../../storyscript');
+  let targetPath = path.normalize(vscode.workspace.rootPath + '/node_modules');
+
+  let fsUtils = require('../../storyscript/out/fileSystem/fsUtils').fsUtils;
+
+  fsUtils.mkDirByPathSync(targetPath);
+  fsUtils.copyDirectory(storyscriptPath, targetPath + '/storyscript');
 }
 
 const insertText = (text: string, isMoveCursor: boolean) => {
@@ -40,12 +51,7 @@ const insertText = (text: string, isMoveCursor: boolean) => {
 }
 
 const initCommands = (context: ExtensionContext) => {
-  vscode.commands.registerCommand('extension.storyscript.getProgramName', config => {
-    return vscode.window.showInputBox({
-      placeHolder: "Please enter the name of a markdown file in the workspace folder",
-      value: "readme.md"
-    });
-  });
+  vscode.commands.registerCommand('extension.updateNodeModules', updateNodeModules);
 }
 
 const initStsCompileCommand = (context: ExtensionContext) => {

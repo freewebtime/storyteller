@@ -1,21 +1,21 @@
-const moduleHeader = `const stsUtils = require('storyscript');
+const moduleHeader = `const __environment = require('storyscript/out/environment');
 context = {};`;
 
 const importTemplate = (contextName: string, varName: string, importPath: string): string => {
-  return `${contextName} = stsUtils.setValue(${contextName}, "${varName}", require("${importPath}"));`
+  return `${contextName} = __environment.setValue(${contextName}, "${varName}", require("${importPath}"));`
 }
 
 const variableTemplate = (contextName: string, varName: string): string => {
-  return `\r${contextName} = stsUtils.declare(${contextName}, "${varName}");`;
+  return `\r${contextName} = __environment.declare(${contextName}, "${varName}");`;
 }
 
 const addTextTemplate = (contextName: string, textValue: string): string => {
-  var result = `${contextName} = stsUtils.addText(${contextName}, ${textValue});`;
+  var result = `${contextName} = __environment.addText(${contextName}, ${textValue});`;
   return result;
 }
 
 const mentionTemplate = (identifier: string): string => {
-  return `\${stsUtils.objectToString(${identifier})}`;
+  return `\${__environment.objectToString(${identifier})}`;
 }
 
 const moduleFooter = "module.exports = {...context}";

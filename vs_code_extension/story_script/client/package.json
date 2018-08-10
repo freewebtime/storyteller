@@ -85,7 +85,11 @@
 				"command": "extension.stsCompile",
 				"title": "Compile Story Script",
 				"category": "Compile"
-			},
+      },
+      {
+        "command": "extension.updateNodeModules",
+        "title": "Update Node Modules"
+      },
 			{
 				"command": "extension.sts_insert_{",
 				"title": "Insert '{' ",
@@ -115,22 +119,8 @@
 				"command": "extension.sts_insert_]",
 				"title": "Insert ']' ",
 				"category": "Edit"
-			},
-			{
-				"command": "extension.showHtmlPreview",
-				"title": "Show Html Preview",
-				"category": "Compile"
 			}
 		],
-		"menus": {
-			"editor/title": [
-				{
-					"command": "extension.showHtmlPreview",
-					"when": "resourceLangId == storyscript",
-					"group": "StoryScript"
-				}
-			]
-		},
 		"keybindings": [
 			{
 				"command": "extension.showHtmlPreview",
