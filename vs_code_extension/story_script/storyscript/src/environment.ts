@@ -1,5 +1,5 @@
 export const environment = {
-  declare: (context, fieldName) => {
+  declare: (context: any, fieldName: string) => {
     if (!context) {
       context = {}
     }
@@ -14,7 +14,7 @@ export const environment = {
     return context;
   },
 
-  addText: (context, value) => {
+  addText: (context: any, text: string) => {
     if (!context) {
       context = {};
     }
@@ -25,13 +25,13 @@ export const environment = {
 
     context['text'] = [
       ...context['text'],
-      value
+      text
     ];
 
     return context;
   },
 
-  setValue: (context, fieldName, value) => {
+  setValue: (context: any, fieldName: string, value: any) => {
     if (!context) {
       context = {}
     }
@@ -44,7 +44,7 @@ export const environment = {
     return context;
   },
 
-  objectToString: (object) => {
+  objectToString: (object: any) => {
     if (!object) {
       return '';
     }

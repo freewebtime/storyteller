@@ -12,14 +12,13 @@
   },
   "scripts": {
     "postinstall": "cd server && npm install && cd ../client && npm install && cd ..",
-    "compile": "tsc -p client/tsconfig.json && cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
+    
+    "compile:storyscript": "tsc -p storyscript/tsconfig.json",
     "compile:client": "tsc -p client/tsconfig.json",
     "compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
-    "compile:storyscript": "tsc -p storyscript/tsconfig.json",
-    "postcompile": "node buildTasks/test.js ../storyscript/out ../client/src/node_modules/storyscript",
-    "watch:client": "tsc -w -p client/tsconfig.json",
-    "watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json",
-    "watch:storyscript": "tsc -w -p storyscript/tsconfig.json"
+    "postcompile": "node tasks/postcompile.js",
+
+    "install:server": "cd server && npm run installServer && cd .."
   },
   "devDependencies": {
     "@types/mocha": "^2.2.42",

@@ -92,7 +92,73 @@ const getSourceFiles = (config: IStsConfig): IFileSystemItem => {
   return undefined;
 }
 
+const mkDirByPathSync = (targetDir: string, { isRelativeToScript = false } = {}) => {
+  const sep = path.sep;
+  const initDir = path.isAbsolute(targetDir) ? sep : '';
+  const baseDir = isRelativeToScript ? __dirname : '.';
+
+  return targetDir.split(sep).reduce((parentDir, childDir) => {
+    const curDir = path.resolve(baseDir, parentDir, childDir);
+    try {
+      fs.mkdirSync(curDir);
+    } catch (err) {
+      if (err.code === 'EEXIST') { // curDir already exists!
+        return curDir;
+      }
+
+      // To avoid `EISDIR` error on Mac and `EACCES`-->`ENOENT` and `EPERM` on Windows.
+      if (err.code === 'ENOENT') { // Throw the original parentDir error on curDir `ENOENT` failure.
+        throw new Error(`EACCES: permission denied, mkdir '${parentDir}'`);
+      }
+
+      const caughtErr = ['EACCES', 'EPERM', 'EISDIR'].indexOf(err.code) > -1;
+      if (!caughtErr || caughtErr && targetDir === curDir) {
+        throw err; // Throw if it's just the last created dir.
+      }
+    }
+
+    return curDir;
+  }, initDir);
+}
+
+const copyDirectory = (fromPath, toPath) => {
+  if (!fs.existsSync(fromPath)) {
+    console.log('directory ' + toPath + ' does not exists');
+    return;
+  }
+
+  if (!fs.statSync(fromPath).isDirectory()) {
+    console.log(fromPath, 'is not a directory');
+    return;
+  }
+
+  if (!fs.existsSync(toPath)) {
+    console.log('directory ' + toPath + ' does not exists. creating it');
+    fsUtils.mkDirByPathSync(toPath);
+  }
+
+  let itemNames = fs.readdirSync(fromPath);
+  if (!itemNames || itemNames.length <= 0) {
+    console.log(fromPath + 'does not have subitems');
+    return;
+  }
+
+  itemNames.forEach((subitem) => {
+    let subitemPath = fromPath + '/' + subitem;
+    let targetSubitemPath = toPath + '/' + subitem;
+
+    if (fs.statSync(subitemPath).isDirectory()) {
+      copyDirectory(subitemPath, targetSubitemPath);
+      return;
+    }
+
+    fs.writeFileSync(targetSubitemPath, fs.readFileSync(subitemPath));
+  });
+} 
+
 export const fsUtils = {
   readDirectory,
   getSourceFiles,
+  mkDirByPathSync,
+  copyDirectory,
 }

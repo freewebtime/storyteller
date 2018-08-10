@@ -2,11 +2,13 @@
 	"version": "2.0.0",
 	"tasks": [
     {
-			"label": "compile",
+      "label": "compile",
+      "group": "build",
 			"dependsOn": [
+        "compile:storyscript",
 				"compile:client",
-				"compile:server",
-        "compile:storyscript"
+        "compile:server",
+        "postcompile"
 			],
 			"problemMatcher": []
     },
@@ -16,8 +18,8 @@
 			"script": "compile:client",
 			"group": "build",
 			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
+				"panel": "shared",
+				"reveal": "silent"
 			},
 			"problemMatcher": [
 				"$tsc"
@@ -29,8 +31,8 @@
 			"script": "compile:server",
 			"group": "build",
 			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
+				"panel": "shared",
+				"reveal": "silent"
 			},
 			"problemMatcher": [
 				"$tsc"
@@ -42,83 +44,24 @@
       "script": "compile:storyscript",
       "group": "build",
       "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
+        "panel": "shared",
+        "reveal": "silent"
       },
       "problemMatcher": [
         "$tsc"
       ]
-    }, 
-
-		{
-			"label": "watch",
-			"dependsOn": [
-        "compile:storyscript",
-				"compile:client",
-        "compile:server",
-        "postcompile"
-			],
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "watch:client",
-			"type": "npm",
-			"script": "watch:client",
-			"isBackground": true,
-			"group": "build",
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},
-			"problemMatcher": [
-				"$tsc-watch"
-			]
-		},
-		{
-			"label": "watch:server",
-			"type": "npm",
-			"script": "watch:server",
-			"isBackground": true,
-			"group": "build",
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},
-			"problemMatcher": [
-				"$tsc-watch"
-			]
     },
-    {
-      "label": "watch:storyscript",
-      "type": "npm",
-      "script": "watch:storyscript",
-      "isBackground": true,
-      "group": "build",
-      "presentation": {
-        "panel": "dedicated",
-        "reveal": "never"
-      },
-      "problemMatcher": [
-        "$tsc-watch"
-      ]
-    },
-
     {
       "label": "postcompile",
       "type": "npm",
       "script": "postcompile",
-      "isBackground": true,
       "group": "build",
       "presentation": {
-        "panel": "dedicated",
-        "reveal": "always"
+        "panel": "shared",
+        "reveal": "silent"
       },
       "problemMatcher": [
-        "$tsc-watch"
+        "$tsc"
       ]
     }
 	]

@@ -12,8 +12,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } f
 import { storyscript } from 'storyscript';
 
 const stsCompile = () => {
-  let sc = storyscript;
-  sc.compile(vscode.workspace.rootPath, './stsconfig.json');
+  storyscript.compile(vscode.workspace.rootPath, './stsconfig.json');
 }
 
 const insertText = (text: string, isMoveCursor: boolean) => {
