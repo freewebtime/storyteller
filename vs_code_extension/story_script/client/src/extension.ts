@@ -10,7 +10,7 @@ import * as fs from 'fs';
 
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/lib/main';
-import { storyscript } from '../../storyscript';
+import { storyscript } from 'storyscript';
 
 const stsCompile = () => {
   storyscript.compile(vscode.workspace.rootPath, './stsconfig.json');
@@ -18,7 +18,14 @@ const stsCompile = () => {
 
 const updateNodeModules = () => {
   let storyscriptPath = path.normalize(__dirname + '/../../storyscript');
-  let targetPath = path.normalize(vscode.workspace.rootPath + '/node_modules');
+  let targetPath = path.normalize(vscode.workspace.rootPath + '/node_modules/storyscript');
+
+  let install = require('storyscript/install');
+
+  if (install) {
+    install(targetPath);
+    return;
+  }
 
   let fsUtils = require('../../storyscript/out/fileSystem/fsUtils').fsUtils;
 

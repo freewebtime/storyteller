@@ -123,11 +123,6 @@
 		],
 		"keybindings": [
 			{
-				"command": "extension.showHtmlPreview",
-				"when": "resourceLangId == storyscript",
-				"key": "Ctrl+Shift+B"
-			},
-			{
 				"command": "extension.sts_insert_{",
 				"when": "resourceLangId == storyscript",
 				"key": "Ctrl+Shift+["

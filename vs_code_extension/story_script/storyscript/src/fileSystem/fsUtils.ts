@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { IHash } from "../shared/IHash";
 import { IStsConfig } from "../configuration/IStsConfig";
+import { IStsProject, IStsProjectItem, StsProjectItemType } from "../project/IStsProject";
 
 const readDirectory = (dirPath: string, config: IStsConfig, excludePattern?: RegExp, includePattern?: RegExp): IFileSystemItem => {
   
@@ -156,9 +157,70 @@ const copyDirectory = (fromPath, toPath) => {
   });
 } 
 
+const loadProjectFiles = (project: IStsProject): IStsProject => {
+  if (!project) {
+    return project;
+  }
+
+  // read all project items
+  if (!project.items) {
+    return project;
+  }
+
+  let projectItems = project.items.map((item: IStsProjectItem): IStsProjectItem => {
+    return loadProjectItemFile(item);
+  })
+
+  project = {
+    ...project,
+    items: projectItems
+  };
+
+  return project;
+}
+
+const loadProjectItemFile = (projectItem: IStsProjectItem): IStsProjectItem => {
+  if (projectItem.type === StsProjectItemType.folder) {
+    if (projectItem.subitems) {
+      let subitems = projectItem.subitems.map((subitem: IStsProjectItem) => {
+        return loadProjectItemFile(subitem);
+      });
+
+      projectItem = {
+        ...projectItem,
+        subitems
+      };
+    }
+  } else {
+    try {
+      if (!projectItem.fsItem) {
+        return projectItem;
+      }
+
+      let filePath = projectItem.fsItem.fullPath;
+      if (!fs.existsSync(filePath)) {
+        return projectItem;
+      }
+
+      let fileContent = fs.readFileSync(filePath).toString();
+      projectItem = {
+        ...projectItem,
+        fileContent: fileContent
+      };
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return projectItem;
+}
+
 export const fsUtils = {
   readDirectory,
   getSourceFiles,
   mkDirByPathSync,
   copyDirectory,
+  loadProjectFiles,
+  loadProjectItemFile,
 }

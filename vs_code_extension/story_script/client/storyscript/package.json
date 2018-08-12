@@ -1,8 +1,0 @@
-{
-  "name": "storyscript",
-  "version": "1.0.0",
-  "description": "language for processing text",
-  "main": "./out",
-  "author": "Jack Storytailor",
-  "license": "MIT"
-}

@@ -11,8 +11,8 @@ let serverPath = rootPath + '/server';
 // fsUtils.copyDirectory(storyscriptPath, clientPath + '/out/storyscript');
 
 // copy storyscript to client/node_modules
-fsUtils.copyDirectory(storyscriptPath, clientPath + '/storyscript');
+fsUtils.copyDirectory(storyscriptPath, clientPath + '/node_modules/storyscript');
 
 // copy storyscript to server/node_modules
-fsUtils.copyDirectory(storyscriptPath, serverPath + '/storyscript');
+fsUtils.copyDirectory(storyscriptPath, serverPath + '/node_modules/storyscript');
 
