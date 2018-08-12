@@ -216,6 +216,55 @@ const loadProjectItemFile = (projectItem: IStsProjectItem): IStsProjectItem => {
   return projectItem;
 }
 
+const saveProject = (project: IStsProject): IStsProject => {
+  if (!project || !project.items) {
+    return project;
+  }
+
+  let items = project.items.map((item: IStsProjectItem): IStsProjectItem => {
+    return saveProjectItem(item);
+  });
+
+  project = {
+    ...project,
+    items: items,
+  };
+
+  return project;
+}
+
+const saveProjectItem = (projectItem: IStsProjectItem): IStsProjectItem => {
+  if (!projectItem) {
+    return projectItem;
+  }
+
+  if (projectItem.type === StsProjectItemType.folder) {
+    if (projectItem.subitems) {
+      let subitems = projectItem.subitems.map((subitem: IStsProjectItem): IStsProjectItem => {
+        return saveProjectItem(subitem);
+      });
+
+      projectItem = {
+        ...projectItem,
+        subitems: subitems,
+      };
+    }
+  } else {
+    // file
+    try {
+      if (projectItem.jsContent && projectItem.fsItem) {
+        let filePath = projectItem.fsItem.compilePath;
+        fs.writeFileSync(filePath, projectItem.jsContent);
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return projectItem;
+}
+
 export const fsUtils = {
   readDirectory,
   getSourceFiles,
@@ -223,4 +272,6 @@ export const fsUtils = {
   copyDirectory,
   loadProjectFiles,
   loadProjectItemFile,
+  saveProject,
+  saveProjectItem,
 }

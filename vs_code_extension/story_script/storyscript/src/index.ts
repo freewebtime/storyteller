@@ -12,16 +12,16 @@ export const compile = (rootPath, configPath: string) => {
   }
 
   // read project sturcture
-  const project = projectUtils.readProject(config);
+  let project = projectUtils.readProject(config);
   if (!project) {
     console.error("can't read project structure at " + config.rootDir);
     return undefined;
   }
 
   // load files content
-  fsUtils.loadProjectFiles(project);
+  project = fsUtils.loadProjectFiles(project);
 
-  compileUtils.compileProject(project, config);
+  project = compileUtils.compileProject(project, config);
 }
 
 export const storyscript = {

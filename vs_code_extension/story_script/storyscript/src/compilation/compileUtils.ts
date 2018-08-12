@@ -5,10 +5,182 @@ import { IFileSystemItem, FileSystemItemType } from '../shared/IFileSystemItem';
 import { stsTokenizer } from '../tokenizing/stsTokenizer';
 import { stsParser } from '../parsing/stsParser';
 import { jsCompiler } from './jsCompiler';
-import { IStsProject } from '../project/IStsProject';
+import { IStsProject, IStsProjectItem, StsProjectItemType } from '../project/IStsProject';
+import { fsUtils } from '../fileSystem/fsUtils';
 
-const compileProject = (project: IStsProject, config: IStsConfig) => {
-  compileFsItem(project, project.rootDir, config);
+const compileProject = (project: IStsProject, config: IStsConfig): IStsProject => {
+  if (!project) {
+    return project;
+  }
+
+  if (!project.items) {
+    return project;
+  }
+
+  // tokenize
+  project = tokenizeProject(project);
+
+  // parse
+  project = parseProject(project);
+
+  // render
+  project = renderProjectToJs(project);
+
+  // save
+  project = fsUtils.saveProject(project);
+
+  return project;
+
+  // compileFsItem(project, project.rootDir, config);
+}
+
+const tokenizeProject = (project: IStsProject): IStsProject => {
+  if (!project || !project.items) {
+    return project;
+  }
+
+  let items = project.items.map((item: IStsProjectItem) => {
+    return tokenizeProjectItem(item);
+  })
+
+  project = {
+    ...project,
+    items: items
+  };
+
+  return project;
+}
+const tokenizeProjectItem = (projectItem: IStsProjectItem): IStsProjectItem => {
+  if (!projectItem) {
+    return projectItem;
+  }
+
+  if (projectItem.type === StsProjectItemType.folder) {
+    if (projectItem.subitems) {
+      let subitems = projectItem.subitems.map((subitem: IStsProjectItem): IStsProjectItem => {
+        return tokenizeProjectItem(subitem);
+      });
+
+      projectItem = {
+        ...projectItem,
+        subitems: subitems
+      };
+    }
+  } else {
+    if (projectItem.fileContent) {
+      try {
+        let tokens = stsTokenizer.tokenizeCode(projectItem.fileContent);
+        projectItem = {
+          ...projectItem,
+          tokens: tokens,
+        };
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  return projectItem;
+}
+
+const parseProject = (project: IStsProject): IStsProject => {
+  if (!project || !project.items) {
+    return project;
+  }
+
+  let items = project.items.map((item: IStsProjectItem) => {
+    return parseProjectItem(item);
+  })
+
+  project = {
+    ...project,
+    items: items
+  };
+
+  return project;
+}
+const parseProjectItem = (projectItem: IStsProjectItem): IStsProjectItem => {
+  if (!projectItem) {
+    return projectItem;
+  }
+
+  if (projectItem.type === StsProjectItemType.folder) {
+    if (projectItem.subitems) {
+      let subitems = projectItem.subitems.map((subitem: IStsProjectItem): IStsProjectItem => {
+        return parseProjectItem(subitem);
+      });
+
+      projectItem = {
+        ...projectItem,
+        subitems: subitems
+      };
+    }
+  } else {
+    if (projectItem.tokens) {
+      try {
+        let moduleName = projectItem.fsItem ? projectItem.fsItem.name : 'unnamed';
+        let parsingResult = stsParser.parseModule(projectItem.tokens, moduleName);
+        projectItem = {
+          ...projectItem,
+          ast: parsingResult.result,
+        };
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  return projectItem;
+}
+
+const renderProjectToJs = (project: IStsProject): IStsProject => {
+  if (!project || !project.items) {
+    return project;
+  }
+
+  let items = project.items.map((item: IStsProjectItem) => {
+    return renderProjectItemToJs(item);
+  })
+
+  project = {
+    ...project,
+    items: items
+  };
+
+  return project;
+}
+const renderProjectItemToJs = (projectItem: IStsProjectItem): IStsProjectItem => {
+  if (!projectItem) {
+    return projectItem;
+  }
+
+  if (projectItem.type === StsProjectItemType.folder) {
+    if (projectItem.subitems) {
+      let subitems = projectItem.subitems.map((subitem: IStsProjectItem): IStsProjectItem => {
+        return renderProjectItemToJs(subitem);
+      });
+
+      projectItem = {
+        ...projectItem,
+        subitems: subitems
+      };
+    }
+  } else {
+    if (projectItem.ast) {
+      try {
+        let compiled: string = jsCompiler.compile(projectItem.ast);
+        projectItem = {
+          ...projectItem,
+          jsContent: compiled,
+        };
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  return projectItem;
 }
 
 const compileFsItem = (project: IStsProject, sourceItem: IFileSystemItem, config: IStsConfig) => {
@@ -80,5 +252,14 @@ const compileFile = (sourceFile: IFileSystemItem, config: IStsConfig) => {
 }
 
 export const compileUtils = {
-  compileProject
+  compileProject,
+
+  tokenizeProject,
+  tokenizeProjectItem,
+  
+  parseProject,
+  parseProjectItem,
+
+  renderProjectToJs,
+  renderProjectItemToJs,
 }

@@ -22,4 +22,5 @@ export interface IStsProjectItem {
   fileContent?: string;
   tokens?: ICodeToken[];
   ast?: IAstNode;
+  jsContent?: string;
 }

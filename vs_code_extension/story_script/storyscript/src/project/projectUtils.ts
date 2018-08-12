@@ -58,7 +58,7 @@ export const projectUtils = {
         return projectItem;
       } else {
         // fsItem is file
-        let projectItem = stsProjectFactory.createProjectModule(fsItem, undefined, undefined, undefined);
+        let projectItem = stsProjectFactory.createProjectModule(fsItem, undefined, undefined, undefined, undefined);
         return projectItem;
       } 
     });

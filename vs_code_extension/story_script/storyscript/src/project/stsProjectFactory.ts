@@ -12,25 +12,27 @@ export const stsProjectFactory = {
     }
   },
 
-  createProjectItem: (fsItem: IFileSystemItem, type: StsProjectItemType, fileContent?: string, ast?: IAstNode, subitems?: IStsProjectItem[], tokens?: ICodeToken[]): IStsProjectItem => {
+  createProjectItem: (fsItem: IFileSystemItem, type: StsProjectItemType, fileContent?: string, ast?: IAstNode, subitems?: IStsProjectItem[], tokens?: ICodeToken[], jsContent?: string): IStsProjectItem => {
     return {
       fsItem: fsItem,
       type: type,
       fileContent: fileContent,
       ast: ast,
       subitems: subitems,
-      tokens: tokens
+      tokens: tokens,
+      jsContent
     }
   },
 
-  createProjectModule: (fsItem: IFileSystemItem, fileContent?: string, ast?: IAstNode, tokens?: ICodeToken[]): IStsProjectItem => {
+  createProjectModule: (fsItem: IFileSystemItem, fileContent?: string, ast?: IAstNode, tokens?: ICodeToken[], jsContent?: string): IStsProjectItem => {
     return stsProjectFactory.createProjectItem(
       fsItem,
       StsProjectItemType.module,
       fileContent,
       ast,
       undefined,
-      tokens
+      tokens,
+      jsContent
     );
   },
 
@@ -41,6 +43,7 @@ export const stsProjectFactory = {
       undefined,
       undefined,
       subitems,
+      undefined,
       undefined
     );
   },
