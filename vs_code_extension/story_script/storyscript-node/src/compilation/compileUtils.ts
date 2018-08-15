@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { IStsConfig } from '../configuration/IStsConfig';
-import { IFileSystemItem, FileSystemItemType } from '../shared/IFileSystemItem';
-import { stsTokenizer } from '../tokenizing/stsTokenizer';
-import { stsParser } from '../parsing/stsParser';
-import { jsCompiler } from './jsCompiler';
-import { IStsProject, IStsProjectItem, StsProjectItemType } from '../project/IStsProject';
+import { IStsConfig } from 'storyscript/out/configuration/IStsConfig';
+import { IFileSystemItem, FileSystemItemType } from 'storyscript/out/shared/IFileSystemItem';
+import { stsTokenizer } from 'storyscript/out/tokenizing/stsTokenizer';
+import { stsParser } from 'storyscript/out/parsing/stsParser';
+import { jsCompiler } from 'storyscript/out/compilation/jsCompiler';
+import { IStsProject, IStsProjectItem, StsProjectItemType } from '../shared/IStsProject';
 import { fsUtils } from '../fileSystem/fsUtils';
 
 const compileProject = (project: IStsProject, config: IStsConfig): IStsProject => {
@@ -189,11 +189,11 @@ const compileFsItem = (project: IStsProject, sourceItem: IFileSystemItem, config
     if (!fs.existsSync(path.dirname(sourceItem.compilePath))) {
       fs.mkdirSync(sourceItem.compilePath);
     }
-    
+
     if (sourceItem.subitems) {
       for (const subitemName in sourceItem.subitems) {
         const subitem = sourceItem.subitems[subitemName];
-        compileFsItem(project, subitem, config);        
+        compileFsItem(project, subitem, config);
       }
     }
     return;
@@ -229,7 +229,7 @@ const compileFile = (sourceFile: IFileSystemItem, config: IStsConfig) => {
 
     // parse tokenized code to ast
     const ast = stsParser.parseModule(tokens, sourceFile.name);
-    
+
     // save parsed json filed
     if (config.ast) {
       const astJson = JSON.stringify(ast);
@@ -256,7 +256,7 @@ export const compileUtils = {
 
   tokenizeProject,
   tokenizeProjectItem,
-  
+
   parseProject,
   parseProjectItem,
 

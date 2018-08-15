@@ -1,7 +1,7 @@
-import { IStsProject, IStsProjectItem, StsProjectItemType } from "./IStsProject";
-import { IFileSystemItem } from "../shared/IFileSystemItem";
-import { IAstNode } from "../shared/IAstNode";
-import { ICodeToken } from "../shared/ICodeToken";
+import { IStsProject, IStsProjectItem, StsProjectItemType } from "../shared/IStsProject";
+import { IFileSystemItem } from "storyscript/out/shared/IFileSystemItem";
+import { IAstNode } from "storyscript/out/shared/IAstNode";
+import { ICodeToken } from "storyscript/out/shared/ICodeToken";
 
 export const stsProjectFactory = {
   createProject: (main: string, rootDir: IFileSystemItem, items: IStsProjectItem[]): IStsProject => {

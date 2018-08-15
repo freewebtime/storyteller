@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { IStsConfig } from '../shared/IStsConfig';
+import { IStsConfig } from 'storyscript/out/shared/IStsConfig';
 
 export const configUtils = {
   loadConfig: (rootPath: string, configPath: string): IStsConfig => {
