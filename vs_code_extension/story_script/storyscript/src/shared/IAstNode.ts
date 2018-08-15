@@ -9,7 +9,7 @@ export interface IAstNode {
 
 export interface IAstNodeModule extends IAstNode {
   name: string;
-  program: IAstNodeProgram;
+  body: IAstNodeArray;
 }
 
 export interface IAstNodeProgram extends IAstNode {

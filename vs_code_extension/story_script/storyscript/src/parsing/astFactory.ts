@@ -12,11 +12,11 @@ export const astFactory = {
     }
   },
 
-  createModule: (program: IAstNodeProgram, name: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeModule => {
+  createModule: (body: IAstNodeArray, name: string, start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeModule => {
     return {
       type: AstNodeTypes.module,
       name: name,
-      program: program,
+      body: body,
       start,
       end
     }

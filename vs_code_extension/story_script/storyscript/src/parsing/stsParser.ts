@@ -1,5 +1,5 @@
 import { ICodeToken } from "../shared/ICodeToken";
-import { IAstNode, IAstNodeString, IAstNodeIdentifier, IAstNodeImport, IAstNodeModule, IAstNodeMention, IAstNodeTemplate, IAstNodeProgram, IAstNodeAddText, IAstNodeCall } from "../shared/IAstNode";
+import { IAstNode, IAstNodeString, IAstNodeIdentifier, IAstNodeImport, IAstNodeModule, IAstNodeMention, IAstNodeTemplate, IAstNodeProgram, IAstNodeAddText, IAstNodeCall, IAstNodeArray } from "../shared/IAstNode";
 import { CodeTokenType } from "../shared/CodeTokenType";
 import { ISymbolPosition } from "../shared/ISymbolPosition";
 import { IHash } from "../shared/IHash";
@@ -33,7 +33,7 @@ export const stsParser = {
     };
 
     let errors: IParsingError[] = [];
-    let body: IAstNode[] = [];
+    let subitems: IAstNode[] = [];
 
     while (!stsParser.isEndOfFile(state)) {
       let subitemResult = stsParser.parseSubitem(state, 0);
@@ -41,7 +41,7 @@ export const stsParser = {
         state = subitemResult.state;
         let subitem = subitemResult.result;
 
-        body = stsParser.addItemToArray(body, subitem);
+        subitems = stsParser.addItemToArray(subitems, subitem);
         continue;
       }
 
@@ -51,12 +51,12 @@ export const stsParser = {
     let start: ISymbolPosition = { line: 0, symbol: 0 }
     let end: ISymbolPosition = { line: 0, symbol: 0 }
 
-    if (body.length > 0) {
-      end = body[body.length - 1].end;
+    if (subitems.length > 0) {
+      end = subitems[subitems.length - 1].end;
     }
 
-    const program = astFactory.createProgram(body, start, end);
-    const result = astFactory.createModule(program, moduleName, start, end);
+    const body = astFactory.createArray(subitems, start, end);
+    const result = astFactory.createModule(body, moduleName, start, end);
     return {
       errors,
       result
@@ -184,7 +184,7 @@ export const stsParser = {
     }
 
     // check variable value
-    let varValue: IAstNodeProgram;
+    let varValue: IAstNodeArray;
 
     // skip endline
     if (stsParser.getTokenOfType(state, [CodeTokenType.Endline])) {
@@ -209,7 +209,7 @@ export const stsParser = {
       }
 
       if (varValueLines) {
-        varValue = astFactory.createProgram(varValueLines, varValueStart, end);
+        varValue = astFactory.createArray(varValueLines, varValueStart, end);
       }
     }
 

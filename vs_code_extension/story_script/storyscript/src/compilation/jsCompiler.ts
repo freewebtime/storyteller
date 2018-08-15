@@ -57,7 +57,7 @@ export const jsCompiler = {
         astArray.items.forEach((subitem: IAstNode) => {
           let itemResult = jsCompiler.compileAstNode(subitem, parent);
           if (itemResult) {
-            result += itemResult + '\r';
+            result += itemResult + '\n';
           }
         });
 
@@ -142,7 +142,7 @@ export const jsCompiler = {
   
   compileModule: (astNode: IAstNodeModule) : string => {
     const header = jsCompilerTemplates.moduleHeader;
-    const body = jsCompiler.compileAstNode(astNode.program, []);
+    const body = jsCompiler.compileAstNode(astNode.body, []);
     const footer = jsCompilerTemplates.moduleFooter;
 
     return `${header}\r${body}\r${footer}`;
