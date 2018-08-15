@@ -5,13 +5,24 @@
       "label": "compile",
       "group": "build",
 			"dependsOn": [
-        "compile:storyscript",
-				"compile:client",
-        "compile:server",
-        "postcompile"
+        "compile:all"
 			],
 			"problemMatcher": []
     },
+		{
+		  "label": "compile:all",
+		  "type": "npm",
+		  "script": "compile",
+		  "group": "build",
+		  "presentation": {
+		    "panel": "shared",
+		    "reveal": "silent"
+		  },
+		  "problemMatcher": [
+		    "$tsc"
+		  ]
+		},
+    
 		{
 			"label": "compile:client",
 			"type": "npm",
@@ -52,9 +63,9 @@
       ]
     },
     {
-      "label": "postcompile",
+      "label": "compile:storyscript-node",
       "type": "npm",
-      "script": "postcompile",
+      "script": "compile:storyscript-node",
       "group": "build",
       "presentation": {
         "panel": "shared",

@@ -26,9 +26,9 @@ documents.listen(connection);
 // After the server has started the client sends an initialize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilities. 
 // let workspaceRoot: string;
-connection.onInitialize((/*params*/): InitializeResult => {
-	// const workspaceRoot = params.rootPath;
-	// console.log('workspaceRoot', workspaceRoot);
+connection.onInitialize((params): InitializeResult => {
+	const workspaceRoot = params.rootPath;
+	console.log('workspaceRoot', workspaceRoot);
 
 	return {
 		capabilities: {
