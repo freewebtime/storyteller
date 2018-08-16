@@ -9,10 +9,12 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "lib": ["es2016"],
-    "outDir": "../server/node_modules/storyscript"
+    "outDir": "../server/node_modules/storyscript",
+    "declaration": true,
+    "preserveConstEnums": true
   },
   "exclude": [
     "node_modules",
-    "out"
+    "out",
   ]
 }

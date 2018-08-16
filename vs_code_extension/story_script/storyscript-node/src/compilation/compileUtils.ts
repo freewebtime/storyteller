@@ -175,7 +175,7 @@ const parseExecTreeProjectItem = (projectItem: IStsProjectItem): IStsProjectItem
         let parsingResult = execTreeParser.parseModule(projectItem.ast);
         projectItem = {
           ...projectItem,
-          execTree: parsingResult.result,
+          execTree: parsingResult,
         };
       } catch (error) {
         console.log(error);

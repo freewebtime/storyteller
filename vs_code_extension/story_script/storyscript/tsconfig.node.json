@@ -9,7 +9,8 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "lib": [ "es2016" ],
-    "outDir": "../storyscript-node/node_modules/storyscript"
+    "outDir": "../storyscript-node/node_modules/storyscript",
+    "declaration": true
   },
   "exclude": [
     "node_modules",

@@ -126,7 +126,7 @@ const parseExecTreeProjectItem = (projectItem) => {
         if (projectItem.tokens) {
             try {
                 let parsingResult = execTreeParser_1.execTreeParser.parseModule(projectItem.ast);
-                projectItem = Object.assign({}, projectItem, { execTree: parsingResult.result });
+                projectItem = Object.assign({}, projectItem, { execTree: parsingResult });
             }
             catch (error) {
                 console.log(error);

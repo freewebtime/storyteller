@@ -258,6 +258,8 @@ const saveProjectItem = (projectItem: IStsProjectItem): IStsProjectItem => {
   }
 
   if (projectItem.type === StsProjectItemType.folder) {
+    fsUtils.mkDirByPathSync(projectItem.fsItem.compilePath);
+    
     if (projectItem.subitems) {
       let subitems = projectItem.subitems.map((subitem: IStsProjectItem): IStsProjectItem => {
         return saveProjectItem(subitem);

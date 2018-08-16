@@ -7,17 +7,17 @@ import { astFactory } from "./astFactory";
 import { Operators } from "../shared/Operators";
 import { IParsingError } from "../shared/IParsingError";
 
-interface IParserState {
+export interface IParserState {
   tokens: ICodeToken[];
   cursor: number;
 }
 
-interface IParseError {
+export interface IParseError {
   message: string;
   position: ISymbolPosition;
 }
 
-interface IParseResult<TResult = any> {
+export interface IParseResult<TResult = any> {
   state: IParserState;
   result: TResult;
   errors?: IParseError[];

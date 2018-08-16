@@ -10,11 +10,11 @@ import * as fs from 'fs';
 
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/lib/main';
-import { stsNode } from 'storyscript-node';
+import { storyscript } from 'storyscript-node';
 import { fsUtils } from 'storyscript-node/fileSystem/fsUtils';
 
 const stsCompile = () => {
-  stsNode.compile(vscode.workspace.rootPath, './stsconfig.json');
+  storyscript.compile(vscode.workspace.rootPath, './stsconfig.json');
 }
 
 const updateNodeModules = () => {
