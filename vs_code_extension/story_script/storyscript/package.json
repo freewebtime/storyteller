@@ -1,8 +1,12 @@
 {
   "name": "storyscript",
   "version": "1.0.0",
-  "description": "language for processing text",
+  "description": "programming language for processing text",
   "main": ".",
   "author": "Jack Storytailor",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ashleygwilliams/my_package.git"
+  }
 }
