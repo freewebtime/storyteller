@@ -14,8 +14,17 @@
     "postinstall": "cd server && npm install && cd ../client && npm install && cd ..",
     "compile": "node tasks/compile.js",
     "watch": "node tasks/compile.js -w",
+    
     "compile:storyscript": "tsc -p storyscript/tsconfig.json",
     "compile:storyscript-node": "tsc -p storyscript-node/tsconfig.json",
+
+    "compile:storyscript.node": "tsc -p storyscript/tsconfig.node.json",
+    "compile:storyscript.server": "tsc -p storyscript/tsconfig.server.json",
+    "compile:storyscript.client": "tsc -p storyscript/tsconfig.client.json",
+
+    "compile:storyscript-node.server": "tsc -p storyscript-node/tsconfig.server.json",
+    "compile:storyscript-node.client": "tsc -p storyscript-node/tsconfig.client.json",
+
     "compile:client": "tsc -p client/tsconfig.json",
     "compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
     "watch:storyscript": "tsc -p -w storyscript/tsconfig.json",

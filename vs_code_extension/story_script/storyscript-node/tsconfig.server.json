@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "lib": ["es2016"],
+    "outDir": "../server/node_modules/storyscript-node"
+  },
+  "exclude": [
+    "node_modules",
+    "out"
+  ]
+}

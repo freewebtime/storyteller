@@ -15,7 +15,7 @@
 			"sourceMaps": true,
 			"outFiles": [
 				"${workspaceRoot}/client/out/**/*.js"
-			],
+      ],
       "preLaunchTask": "compile"
 		},
 		{

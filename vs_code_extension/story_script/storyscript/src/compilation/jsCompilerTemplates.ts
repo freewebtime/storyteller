@@ -1,4 +1,4 @@
-const moduleHeader = `const __environment = require('storyscript/out/environment');
+const moduleHeader = `const __environment = require('storyscript/environment');
 context = {};`;
 
 const importTemplate = (contextName: string, varName: string, importPath: string): string => {

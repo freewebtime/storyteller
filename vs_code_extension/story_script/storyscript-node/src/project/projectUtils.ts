@@ -1,8 +1,8 @@
 import { fsUtils } from "../fileSystem/fsUtils";
 import { IStsProject, IStsProjectItem } from "../shared/IStsProject";
-import { IStsConfig } from "storyscript/out/shared/IStsConfig";
+import { IStsConfig } from "storyscript/shared/IStsConfig";
 import { stsProjectFactory } from "./stsProjectFactory";
-import { IFileSystemItem, FileSystemItemType } from "storyscript/out/shared/IFileSystemItem";
+import { IFileSystemItem, FileSystemItemType } from "storyscript/shared/IFileSystemItem";
 
 export const projectUtils = {
   readProject: (config: IStsConfig): IStsProject => {

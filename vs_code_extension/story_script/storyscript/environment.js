@@ -1,0 +1,52 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.declare = (context, fieldName) => {
+    if (!context) {
+        context = {};
+    }
+    if (!context[fieldName]) {
+        context = Object.assign({}, context, { [fieldName]: {} });
+    }
+    return context;
+};
+exports.addText = (context, text) => {
+    if (!context) {
+        context = {};
+    }
+    if (!(context['text'] instanceof Array)) {
+        context['text'] = [];
+    }
+    context['text'] = [
+        ...context['text'],
+        text
+    ];
+    return context;
+};
+exports.setValue = (context, fieldName, value) => {
+    if (!context) {
+        context = {};
+    }
+    context = Object.assign({}, context, { [fieldName]: value });
+    return context;
+};
+exports.objectToString = (object) => {
+    if (!object) {
+        return '';
+    }
+    if (object.text instanceof Array) {
+        let result = '';
+        object.text.forEach(textItem => {
+            result += textItem;
+        });
+        return result;
+    }
+    if (object instanceof Array) {
+        let result = object.join('');
+        return result;
+    }
+    return object.toString();
+};
+exports.testFunction = (param1, param2) => {
+    return `param1: ${exports.objectToString(param1)}, param2: ${exports.objectToString(param2)}`;
+};
+//# sourceMappingURL=environment.js.map

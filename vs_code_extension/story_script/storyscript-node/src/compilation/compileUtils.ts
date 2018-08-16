@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { IStsConfig } from 'storyscript/out/configuration/IStsConfig';
-import { IFileSystemItem, FileSystemItemType } from 'storyscript/out/shared/IFileSystemItem';
-import { stsTokenizer } from 'storyscript/out/tokenizing/stsTokenizer';
-import { stsParser } from 'storyscript/out/parsing/stsParser';
-import { jsCompiler } from 'storyscript/out/compilation/jsCompiler';
+import { IStsConfig } from 'storyscript/shared/IStsConfig';
+import { IFileSystemItem, FileSystemItemType } from 'storyscript/shared/IFileSystemItem';
+import { stsTokenizer } from 'storyscript/tokenizing/stsTokenizer';
+import { stsParser } from 'storyscript/parsing/stsParser';
+import { jsCompiler } from 'storyscript/compilation/jsCompiler';
 import { IStsProject, IStsProjectItem, StsProjectItemType } from '../shared/IStsProject';
 import { fsUtils } from '../fileSystem/fsUtils';
-import { execTreeParser } from 'storyscript/out/execTree/execTreeParser';
+import { execTreeParser } from 'storyscript/execTree/execTreeParser';
 
 const compileProject = (project: IStsProject, config: IStsConfig): IStsProject => {
   if (!project) {

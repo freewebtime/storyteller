@@ -10,27 +10,29 @@ import * as fs from 'fs';
 
 import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/lib/main';
-import { storyscript } from 'storyscript-node';
+import { stsNode } from 'storyscript-node';
+import { fsUtils } from 'storyscript-node/fileSystem/fsUtils';
 
 const stsCompile = () => {
-  storyscript.compile(vscode.workspace.rootPath, './stsconfig.json');
+  stsNode.compile(vscode.workspace.rootPath, './stsconfig.json');
 }
 
 const updateNodeModules = () => {
-  let storyscriptPath = path.normalize(__dirname + '/../../storyscript');
+  // let storyscriptPath = path.normalize(__dirname + '/../../storyscript');
   let targetPath = path.normalize(vscode.workspace.rootPath + '/node_modules/storyscript');
+  let targetPathNode = path.normalize(vscode.workspace.rootPath + '/node_modules/storyscript-node');
 
-  let install = require('storyscript/install');
+  let storyscriptPath = require.resolve('storyscript');
+  let storyscriptNodePath = require.resolve('storyscript-node');
 
-  if (install) {
-    install(targetPath);
-    return;
-  }
-
-  let fsUtils = require('../../storyscript/out/fileSystem/fsUtils').fsUtils;
+  storyscriptPath = path.dirname(storyscriptPath);
+  storyscriptNodePath = path.dirname(storyscriptNodePath);
 
   fsUtils.mkDirByPathSync(targetPath);
-  fsUtils.copyDirectory(storyscriptPath, targetPath + '/storyscript');
+  fsUtils.copyDirectory(storyscriptPath, targetPath);
+
+  fsUtils.mkDirByPathSync(targetPath);
+  fsUtils.copyDirectory(storyscriptNodePath, targetPathNode);
 }
 
 const insertText = (text: string, isMoveCursor: boolean) => {

@@ -1,9 +1,9 @@
-import { IFileSystemItem, FileSystemItemType } from "storyscript/out/shared/IFileSystemItem";
+import { IFileSystemItem, FileSystemItemType } from "storyscript/shared/IFileSystemItem";
 import * as fs from 'fs';
 import * as path from 'path';
-import { IHash } from "storyscript/out/shared/IHash";
-import { IStsConfig } from "storyscript/out/configuration/IStsConfig";
-import { IStsProject, IStsProjectItem, StsProjectItemType } from "storyscript/out/project/IStsProject";
+import { IHash } from "storyscript/shared/IHash";
+import { IStsConfig } from "storyscript/shared/IStsConfig";
+import { IStsProject, IStsProjectItem, StsProjectItemType } from "../shared/IStsProject";
 
 const readDirectory = (dirPath: string, config: IStsConfig, excludePattern?: RegExp, includePattern?: RegExp): IFileSystemItem => {
   
@@ -123,10 +123,28 @@ const mkDirByPathSync = (targetDir: string, { isRelativeToScript = false } = {})
   }, initDir);
 }
 
-const copyDirectory = (fromPath, toPath) => {
+const copyDirectory = (fromPath, toPath, excludePattern?: RegExp[], includePattern?: RegExp[]) => {
   if (!fs.existsSync(fromPath)) {
     console.log('directory ' + toPath + ' does not exists');
     return;
+  }
+
+  if (excludePattern) {
+    for (let i = 0; i < excludePattern.length; i++) {
+      const pattern = excludePattern[i];
+      if (pattern.test(fromPath)) {
+        return;
+      }
+    }
+  }
+
+  if (includePattern) {
+    for (let i = 0; i < includePattern.length; i++) {
+      const pattern = includePattern[i];
+      if (!pattern.test(fromPath)) {
+        return;
+      }
+    }
   }
 
   if (!fs.statSync(fromPath).isDirectory()) {

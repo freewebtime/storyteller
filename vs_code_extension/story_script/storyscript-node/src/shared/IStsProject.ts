@@ -1,7 +1,7 @@
-import { IFileSystemItem } from "storyscript/out/shared/IFileSystemItem";
-import { ICodeToken } from "storyscript/out/shared/ICodeToken";
-import { IAstNode } from "storyscript/out/shared/IAstNode";
-import { IExecTree } from "storyscript/out/shared/IExecTree";
+import { IFileSystemItem } from "storyscript/shared/IFileSystemItem";
+import { ICodeToken } from "storyscript/shared/ICodeToken";
+import { IAstNode } from "storyscript/shared/IAstNode";
+import { IExecTree } from "storyscript/shared/IExecTree";
 
 export interface IStsProject {
   main: string;
