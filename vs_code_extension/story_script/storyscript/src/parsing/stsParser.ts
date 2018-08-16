@@ -135,10 +135,10 @@ export const stsParser = {
       return undefined;
     }
 
-    // check empty line before variable. and if any, skip it
-    if (stsParser.getTokenOfType(state, [CodeTokenType.Endline])) {
+    // check empty lines before variable. and if any, skip it
+    while (stsParser.getTokenOfType(state, [CodeTokenType.Endline])) {
       state = stsParser.skipTokens(state, 1);
-    }
+    }    
 
     // check indent
     let checkIndent = stsParser.checkIndent(state, targetIndent);

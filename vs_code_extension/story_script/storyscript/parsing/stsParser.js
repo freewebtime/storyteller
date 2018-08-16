@@ -89,8 +89,8 @@ exports.stsParser = {
         if (exports.stsParser.isEndOfFile(state)) {
             return undefined;
         }
-        // check empty line before variable. and if any, skip it
-        if (exports.stsParser.getTokenOfType(state, [CodeTokenType_1.CodeTokenType.Endline])) {
+        // check empty lines before variable. and if any, skip it
+        while (exports.stsParser.getTokenOfType(state, [CodeTokenType_1.CodeTokenType.Endline])) {
             state = exports.stsParser.skipTokens(state, 1);
         }
         // check indent
