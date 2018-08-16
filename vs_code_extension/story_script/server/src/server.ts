@@ -20,8 +20,6 @@ import { ICodeToken } from '../node_modules/storyscript/shared/ICodeToken';
 import { CodeTokenType } from '../node_modules/storyscript/shared/CodeTokenType';
 import { stsTokenizer } from 'storyscript/tokenizing/stsTokenizer';
 
-console.log('hello world. this is an extension server');
-
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
@@ -36,8 +34,7 @@ documents.listen(connection);
 // in the passed params the rootPath of the workspace plus the client capabilities. 
 // let workspaceRoot: string;
 connection.onInitialize((params): InitializeResult => {
-	const workspaceRoot = params.rootPath;
-	console.log('workspaceRoot', workspaceRoot);
+	// const workspaceRoot = params.rootPath;
 
 	return {
 		capabilities: {
@@ -91,8 +88,8 @@ function collectStrings(state: string[], doc: TextDocument) {
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent((change: TextDocumentChangeEvent) => {
   // validateTextDocument(change.document);
-  console.log('hello world. the document has been changed', change);
-  connection.console.log('hello world. the document has been changed');
+  // console.log('hello world. the document has been changed', change);
+  // connection.console.log('hello world. the document has been changed');
 });
 
 // The settings interface describe the server relevant settings part
@@ -145,8 +142,8 @@ function validateTextDocument(textDocument: TextDocument): void {
 
 connection.onDidChangeWatchedFiles((_change) => {
 	// Monitored files have change in VSCode
-	console.log('We received an file change event', _change);
-	console.log('some test console message. Jack Sea');
+	// console.log('We received an file change event', _change);
+	// console.log('some test console message. Jack Sea');
 });
 
 connection.onExecuteCommand((params: ExecuteCommandParams): any => {

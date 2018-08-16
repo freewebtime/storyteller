@@ -8,7 +8,6 @@ const stsParser_1 = require("storyscript/parsing/stsParser");
 const jsCompiler_1 = require("storyscript/compilation/jsCompiler");
 const IStsProject_1 = require("../shared/IStsProject");
 const fsUtils_1 = require("../fileSystem/fsUtils");
-const execTreeParser_1 = require("storyscript/execTree/execTreeParser");
 const compileProject = (project, config) => {
     if (!project) {
         return project;
@@ -20,8 +19,6 @@ const compileProject = (project, config) => {
     project = tokenizeProject(project);
     // parse
     project = parseProject(project);
-    // parse exec tree
-    project = parseExecTreeProject(project);
     // render
     project = renderProjectToJs(project);
     // save
@@ -92,41 +89,6 @@ const parseProjectItem = (projectItem) => {
                 let moduleName = projectItem.fsItem ? projectItem.fsItem.name : 'unnamed';
                 let parsingResult = stsParser_1.stsParser.parseModule(projectItem.tokens, moduleName);
                 projectItem = Object.assign({}, projectItem, { ast: parsingResult.result });
-            }
-            catch (error) {
-                console.log(error);
-            }
-        }
-    }
-    return projectItem;
-};
-const parseExecTreeProject = (project) => {
-    if (!project || !project.items) {
-        return project;
-    }
-    let items = project.items.map((item) => {
-        return parseExecTreeProjectItem(item);
-    });
-    project = Object.assign({}, project, { items: items });
-    return project;
-};
-const parseExecTreeProjectItem = (projectItem) => {
-    if (!projectItem) {
-        return projectItem;
-    }
-    if (projectItem.type === IStsProject_1.StsProjectItemType.folder) {
-        if (projectItem.subitems) {
-            let subitems = projectItem.subitems.map((subitem) => {
-                return parseExecTreeProjectItem(subitem);
-            });
-            projectItem = Object.assign({}, projectItem, { subitems: subitems });
-        }
-    }
-    else {
-        if (projectItem.tokens) {
-            try {
-                let parsingResult = execTreeParser_1.execTreeParser.parseModule(projectItem.ast);
-                projectItem = Object.assign({}, projectItem, { execTree: parsingResult });
             }
             catch (error) {
                 console.log(error);
