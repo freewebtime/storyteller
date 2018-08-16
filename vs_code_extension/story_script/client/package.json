@@ -85,11 +85,11 @@
 				"command": "extension.stsCompile",
 				"title": "Compile Story Script",
 				"category": "Compile"
-      },
-      {
-        "command": "extension.updateNodeModules",
-        "title": "Update Node Modules"
-      },
+			},
+			{
+				"command": "extension.updateNodeModules",
+				"title": "Update Node Modules"
+			},
 			{
 				"command": "extension.sts_insert_{",
 				"title": "Insert '{' ",

@@ -7,6 +7,7 @@ import { stsParser } from 'storyscript/out/parsing/stsParser';
 import { jsCompiler } from 'storyscript/out/compilation/jsCompiler';
 import { IStsProject, IStsProjectItem, StsProjectItemType } from '../shared/IStsProject';
 import { fsUtils } from '../fileSystem/fsUtils';
+import { execTreeParser } from 'storyscript/out/execTree/execTreeParser';
 
 const compileProject = (project: IStsProject, config: IStsConfig): IStsProject => {
   if (!project) {
@@ -22,6 +23,9 @@ const compileProject = (project: IStsProject, config: IStsConfig): IStsProject =
 
   // parse
   project = parseProject(project);
+
+  // parse exec tree
+  project = parseExecTreeProject(project);
 
   // render
   project = renderProjectToJs(project);
@@ -123,6 +127,55 @@ const parseProjectItem = (projectItem: IStsProjectItem): IStsProjectItem => {
         projectItem = {
           ...projectItem,
           ast: parsingResult.result,
+        };
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  return projectItem;
+}
+
+const parseExecTreeProject = (project: IStsProject): IStsProject => {
+  if (!project || !project.items) {
+    return project;
+  }
+
+  let items = project.items.map((item: IStsProjectItem) => {
+    return parseExecTreeProjectItem(item);
+  });
+
+  project = {
+    ...project,
+    items: items
+  };
+
+  return project;
+}
+const parseExecTreeProjectItem = (projectItem: IStsProjectItem): IStsProjectItem => {
+  if (!projectItem) {
+    return projectItem;
+  }
+
+  if (projectItem.type === StsProjectItemType.folder) {
+    if (projectItem.subitems) {
+      let subitems = projectItem.subitems.map((subitem: IStsProjectItem): IStsProjectItem => {
+        return parseExecTreeProjectItem(subitem);
+      });
+
+      projectItem = {
+        ...projectItem,
+        subitems: subitems
+      };
+    }
+  } else {
+    if (projectItem.tokens) {
+      try {
+        let parsingResult = execTreeParser.parseModule(projectItem.ast);
+        projectItem = {
+          ...projectItem,
+          execTree: parsingResult.result,
         };
       } catch (error) {
         console.log(error);

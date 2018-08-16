@@ -1,5 +1,5 @@
 import { ISymbolPosition } from "../shared/ISymbolPosition";
-import { IAstNodeMention, IAstNode, IAstNodeTemplate, IAstNodeAddText, IAstNodeString, IAstNodeArray, IAstNodeIdentifier, IAstNodeVariable, IAstNodeProgram, IAstNodeCall, IAstNodeImport, IAstNodeModule } from "../shared/IAstNode";
+import { IAstNodeMention, IAstNode, IAstNodeTemplate, IAstNodeAddText, IAstNodeString, IAstNodeArray, IAstNodeIdentifier, IAstNodeVariable, IAstNodeCall, IAstNodeImport, IAstNodeModule } from "../shared/IAstNode";
 import { AstNodeTypes } from "../shared/AstNodeTypes";
 import { IParsingError } from "../shared/IParsingError";
 
@@ -36,15 +36,6 @@ export const astFactory = {
       name: name,
       path: path,
       indent: indent,
-      start: start,
-      end: end,
-    }
-  },
-
-  createProgram: (body: IAstNode[], start?: ISymbolPosition, end?: ISymbolPosition): IAstNodeProgram => {
-    return {
-      type: AstNodeTypes.program,
-      body: body,
       start: start,
       end: end,
     }

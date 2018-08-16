@@ -11,8 +11,6 @@ export enum OperationType {
   Copy = 'Copy',
   // *-
   Delete = 'Delete',
-  // = 
-  Set = 'Set',
 
   // ^x
   Power = 'Power',
@@ -25,6 +23,13 @@ export enum OperationType {
   Call = 'Call',
   // array index // means item[asd]
   Index = 'Index',
+
+  // declare
+  Declare = 'Declare',
+  // = 
+  Set = 'Set',
+  // import
+  Import = 'Import',
 
   // *=
   Return = 'Return',

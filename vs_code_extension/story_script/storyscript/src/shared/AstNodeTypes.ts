@@ -2,7 +2,6 @@ export enum AstNodeTypes {
   string = "string",
   array = "array",
   identifier = "identifier",
-  program = "program",
   import = "import",
   mention = "mention",
   variable = "variable",

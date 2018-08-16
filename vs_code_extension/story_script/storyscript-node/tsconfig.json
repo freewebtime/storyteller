@@ -9,8 +9,8 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "lib": [ "es2016" ],
-    "sourceRoot": "./src",
-    "outDir": "./out"
+    "outDir": "./out",
+    "rootDir": "./src"
   },
   "exclude": [
     "node_modules",

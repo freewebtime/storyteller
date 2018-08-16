@@ -1,4 +1,4 @@
-import { IAstNode, IAstNodeString, IAstNodeModule, IAstNodeImport, IAstNodeVariable, IAstNodeArray, IAstNodeProgram, IAstNodeTemplate, IAstNodeMention, IAstNodeAddText, IAstNodeIdentifier, IAstNodeCall } from "../shared/IAstNode";
+import { IAstNode, IAstNodeString, IAstNodeModule, IAstNodeImport, IAstNodeVariable, IAstNodeArray, IAstNodeTemplate, IAstNodeMention, IAstNodeAddText, IAstNodeIdentifier, IAstNodeCall } from "../shared/IAstNode";
 import { jsCompilerTemplates } from "./jsCompilerTemplates";
 import { AstNodeTypes } from "../shared/AstNodeTypes";
 
@@ -94,23 +94,6 @@ export const jsCompiler = {
         });
 
         return result + '`';
-      }
-    }
-
-    if (ast.type === AstNodeTypes.program) {
-      let astProgram = ast as IAstNodeProgram;
-      if (astProgram) {
-
-        let result = '';
-
-        astProgram.body.forEach((subitem: IAstNode) => {
-          let itemResult = jsCompiler.compileAstNode(subitem, parent);
-          if (itemResult) {
-            result += itemResult;
-          }
-        });
-
-        return result;
       }
     }
 

@@ -12,10 +12,6 @@ export interface IAstNodeModule extends IAstNode {
   body: IAstNodeArray;
 }
 
-export interface IAstNodeProgram extends IAstNode {
-  body: IAstNode[];
-}
-
 export interface IAstNodeImport extends IAstNode {
   indent: number;
   name: IAstNodeString;

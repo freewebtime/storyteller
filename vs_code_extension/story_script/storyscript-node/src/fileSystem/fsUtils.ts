@@ -97,6 +97,7 @@ const mkDirByPathSync = (targetDir: string, { isRelativeToScript = false } = {})
   const sep = path.sep;
   const initDir = path.isAbsolute(targetDir) ? sep : '';
   const baseDir = isRelativeToScript ? __dirname : '.';
+  targetDir = path.normalize(targetDir);
 
   return targetDir.split(sep).reduce((parentDir, childDir) => {
     const curDir = path.resolve(baseDir, parentDir, childDir);

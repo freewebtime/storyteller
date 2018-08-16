@@ -1,5 +1,5 @@
 import { ICodeToken } from "../shared/ICodeToken";
-import { IAstNode, IAstNodeString, IAstNodeIdentifier, IAstNodeImport, IAstNodeModule, IAstNodeMention, IAstNodeTemplate, IAstNodeProgram, IAstNodeAddText, IAstNodeCall, IAstNodeArray } from "../shared/IAstNode";
+import { IAstNode, IAstNodeString, IAstNodeIdentifier, IAstNodeImport, IAstNodeModule, IAstNodeMention, IAstNodeTemplate, IAstNodeAddText, IAstNodeCall, IAstNodeArray } from "../shared/IAstNode";
 import { CodeTokenType } from "../shared/CodeTokenType";
 import { ISymbolPosition } from "../shared/ISymbolPosition";
 import { IHash } from "../shared/IHash";
