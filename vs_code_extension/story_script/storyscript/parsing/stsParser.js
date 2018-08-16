@@ -336,6 +336,10 @@ exports.stsParser = {
         if (wordResult) {
             return wordResult;
         }
+        var stringResult = exports.stsParser.parseQuotedString(state, false);
+        if (stringResult) {
+            return stringResult;
+        }
         var callResult = exports.stsParser.parseCall(state);
         if (callResult) {
             return callResult;
@@ -390,6 +394,39 @@ exports.stsParser = {
             return undefined;
         }
         let result = astFactory_1.astFactory.createString(token.value, token.start, token.end);
+        state = exports.stsParser.skipTokens(state, 1);
+        return {
+            state,
+            result
+        };
+    },
+    parseQuotedString: (state, multiline) => {
+        if (exports.stsParser.isEndOfFile(state)) {
+            return undefined;
+        }
+        if (!exports.stsParser.getTokenOfType(state, [CodeTokenType_1.CodeTokenType.Quote])) {
+            return undefined;
+        }
+        state = exports.stsParser.skipTokens(state, 1);
+        // read as string until end of line or quote
+        let breakTokens = [CodeTokenType_1.CodeTokenType.Quote];
+        if (!multiline) {
+            breakTokens = [
+                ...breakTokens,
+                CodeTokenType_1.CodeTokenType.Endline
+            ];
+        }
+        let result;
+        let textResult = exports.stsParser.readString(state, breakTokens);
+        if (textResult) {
+            state = textResult.state;
+            result = textResult.result;
+        }
+        // it's not a quoted string if there is no end quote
+        if (!exports.stsParser.getTokenOfType(state, [CodeTokenType_1.CodeTokenType.Quote])) {
+            return undefined;
+        }
+        // skip end quote
         state = exports.stsParser.skipTokens(state, 1);
         return {
             state,
