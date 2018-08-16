@@ -29,19 +29,17 @@ exports.setValue = (context, fieldName, value) => {
     context = Object.assign({}, context, { [fieldName]: value });
     return context;
 };
-exports.objectToString = (object) => {
+exports.objectToString = (object, separator) => {
     if (!object) {
         return '';
     }
+    separator = separator || '';
     if (object.text instanceof Array) {
-        let result = '';
-        object.text.forEach(textItem => {
-            result += textItem;
-        });
+        let result = object.text.join(separator);
         return result;
     }
     if (object instanceof Array) {
-        let result = object.join('');
+        let result = object.join(separator);
         return result;
     }
     return object.toString();

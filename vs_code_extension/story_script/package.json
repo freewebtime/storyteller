@@ -16,7 +16,9 @@
     "watch": "node tasks/compile.js -w",
     
     "compile:storyscript": "tsc -p storyscript/tsconfig.json",
+    "compile:storyscript.all": "tsc -p storyscript/tsconfig.json && tsc -p storyscript/tsconfig.node.json && tsc -p storyscript/tsconfig.server.json && tsc -p storyscript/tsconfig.client.json",
     "compile:storyscript-node": "tsc -p storyscript-node/tsconfig.json",
+    "compile:storyscript-node.all": "tsc -p storyscript-node/tsconfig.json && tsc -p storyscript-node/tsconfig.server.json && tsc -p storyscript-node/tsconfig.client.json",
 
     "compile:storyscript.node": "tsc -p storyscript/tsconfig.node.json",
     "compile:storyscript.server": "tsc -p storyscript/tsconfig.server.json",

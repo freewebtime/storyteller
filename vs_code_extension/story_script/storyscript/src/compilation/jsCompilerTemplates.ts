@@ -15,7 +15,7 @@ const addTextTemplate = (contextName: string, textValue: string): string => {
 }
 
 const mentionTemplate = (identifier: string): string => {
-  return `\${__environment.objectToString(${identifier})}`;
+  return `\${__environment.objectToString(${identifier}, '\\n')}`;
 }
 
 const moduleFooter = "module.exports = {...context}";

@@ -13,7 +13,7 @@ const addTextTemplate = (contextName, textValue) => {
     return result;
 };
 const mentionTemplate = (identifier) => {
-    return `\${__environment.objectToString(${identifier})}`;
+    return `\${__environment.objectToString(${identifier}, '\\n')}`;
 };
 const moduleFooter = "module.exports = {...context}";
 exports.jsCompilerTemplates = {

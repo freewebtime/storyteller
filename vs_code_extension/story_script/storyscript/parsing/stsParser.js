@@ -224,6 +224,13 @@ exports.stsParser = {
             items = exports.stsParser.addItemToArray(items || [], item);
             end = item.end || end;
             if (exports.stsParser.getTokenOfType(state, [CodeTokenType_1.CodeTokenType.Endline])) {
+                // // add endline item
+                // let endlineStart = stsParser.getCursorPosition(state);
+                // state = stsParser.skipTokens(state, 1);
+                // let endlineEnd = stsParser.getCursorPosition(state);
+                // end = endlineEnd;
+                // let endlineItem = astFactory.createString('\n', endlineStart, endlineEnd);
+                // items = stsParser.addItemToArray(items || [], endlineItem);
                 break;
             }
         }

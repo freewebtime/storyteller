@@ -63,9 +63,35 @@
       ]
     },
     {
+      "label": "compile:storyscript.all",
+      "type": "npm",
+      "script": "compile:storyscript.all",
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "reveal": "silent"
+      },
+      "problemMatcher": [
+        "$tsc"
+      ]
+    },
+    {
       "label": "compile:storyscript-node",
       "type": "npm",
       "script": "compile:storyscript-node",
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "reveal": "silent"
+      },
+      "problemMatcher": [
+        "$tsc"
+      ]
+    },
+    {
+      "label": "compile:storyscript-node.all",
+      "type": "npm",
+      "script": "compile:storyscript-node.all",
       "group": "build",
       "presentation": {
         "panel": "shared",

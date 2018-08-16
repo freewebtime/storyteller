@@ -43,22 +43,20 @@ export const setValue = (context: any, fieldName: string, value: any) => {
   return context;
 }
 
-export const objectToString = (object: any) => {
+export const objectToString = (object: any, separator?: string) => {
   if (!object) {
     return '';
   }
 
-  if (object.text instanceof Array) {
-    let result = '';
-    object.text.forEach(textItem => {
-      result += textItem;
-    });
+  separator = separator || '';
 
+  if (object.text instanceof Array) {
+    let result = object.text.join(separator);
     return result;
   }
 
   if (object instanceof Array) {
-    let result = object.join('');
+    let result = object.join(separator);
     return result;
   }
 
